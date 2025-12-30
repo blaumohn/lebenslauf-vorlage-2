@@ -1,0 +1,9 @@
+/vendor/
+/.env
+/.env.local
+/.env.local.php
+/.env.*.local
+/.phpunit.result.cache
+/.venv/
+/var/*
+!/var/**/.gitkeep

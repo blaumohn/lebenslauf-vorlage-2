@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+$argv = $_SERVER['argv'] ?? [];
+$flags = array_slice($argv, 1);
+
+if (in_array('--mail-stdout', $flags, true)) {
+    putenv('MAIL_STDOUT=1');
+}
+
+$host = '127.0.0.1:8080';
+$docroot = 'public';
+
+passthru(sprintf('php -S %s -t %s', escapeshellarg($host), escapeshellarg($docroot)));

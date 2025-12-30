@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+  <h1>Willkommen</h1>
+  <p class="muted">Kurzprofil und Kontakt in reduzierter Form.</p>
+
+  <div class="section">
+    <p><a href="/cv">Zum Lebenslauf</a></p>
+    <p><a href="/contact">Kontakt aufnehmen</a></p>
+    {% if has_public_cv %}
+      <p class="muted">Der oeffentliche Lebenslauf ist verfuegbar.</p>
+    {% else %}
+      <p class="muted">Noch kein oeffentlicher Lebenslauf vorhanden.</p>
+    {% endif %}
+  </div>
+{% endblock %}

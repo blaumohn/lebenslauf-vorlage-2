@@ -1,0 +1,86 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Captcha\CaptchaService;
+use App\Storage\FileStorage;
+use PHPUnit\Framework\TestCase;
+
+final class CaptchaServiceTest extends TestCase
+{
+    private string $tempDir;
+
+    protected function setUp(): void
+    {
+        $this->tempDir = sys_get_temp_dir() . '/captcha-test-' . bin2hex(random_bytes(6));
+        mkdir($this->tempDir, 0775, true);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->removeDir($this->tempDir);
+    }
+
+    public function testChallengeLifecycle(): void
+    {
+        $storage = new FileStorage();
+        $service = new CaptchaService($storage, $this->tempDir, 60);
+
+        $challenge = $service->createChallenge('iphash');
+        $this->assertNotEmpty($challenge['captcha_id']);
+
+        $loaded = $service->getChallenge($challenge['captcha_id']);
+        $this->assertNotNull($loaded);
+
+        $ok = $service->verify($challenge['captcha_id'], (string) $challenge['solution_text'], 'iphash');
+        $this->assertTrue($ok);
+
+        $again = $service->getChallenge($challenge['captcha_id']);
+        $this->assertNull($again);
+    }
+
+    public function testRenderPng(): void
+    {
+        if (!extension_loaded('gd') || !function_exists('imagecreatetruecolor')) {
+            $this->markTestSkipped('GD extension is required for CAPTCHA rendering.');
+        }
+
+        $storage = new FileStorage();
+        $service = new CaptchaService($storage, $this->tempDir, 60);
+
+        $png = $service->renderPng('ABC123');
+        $this->assertNotEmpty($png);
+
+        $size = getimagesizefromstring($png);
+        $this->assertIsArray($size);
+        $this->assertGreaterThan(0, $size[0]);
+        $this->assertGreaterThan(0, $size[1]);
+    }
+
+    private function removeDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $items = scandir($dir);
+        if ($items === false) {
+            return;
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->removeDir($path);
+            } else {
+                unlink($path);
+            }
+        }
+
+        rmdir($dir);
+    }
+}

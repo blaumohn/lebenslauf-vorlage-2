@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+  <h1>{{ cv.kopfdaten.name }}</h1>
+  <p class="muted">{{ cv.kopfdaten.bereich }} - {{ cv.kopfdaten.ort }}</p>
+  <p>{{ cv.kopfdaten.email }} - {{ cv.kopfdaten.telefon }}</p>
+
+  <div class="section">
+    <h2>Motivation</h2>
+    <p>{{ cv.motivation }}</p>
+  </div>
+
+  <div class="section">
+    <h2>Faehigkeiten</h2>
+    <ul class="list">
+      {% for skill in cv.faehigkeiten %}
+        <li>{{ skill.stufe }}: {{ skill.technologien|join(', ') }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Berufserfahrung</h2>
+    {% for job in cv.berufserfahrung %}
+      <h3>{{ job.unternehmen }} - {{ job.titel }}</h3>
+      <div class="muted">{{ job.zeitraum }} - {{ job.ort }}</div>
+      <ul class="list">
+        {% for punkt in job.punkte %}
+          <li>{{ punkt.text }}</li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  </div>
+
+  <div class="section">
+    <h2>Ausbildung</h2>
+    <ul class="list">
+      {% for edu in cv.ausbildung %}
+        <li>{{ edu.uni }} - {{ edu.grad }} ({{ edu.beschreibung }})</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
