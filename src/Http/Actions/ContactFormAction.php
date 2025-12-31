@@ -41,6 +41,11 @@ final class ContactFormAction
             'site_name' => $siteName,
             'captcha_id' => $challenge['captcha_id'],
             'error' => null,
+            'form' => [
+                'name' => '',
+                'email' => '',
+                'message' => '',
+            ],
         ]);
 
         return ResponseHelper::html($response, $html);

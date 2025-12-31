@@ -9,3 +9,8 @@ $autoload = __DIR__ . '/../vendor/autoload.php';
 if (is_file($autoload)) {
     require_once $autoload;
 }
+
+$featureTestCase = __DIR__ . '/Feature/FeatureTestCase.php';
+if (is_file($featureTestCase)) {
+    require_once $featureTestCase;
+}

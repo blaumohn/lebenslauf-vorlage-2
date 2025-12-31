@@ -53,6 +53,11 @@ final class ContactSubmitAction
                 'site_name' => $siteName,
                 'captcha_id' => $challenge['captcha_id'],
                 'error' => 'Bitte Eingaben und CAPTCHA pruefen.',
+                'form' => [
+                    'name' => $name,
+                    'email' => $email,
+                    'message' => $message,
+                ],
             ]);
             return ResponseHelper::html($response, $html, 403);
         }
@@ -66,6 +71,11 @@ final class ContactSubmitAction
                 'site_name' => $siteName,
                 'captcha_id' => $challenge['captcha_id'],
                 'error' => 'Versand fehlgeschlagen. Bitte spaeter erneut versuchen.',
+                'form' => [
+                    'name' => $name,
+                    'email' => $email,
+                    'message' => $message,
+                ],
             ]);
             return ResponseHelper::html($response, $html, 500);
         }

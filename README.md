@@ -24,6 +24,7 @@ composer run dev -- --mail-stdout
   - `var/tmp/` kurzlebig (CAPTCHA + Rate-Limits)
   - `var/cache/` ableitbar (gerendertes HTML)
   - `var/state/` wichtig (Token-Whitelist)
+- Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG`).
 
 ## Admin-Workflows (CLI)
 

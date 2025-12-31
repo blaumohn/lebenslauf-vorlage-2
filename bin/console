@@ -8,6 +8,7 @@ use App\Cv\CvRenderer;
 use App\Cv\CvStorage;
 use App\Cv\RedactionService;
 use App\Cv\CvValidator;
+use App\Cv\LabelService;
 use App\Security\TokenService;
 use App\Storage\FileStorage;
 use App\Templating\TwigFactory;
@@ -23,6 +24,9 @@ $renderer = new CvRenderer($twig);
 $normalizer = new CvDataNormalizer();
 $redactor = new RedactionService();
 $validator = new CvValidator($rootPath . '/schemas/lebenslauf.schema.json');
+ $lang = (string) $config->get('APP_LANG', 'de');
+ $labelsPath = (string) $config->get('LABELS_PATH', $rootPath . '/labels/etiketten.json');
+ $labels = LabelService::fromJsonFile($labelsPath, $lang)->all();
 $tokenService = new TokenService($storage, $rootPath . '/var/state/tokens');
 $captchaService = new CaptchaService(
     $storage,
@@ -65,13 +69,13 @@ if ($command === 'cv:upload') {
     }
 
     $normalized = $normalizer->normalize($data);
-    $privateHtml = $renderer->renderPrivate($normalized);
+    $privateHtml = $renderer->renderPrivate($normalized, $labels);
     $cvStorage->savePrivateHtml($profile, $privateHtml);
 
     $defaultProfile = (string) $config->get('DEFAULT_CV_PROFILE', 'DEFAULT');
     if (strcasecmp($profile, $defaultProfile) === 0) {
         $publicData = $redactor->redact($normalized);
-        $publicHtml = $renderer->renderPublic($publicData);
+        $publicHtml = $renderer->renderPublic($publicData, $labels);
         $cvStorage->savePublicHtml($publicHtml);
         fwrite(STDOUT, "Public CV rendered for profile {$profile}.\n");
     }

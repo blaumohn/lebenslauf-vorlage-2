@@ -11,17 +11,17 @@
   <form method="post" action="/contact">
     <label>
       Name
-      <input type="text" name="name" required>
+      <input type="text" name="name" value="{{ form.name|default('') }}" required>
     </label>
     <br><br>
     <label>
       E-Mail
-      <input type="email" name="email" required>
+      <input type="email" name="email" value="{{ form.email|default('') }}" required>
     </label>
     <br><br>
     <label>
       Nachricht
-      <textarea name="message" rows="6" required></textarea>
+      <textarea name="message" rows="6" required>{{ form.message|default('') }}</textarea>
     </label>
     <br><br>
     <label>

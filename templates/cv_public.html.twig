@@ -2,27 +2,28 @@
 
 {% block content %}
   <div class="cv-root">
-    <main class="cv-main">
-      <aside class="cv-side">
+    <main class="layout-main">
+      <aside class="layout-side">
         <div>
-          <h1 class="cv-name">{{ cv.kopfdaten.name.verkurzte|default(cv.kopfdaten.name) }}</h1>
-          <p class="cv-title">{{ cv.kopfdaten.bereich }}</p>
+          <h1 class="text-title-xl">{{ cv.kopfdaten.name.verkurzte|default(cv.kopfdaten.name) }}</h1>
+          <p class="text-title text-muted">{{ cv.kopfdaten.bereich }}</p>
         </div>
 
-        <section class="cv-section">
-          <h2 class="cv-section-title">Faehigkeiten</h2>
+        <section class="section">
+          <div class="section-line"></div>
+          <h2 class="section-title">{{ etiketten.faehigkeiten._|default('Fähigkeiten') }}</h2>
           <div>
             {% for gruppe in cv.faehigkeiten %}
-              <div class="cv-skill-group">
-                <p class="cv-skill-title">{{ gruppe.stufe }}</p>
-                <div class="cv-skill-scale">
+              <div class="skill-group">
+                <p class="text-small text-strong text-muted">{{ gruppe.stufe }}</p>
+                <div class="dot-scale">
                   {% for i in 1..5 %}
-                    <span class="cv-dot{% if i <= gruppe.wert %} cv-dot--on{% endif %}"></span>
+                    <span class="dot{% if i <= gruppe.wert %} dot--on{% endif %}"></span>
                   {% endfor %}
                 </div>
-                <div class="cv-tags">
+                <div class="tag-list">
                   {% for tag in gruppe.technologien %}
-                    <span class="cv-tag">{{ tag }}</span>
+                    <span class="tag">{{ tag }}</span>
                   {% endfor %}
                 </div>
               </div>
@@ -30,66 +31,69 @@
           </div>
         </section>
 
-        <section class="cv-section">
-          <h2 class="cv-section-title">Sprachen</h2>
-          <ul class="cv-text">
+        <section class="section">
+          <div class="section-line"></div>
+          <h2 class="section-title">{{ etiketten.sprachen._|default('Sprachen') }}</h2>
+          <ul class="text-body">
             {% for sprache in cv.sprachen %}
-              <li>{{ sprache.sprache }} - <span class="cv-entry-date">{{ sprache.stufe }}</span></li>
+              <li>{{ sprache.sprache }} - <span class="text-meta">{{ sprache.stufe }}</span></li>
             {% endfor %}
           </ul>
         </section>
 
-        <section class="cv-section">
-          <h2 class="cv-section-title">Interessen</h2>
-          <p class="cv-text">{{ cv.interessen|join(', ') }}</p>
+        <section class="section">
+          <div class="section-line"></div>
+          <h2 class="section-title">{{ etiketten.interessen._|default('Interessen') }}</h2>
+          <p class="text-body">{{ cv.interessen|join(', ') }}</p>
         </section>
       </aside>
 
-      <section class="cv-body">
-        <div class="cv-contact">
+      <section class="layout-body">
+        <div class="layout-contact text-small text-muted text-strong">
           <div>Kontaktformular</div>
           <div><a href="/contact">/contact</a></div>
         </div>
 
-        <section class="cv-section">
-          <h2 class="cv-section-title">Motivation</h2>
-          <p class="cv-text">{{ cv.motivation }}</p>
+        <section class="section">
+          <h2 class="section-title">{{ etiketten.motivation._|default('Motivation') }}</h2>
+          <p class="text-body">{{ cv.motivation }}</p>
         </section>
 
-        <section class="cv-section">
-          <h2 class="cv-section-title">Berufserfahrung</h2>
+        <section class="section">
+          <div class="section-line"></div>
+          <h2 class="section-title">{{ etiketten.berufserfahrung._|default('Berufserfahrung') }}</h2>
           {% for eintrag in cv.berufserfahrung %}
-            <div class="cv-entry">
+            <div class="entry">
               {% if eintrag.stelleGruppe is not defined or eintrag.stelleGruppe.letzteStelle %}
-                <div class="cv-entry-title">{{ eintrag.unternehmen }}</div>
+                <div class="text-small text-strong">{{ eintrag.unternehmen }}</div>
               {% endif %}
 
-              <div class="{% if eintrag.stelleGruppe is defined %}cv-entry-group{% endif %}">
-                <div class="cv-entry-header">
-                  <div class="cv-entry-subtitle">
+              <div class="{% if eintrag.stelleGruppe is defined %}entry-group{% endif %}">
+                <div class="entry-header">
+                  <div class="text-body text-strong">
                     {% if eintrag.projekt is defined %}
-                      <span class="cv-entry-title">{{ eintrag.projekt }}</span> |
+                      <span class="text-strong">{{ eintrag.projekt }}</span> |
                     {% endif %}
                     {{ eintrag.titel }}
                   </div>
-                  <span class="cv-entry-date">{{ eintrag.zeitraum }}</span>
+                  <span class="text-meta">{{ eintrag.zeitraum }}</span>
                 </div>
 
                 {% if eintrag.ort is defined %}
-                  <div class="cv-entry-ort">{{ eintrag.ort }}</div>
+                  <div class="entry-ort text-meta">{{ eintrag.ort }}</div>
                 {% endif %}
 
                 <div>
                   {% for punkt in eintrag.punkte %}
                     {% if punkt.tags|length > 0 %}
-                      <div class="cv-tags">
+                      <div class="tag-list">
                         {% for tag in punkt.tags %}
-                          <span class="cv-tag">{{ tag }}</span>
+                          <span class="tag">{{ tag }}</span>
                         {% endfor %}
                       </div>
                     {% endif %}
-                    <ul class="cv-points">
-                      <li class="cv-text">{{ punkt.text }}</li>
+                    <ul class="list">
+                      <li class="text-body">{{ punkt.text }}</li>
                     </ul>
                   {% endfor %}
                 </div>
@@ -99,26 +103,27 @@
         </section>
 
         {% if cv.opensource is defined %}
-          <section class="cv-section">
-            <h2 class="cv-section-title">Open Source</h2>
+          <section class="section">
+            <div class="section-line"></div>
+            <h2 class="section-title">{{ etiketten.opensource._|default('Opensource') }}</h2>
             {% for eintrag in cv.opensource %}
-              <div class="cv-entry">
-                <div class="cv-entry-title">{{ eintrag.projekt }}</div>
-                <div class="cv-entry-header">
-                  <div class="cv-entry-subtitle">{{ eintrag.titel }}</div>
-                  <span class="cv-entry-date">{{ eintrag.zeitraum }}</span>
+              <div class="entry">
+                <div class="text-small text-strong">{{ eintrag.projekt }}</div>
+                <div class="entry-header">
+                  <div class="text-body text-strong">{{ eintrag.titel }}</div>
+                  <span class="text-meta">{{ eintrag.zeitraum }}</span>
                 </div>
                 <div>
                   {% for punkt in eintrag.punkte %}
                     {% if punkt.tags|length > 0 %}
-                      <div class="cv-tags">
+                      <div class="tag-list">
                         {% for tag in punkt.tags %}
-                          <span class="cv-tag">{{ tag }}</span>
+                          <span class="tag">{{ tag }}</span>
                         {% endfor %}
                       </div>
                     {% endif %}
-                    <ul class="cv-points">
-                      <li class="cv-text">{{ punkt.text }}</li>
+                    <ul class="list">
+                      <li class="text-body">{{ punkt.text }}</li>
                     </ul>
                   {% endfor %}
                 </div>
@@ -128,24 +133,26 @@
         {% endif %}
 
         {% if cv.vortraege is defined %}
-          <section class="cv-section">
-            <h2 class="cv-section-title">Vortraege</h2>
+          <section class="section">
+            <div class="section-line"></div>
+            <h2 class="section-title">{{ etiketten.vortraege._|default('Vorträge') }}</h2>
             {% for vortrag in cv.vortraege %}
-              <div class="cv-entry-header">
-                <div class="cv-entry-subtitle">
-                  <span class="cv-entry-title">{{ vortrag.titel }}</span> | {{ vortrag.beschreibung }}
+              <div class="entry-header">
+                <div class="text-body text-strong">
+                  <span class="text-strong">{{ vortrag.titel }}</span> | {{ vortrag.beschreibung }}
                 </div>
-                <span class="cv-entry-date">{{ vortrag.datum }}</span>
+                <span class="text-meta">{{ vortrag.datum }}</span>
               </div>
             {% endfor %}
           </section>
         {% endif %}
 
-        <section class="cv-section">
-          <h2 class="cv-section-title">Ausbildung</h2>
+        <section class="section">
+          <div class="section-line"></div>
+          <h2 class="section-title">{{ etiketten.ausbildung._|default('Ausbildung') }}</h2>
           {% for eintrag in cv.ausbildung %}
-            <ul class="cv-points">
-              <li class="cv-text">{{ eintrag.beschreibung }}, {{ eintrag.grad }}, {{ eintrag.uni }}</li>
+            <ul class="list">
+              <li class="text-body">{{ eintrag.beschreibung }}, {{ eintrag.grad }}, {{ eintrag.uni }}</li>
             </ul>
           {% endfor %}
         </section>
@@ -153,7 +160,7 @@
     </main>
 
     {% if cv.fussbereich is defined %}
-      <footer class="cv-footer">
+      <footer class="layout-footer">
         <span>{{ "now"|date("d.m.Y") }} {{ cv.kopfdaten.name.verkurzte|default(cv.kopfdaten.name) }} | {{ cv.fussbereich.text }}</span>
         {% if cv.fussbereich.link is defined %}
           | <a href="{{ cv.fussbereich.link }}" target="_blank" rel="noopener noreferrer">{{ cv.fussbereich.link }}</a>
