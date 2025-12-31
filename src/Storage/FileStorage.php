@@ -37,8 +37,12 @@ final class FileStorage
 
         $tmpPath = $path . '.tmp';
         $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        file_put_contents($tmpPath, $json);
-        rename($tmpPath, $path);
+        if (file_put_contents($tmpPath, $json) === false) {
+            throw new \App\Storage\StorageException("Failed to write temp file: {$tmpPath}");
+        }
+        if (!rename($tmpPath, $path)) {
+            throw new \App\Storage\StorageException("Failed to move temp file into place: {$path}");
+        }
     }
 
     public function writeText(string $path, string $content): void
@@ -47,8 +51,12 @@ final class FileStorage
         $this->ensureDir($dir);
 
         $tmpPath = $path . '.tmp';
-        file_put_contents($tmpPath, $content);
-        rename($tmpPath, $path);
+        if (file_put_contents($tmpPath, $content) === false) {
+            throw new \App\Storage\StorageException("Failed to write temp file: {$tmpPath}");
+        }
+        if (!rename($tmpPath, $path)) {
+            throw new \App\Storage\StorageException("Failed to move temp file into place: {$path}");
+        }
     }
 
     public function readText(string $path): ?string

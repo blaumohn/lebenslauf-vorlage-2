@@ -41,7 +41,10 @@ final class Config
 
     public function getInt(string $key, int $default): int
     {
-        $value = $this->get($key, $default);
+        $value = $this->get($key, null);
+        if ($value === null || $value === '') {
+            return $default;
+        }
         return (int) $value;
     }
 

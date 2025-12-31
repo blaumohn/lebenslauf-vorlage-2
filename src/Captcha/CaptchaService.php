@@ -51,6 +51,7 @@ final class CaptchaService
         return $data;
     }
 
+
     public function verify(string $id, string $answer, string $ipHash): bool
     {
         $path = $this->pathFor($id);
@@ -131,8 +132,6 @@ final class CaptchaService
         ob_start();
         imagepng($image);
         $png = ob_get_clean();
-        imagedestroy($image);
-
         return $png === false ? '' : $png;
     }
 

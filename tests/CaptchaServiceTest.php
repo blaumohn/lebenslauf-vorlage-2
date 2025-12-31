@@ -50,6 +50,7 @@ final class CaptchaServiceTest extends TestCase
 
         $png = $service->renderPng('ABC123');
         $this->assertNotEmpty($png);
+        $this->assertSame("\x89PNG\r\n\x1a\n", substr($png, 0, 8));
 
         $size = getimagesizefromstring($png);
         $this->assertIsArray($size);
