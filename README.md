@@ -34,6 +34,7 @@ composer run cv:upload -- <PROFILE> <JSON_PATH>
 ```
 
 Erzeugt `var/cache/html/cv-private-<profile>.html`. Wenn `<PROFILE>` dem `DEFAULT_CV_PROFILE` entspricht, wird zusaetzlich `cv-public.html` erzeugt.
+Beim Upload wird gegen `schemas/lebenslauf.schema.json` validiert.
 
 ### Tokens rotieren
 

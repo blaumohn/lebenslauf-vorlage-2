@@ -12,6 +12,13 @@ final class CvDataNormalizer
     private function normalizeValue(mixed $value): mixed
     {
         if (is_array($value)) {
+            if ($this->isNameObject($value)) {
+                return [
+                    'voll' => $this->normalizeValue($value['voll'] ?? ''),
+                    'verkurzte' => $this->normalizeValue($value['verkurzte'] ?? ''),
+                ];
+            }
+
             if ($this->isIntlString($value)) {
                 return $this->firstString($value);
             }
@@ -26,14 +33,14 @@ final class CvDataNormalizer
         return $value;
     }
 
+    private function isNameObject(array $value): bool
+    {
+        return array_key_exists('voll', $value) || array_key_exists('verkurzte', $value);
+    }
+
     private function isIntlString(array $value): bool
     {
-        foreach ($value as $item) {
-            if (is_string($item)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->isAssoc($value) && $this->looksLikeLanguageMap($value);
     }
 
     private function firstString(array $value): string
@@ -44,5 +51,23 @@ final class CvDataNormalizer
             }
         }
         return '';
+    }
+
+    private function isAssoc(array $value): bool
+    {
+        return array_keys($value) !== range(0, count($value) - 1);
+    }
+
+    private function looksLikeLanguageMap(array $value): bool
+    {
+        foreach ($value as $key => $item) {
+            if (!is_string($key) || !is_string($item)) {
+                return false;
+            }
+            if (!preg_match('/^[a-z]{2,5}(-[a-z]{2})?$/i', $key)) {
+                return false;
+            }
+        }
+        return count($value) > 0;
     }
 }

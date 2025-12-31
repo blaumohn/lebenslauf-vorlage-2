@@ -13,7 +13,17 @@ final class RedactionService
         $kopfdaten = $data['kopfdaten'];
         $name = $kopfdaten['name'] ?? '';
         if (is_array($name)) {
-            $kopfdaten['name'] = $name['kurz'] ?? $name['voll'] ?? '';
+            $verkurzte = $name['verkurzte'] ?? $name['voll'] ?? '';
+            $voll = $name['voll'] ?? $verkurzte;
+            $kopfdaten['name'] = [
+                'voll' => $voll,
+                'verkurzte' => $verkurzte,
+            ];
+        } else {
+            $kopfdaten['name'] = [
+                'voll' => (string) $name,
+                'verkurzte' => (string) $name,
+            ];
         }
 
         $kopfdaten['ort'] = 'Kontaktformular';

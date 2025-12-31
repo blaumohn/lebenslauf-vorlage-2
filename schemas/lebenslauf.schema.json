@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kopfdaten",
+    "motivation",
+    "faehigkeiten",
+    "berufserfahrung",
+    "sprachen",
+    "ausbildung",
+    "interessen"
+  ],
+  "properties": {
+    "kopfdaten": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "bereich", "ort", "email", "telefon"],
+      "properties": {
+        "name": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["voll", "verkurzte"],
+          "properties": {
+            "voll": { "type": "string" },
+            "verkurzte": { "type": "string" }
+          }
+        },
+        "bereich": { "$ref": "#/definitions/intlString" },
+        "ort": { "$ref": "#/definitions/intlString" },
+        "email": { "type": "string" },
+        "telefon": { "type": "string" },
+        "linkedin": { "type": "string" }
+      }
+    },
+    "motivation": { "$ref": "#/definitions/intlString" },
+    "faehigkeiten": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stufe", "wert", "technologien"],
+        "properties": {
+          "stufe": { "$ref": "#/definitions/intlString" },
+          "wert": { "type": "number" },
+          "technologien": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/intlString" }
+          }
+        }
+      }
+    },
+    "berufserfahrung": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/eintragBeruf" }
+    },
+    "opensource": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/eintragProjekt" }
+    },
+    "sprachen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sprache", "stufe"],
+        "properties": {
+          "sprache": { "$ref": "#/definitions/intlString" },
+          "stufe": { "$ref": "#/definitions/intlString" }
+        }
+      }
+    },
+    "ausbildung": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["uni", "grad", "beschreibung"],
+        "properties": {
+          "uni": { "$ref": "#/definitions/intlString" },
+          "grad": { "$ref": "#/definitions/intlString" },
+          "beschreibung": { "$ref": "#/definitions/intlString" }
+        }
+      }
+    },
+    "vortraege": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["titel", "beschreibung", "datum"],
+        "properties": {
+          "titel": { "type": "string" },
+          "beschreibung": { "$ref": "#/definitions/intlString" },
+          "datum": { "type": "string" }
+        }
+      }
+    },
+    "interessen": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/intlString" }
+    },
+    "fussbereich": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": { "$ref": "#/definitions/intlString" },
+        "link": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "intlString": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "string" }
+        }
+      ]
+    },
+    "eintragPunkt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tags", "text"],
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/intlString" }
+        },
+        "text": { "$ref": "#/definitions/intlString" }
+      }
+    },
+    "eintrag": {
+      "type": "object",
+      "required": ["titel", "zeitraum", "punkte"],
+      "properties": {
+        "titel": { "$ref": "#/definitions/intlString" },
+        "zeitraum": { "type": "string" },
+        "punkte": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/eintragPunkt" }
+        }
+      }
+    },
+    "eintragBeruf": {
+      "allOf": [
+        { "$ref": "#/definitions/eintrag" },
+        {
+          "type": "object",
+          "required": ["ort", "unternehmen"],
+          "properties": {
+            "ort": { "$ref": "#/definitions/intlString" },
+            "unternehmen": { "type": "string" },
+            "stelleGruppe": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "letzteStelle": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "eintragProjekt": {
+      "allOf": [
+        { "$ref": "#/definitions/eintrag" },
+        {
+          "type": "object",
+          "required": ["projekt"],
+          "properties": {
+            "projekt": { "type": "string" }
+          }
+        }
+      ]
+    }
+  }
+}
