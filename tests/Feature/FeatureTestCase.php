@@ -56,6 +56,7 @@ abstract class FeatureTestCase extends TestCase
         $content = [
             'APP_ENV=dev',
             'APP_LANG=de',
+            'APP_LANGS=de,en',
             'LABELS_PATH=labels/etiketten.json',
             'SITE_NAME=Test',
             'IP_SALT=test-salt',

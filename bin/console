@@ -21,12 +21,11 @@ $twig = TwigFactory::create($rootPath . '/templates');
 
 $cvStorage = new CvStorage($storage, $rootPath . '/var/cache/html');
 $renderer = new CvRenderer($twig);
-$normalizer = new CvDataNormalizer();
 $redactor = new RedactionService();
 $validator = new CvValidator($rootPath . '/schemas/lebenslauf.schema.json');
- $lang = (string) $config->get('APP_LANG', 'de');
- $labelsPath = (string) $config->get('LABELS_PATH', $rootPath . '/labels/etiketten.json');
- $labels = LabelService::fromJsonFile($labelsPath, $lang)->all();
+$langSetting = (string) $config->get('APP_LANGS', '');
+$defaultLang = (string) $config->get('APP_LANG', 'de');
+$labelsPath = (string) $config->get('LABELS_PATH', $rootPath . '/labels/etiketten.json');
 $tokenService = new TokenService($storage, $rootPath . '/var/state/tokens');
 $captchaService = new CaptchaService(
     $storage,
@@ -68,19 +67,32 @@ if ($command === 'cv:upload') {
         exit(1);
     }
 
-    $normalized = $normalizer->normalize($data);
-    $privateHtml = $renderer->renderPrivate($normalized, $labels);
-    $cvStorage->savePrivateHtml($profile, $privateHtml);
+    $langs = parseLangs($langSetting, $defaultLang);
+    $primaryLang = $langs[0] ?? $defaultLang;
+    foreach ($langs as $lang) {
+        $labels = LabelService::fromJsonFile($labelsPath, $lang)->all();
+        $normalizer = new CvDataNormalizer($lang);
+        $normalized = $normalizer->normalize($data);
+        $privateHtml = $renderer->renderPrivate($normalized, $labels);
+        $cvStorage->savePrivateHtmlForLang($profile, $privateHtml, $lang);
+        if ($lang === $primaryLang) {
+            $cvStorage->savePrivateHtml($profile, $privateHtml);
+        }
 
-    $defaultProfile = (string) $config->get('DEFAULT_CV_PROFILE', 'DEFAULT');
-    if (strcasecmp($profile, $defaultProfile) === 0) {
-        $publicData = $redactor->redact($normalized);
-        $publicHtml = $renderer->renderPublic($publicData, $labels);
-        $cvStorage->savePublicHtml($publicHtml);
-        fwrite(STDOUT, "Public CV rendered for profile {$profile}.\n");
+        $defaultProfile = (string) $config->get('DEFAULT_CV_PROFILE', 'DEFAULT');
+        if (strcasecmp($profile, $defaultProfile) === 0) {
+            $publicData = $redactor->redact($normalized);
+            $publicHtml = $renderer->renderPublic($publicData, $labels);
+            $cvStorage->savePublicHtmlForLang($publicHtml, $lang);
+            if ($lang === $primaryLang) {
+                $cvStorage->savePublicHtml($publicHtml);
+            }
+            fwrite(STDOUT, "Public CV rendered for profile {$profile} ({$lang}).\n");
+        }
+
+        fwrite(STDOUT, "Private CV rendered for profile {$profile} ({$lang}).\n");
     }
 
-    fwrite(STDOUT, "Private CV rendered for profile {$profile}.\n");
     exit(0);
 }
 
@@ -114,3 +126,27 @@ fwrite(STDERR, "  cv:upload <PROFILE> <JSON_PATH>\n");
 fwrite(STDERR, "  token:rotate <PROFILE> [COUNT]\n");
 fwrite(STDERR, "  captcha:cleanup\n");
 exit(1);
+
+function parseLangs(string $setting, string $fallback): array
+{
+    $setting = trim($setting);
+    if ($setting === '') {
+        $fallback = trim($fallback);
+        return $fallback === '' ? [] : [strtolower($fallback)];
+    }
+
+    $parts = preg_split('/\s*,\s*/', $setting);
+    if ($parts === false) {
+        return [];
+    }
+
+    $langs = [];
+    foreach ($parts as $part) {
+        $value = strtolower(trim($part));
+        if ($value !== '') {
+            $langs[] = $value;
+        }
+    }
+
+    return array_values(array_unique($langs));
+}

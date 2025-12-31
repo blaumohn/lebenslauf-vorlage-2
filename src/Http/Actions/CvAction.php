@@ -21,6 +21,9 @@ final class CvAction
         $siteName = (string) $this->context->config->get('SITE_NAME', 'Lebenslauf');
         $params = $request->getQueryParams();
         $token = isset($params['token']) ? (string) $params['token'] : '';
+        $lang = isset($params['lang']) ? (string) $params['lang'] : '';
+        $lang = $this->resolveLang($lang);
+        $fallbackLang = $this->defaultLang();
 
         if ($token !== '') {
             $profile = isset($params['profile']) ? (string) $params['profile'] : '';
@@ -37,7 +40,10 @@ final class CvAction
                 return ResponseHelper::html($response, $html, 403);
             }
 
-            $privateHtml = $this->context->cvStorage->getPrivateHtml($profile);
+            $privateHtml = $this->context->cvStorage->getPrivateHtmlForLang($profile, $lang);
+            if ($privateHtml === null && $lang !== $fallbackLang) {
+                $privateHtml = $this->context->cvStorage->getPrivateHtmlForLang($profile, $fallbackLang);
+            }
             if ($privateHtml === null) {
                 $html = $this->context->twig->render('error.html.twig', [
                     'title' => 'Nicht gefunden',
@@ -50,7 +56,10 @@ final class CvAction
             return ResponseHelper::html($response, $privateHtml);
         }
 
-        $publicHtml = $this->context->cvStorage->getPublicHtml();
+        $publicHtml = $this->context->cvStorage->getPublicHtmlForLang($lang);
+        if ($publicHtml === null && $lang !== $fallbackLang) {
+            $publicHtml = $this->context->cvStorage->getPublicHtmlForLang($fallbackLang);
+        }
         if ($publicHtml === null) {
             $html = $this->context->twig->render('error.html.twig', [
                 'title' => 'Nicht gefunden',
@@ -61,5 +70,54 @@ final class CvAction
         }
 
         return ResponseHelper::html($response, $publicHtml);
+    }
+
+    private function resolveLang(string $lang): string
+    {
+        $lang = strtolower(trim($lang));
+        if ($lang === '') {
+            return $this->defaultLang();
+        }
+
+        $supported = $this->supportedLangs();
+        if ($supported === []) {
+            return $lang;
+        }
+
+        return in_array($lang, $supported, true) ? $lang : $this->defaultLang();
+    }
+
+    private function defaultLang(): string
+    {
+        $supported = $this->supportedLangs();
+        if ($supported !== []) {
+            return $supported[0];
+        }
+
+        return (string) $this->context->config->get('APP_LANG', 'de');
+    }
+
+    private function supportedLangs(): array
+    {
+        $raw = (string) $this->context->config->get('APP_LANGS', '');
+        if ($raw === '') {
+            $fallback = (string) $this->context->config->get('APP_LANG', 'de');
+            return $fallback !== '' ? [strtolower($fallback)] : [];
+        }
+
+        $parts = preg_split('/\s*,\s*/', $raw);
+        if ($parts === false) {
+            return [];
+        }
+
+        $langs = [];
+        foreach ($parts as $part) {
+            $value = strtolower(trim($part));
+            if ($value !== '') {
+                $langs[] = $value;
+            }
+        }
+
+        return array_values(array_unique($langs));
     }
 }

@@ -24,7 +24,8 @@ composer run dev -- --mail-stdout
   - `var/tmp/` kurzlebig (CAPTCHA + Rate-Limits)
   - `var/cache/` ableitbar (gerendertes HTML)
   - `var/state/` wichtig (Token-Whitelist)
-- Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG`).
+- Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG` oder `APP_LANGS`).
+- Mehrsprachigkeit: `APP_LANGS=de,en` aktiviert pro Sprache statische HTML-Dateien.
 
 ## Admin-Workflows (CLI)
 
@@ -34,7 +35,8 @@ composer run dev -- --mail-stdout
 composer run cv:upload -- <PROFILE> <JSON_PATH>
 ```
 
-Erzeugt `var/cache/html/cv-private-<profile>.html`. Wenn `<PROFILE>` dem `DEFAULT_CV_PROFILE` entspricht, wird zusaetzlich `cv-public.html` erzeugt.
+Erzeugt `var/cache/html/cv-private-<profile>.<lang>.html` pro Sprache. Wenn `<PROFILE>` dem `DEFAULT_CV_PROFILE` entspricht, wird zusaetzlich `cv-public.<lang>.html` erzeugt.
+Die Default-Sprache (erstes Element aus `APP_LANGS`, sonst `APP_LANG`) schreibt zusaetzlich die Legacy-Dateien `cv-private-<profile>.html` und `cv-public.html`.
 Beim Upload wird gegen `schemas/lebenslauf.schema.json` validiert.
 
 ### Tokens rotieren

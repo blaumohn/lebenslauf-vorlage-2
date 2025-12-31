@@ -4,6 +4,13 @@ namespace App\Cv;
 
 final class CvDataNormalizer
 {
+    private string $lang;
+
+    public function __construct(string $lang = '')
+    {
+        $this->lang = strtolower(trim($lang));
+    }
+
     public function normalize(array $data): array
     {
         return $this->normalizeValue($data);
@@ -20,7 +27,7 @@ final class CvDataNormalizer
             }
 
             if ($this->isIntlString($value)) {
-                return $this->firstString($value);
+                return $this->pickLang($value);
             }
 
             $normalized = [];
@@ -43,14 +50,18 @@ final class CvDataNormalizer
         return $this->isAssoc($value) && $this->looksLikeLanguageMap($value);
     }
 
-    private function firstString(array $value): string
+    private function pickLang(array $value): string
     {
-        foreach ($value as $item) {
-            if (is_string($item)) {
-                return $item;
-            }
+        if ($this->lang !== '' && isset($value[$this->lang])) {
+            return (string) $value[$this->lang];
         }
-        return '';
+
+        if (isset($value['de'])) {
+            return (string) $value['de'];
+        }
+
+        $first = reset($value);
+        return is_string($first) ? $first : '';
     }
 
     private function isAssoc(array $value): bool
