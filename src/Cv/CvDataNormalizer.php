@@ -18,26 +18,36 @@ final class CvDataNormalizer
 
     private function normalizeValue(mixed $value): mixed
     {
-        if (is_array($value)) {
-            if ($this->isNameObject($value)) {
-                return [
-                    'voll' => $this->normalizeValue($value['voll'] ?? ''),
-                    'verkurzte' => $this->normalizeValue($value['verkurzte'] ?? ''),
-                ];
-            }
-
-            if ($this->isIntlString($value)) {
-                return $this->pickLang($value);
-            }
-
-            $normalized = [];
-            foreach ($value as $key => $item) {
-                $normalized[$key] = $this->normalizeValue($item);
-            }
-            return $normalized;
+        if (!is_array($value)) {
+            return $value;
         }
 
-        return $value;
+        return $this->normalizeArray($value);
+    }
+
+    private function normalizeArray(array $value): mixed
+    {
+        if ($this->isNameObject($value)) {
+            return $this->normalizeNameObject($value);
+        }
+
+        if ($this->isIntlString($value)) {
+            return $this->pickLang($value);
+        }
+
+        $normalized = [];
+        foreach ($value as $key => $item) {
+            $normalized[$key] = $this->normalizeValue($item);
+        }
+        return $normalized;
+    }
+
+    private function normalizeNameObject(array $value): array
+    {
+        return [
+            'voll' => $this->normalizeValue($value['voll'] ?? ''),
+            'verkurzte' => $this->normalizeValue($value['verkurzte'] ?? ''),
+        ];
     }
 
     private function isNameObject(array $value): bool

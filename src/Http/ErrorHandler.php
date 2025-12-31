@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Storage\StorageException;
+use App\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Psr7\Response;
@@ -24,7 +25,6 @@ final class ErrorHandler
         bool $logErrors,
         bool $logErrorDetails
     ): ResponseInterface {
-        $siteName = (string) $this->context->config->get('SITE_NAME', 'Lebenslauf');
         $message = 'Ein unerwarteter Fehler ist aufgetreten.';
 
         if ($exception instanceof StorageException) {
@@ -35,11 +35,11 @@ final class ErrorHandler
             $message .= ' ' . $exception->getMessage();
         }
 
+        $base = PageViewBuilder::base($this->context->config);
         $html = $this->context->twig->render('error.html.twig', [
             'title' => 'Serverfehler',
             'message' => $message,
-            'site_name' => $siteName,
-        ]);
+        ] + $base);
 
         return ResponseHelper::html(new Response(), $html, 500);
     }

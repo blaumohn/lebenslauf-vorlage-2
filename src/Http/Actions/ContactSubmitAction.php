@@ -4,6 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
+use App\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -18,7 +19,6 @@ final class ContactSubmitAction
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $siteName = (string) $this->context->config->get('SITE_NAME', 'Lebenslauf');
         $trustProxy = $this->context->config->getBool('TRUST_PROXY', false);
         $ip = $this->context->ipResolver->resolve($request, $trustProxy);
         $ipHash = hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'salt'));
@@ -27,64 +27,118 @@ final class ContactSubmitAction
         $maxPost = $this->context->config->getInt('CONTACT_MAX_POST', 3);
 
         if (!$this->context->rateLimiter->allow('contact_post_' . $ipHash, $maxPost, $window)) {
-            $html = $this->context->twig->render('error.html.twig', [
-                'title' => 'Zu viele Anfragen',
-                'message' => 'Bitte spaeter erneut versuchen.',
-                'site_name' => $siteName,
-            ]);
-            return ResponseHelper::html($response, $html, 429);
+            return $this->renderRateLimit($response);
         }
 
         $data = $request->getParsedBody();
-        $name = trim((string) ($data['name'] ?? ''));
-        $email = trim((string) ($data['email'] ?? ''));
-        $message = trim((string) ($data['message'] ?? ''));
-        $captchaId = trim((string) ($data['captcha_id'] ?? ''));
-        $captchaAnswer = trim((string) ($data['captcha_answer'] ?? ''));
+        $data = is_array($data) ? $data : [];
+        $form = $this->extractFormData($data);
 
-        $emailValid = filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-        $captchaOk = $captchaId !== '' && $captchaAnswer !== ''
-            && $this->context->captchaService->verify($captchaId, $captchaAnswer, $ipHash);
+        $emailValid = $this->isEmailValid($form['email']);
+        $captchaOk = $this->isCaptchaValid($form, $ipHash);
 
-        if ($name === '' || !$emailValid || $message === '' || !$captchaOk) {
-            $challenge = $this->context->captchaService->createChallenge($ipHash);
-            $html = $this->context->twig->render('contact.html.twig', [
-                'title' => 'Kontakt',
-                'site_name' => $siteName,
-                'captcha_id' => $challenge['captcha_id'],
-                'error' => 'Bitte Eingaben und CAPTCHA pruefen.',
-                'form' => [
-                    'name' => $name,
-                    'email' => $email,
-                    'message' => $message,
-                ],
-            ]);
-            return ResponseHelper::html($response, $html, 403);
+        if ($this->isFormInvalid($form, $emailValid, $captchaOk)) {
+            return $this->renderContactForm(
+                $response,
+                $ipHash,
+                $this->formValues($form),
+                'Bitte Eingaben und CAPTCHA pruefen.',
+                403
+            );
         }
 
-        $body = "Name: {$name}\nE-Mail: {$email}\n\nNachricht:\n{$message}\n";
-        $sent = $this->context->mailService->send($name, $email, $body);
+        $body = "Name: {$form['name']}\nE-Mail: {$form['email']}\n\nNachricht:\n{$form['message']}\n";
+        $sent = $this->context->mailService->send($form['name'], $form['email'], $body);
         if (!$sent) {
-            $challenge = $this->context->captchaService->createChallenge($ipHash);
-            $html = $this->context->twig->render('contact.html.twig', [
-                'title' => 'Kontakt',
-                'site_name' => $siteName,
-                'captcha_id' => $challenge['captcha_id'],
-                'error' => 'Versand fehlgeschlagen. Bitte spaeter erneut versuchen.',
-                'form' => [
-                    'name' => $name,
-                    'email' => $email,
-                    'message' => $message,
-                ],
-            ]);
-            return ResponseHelper::html($response, $html, 500);
+            return $this->renderContactForm(
+                $response,
+                $ipHash,
+                $this->formValues($form),
+                'Versand fehlgeschlagen. Bitte spaeter erneut versuchen.',
+                500
+            );
         }
 
+        $base = PageViewBuilder::base($this->context->config);
         $html = $this->context->twig->render('contact_ok.html.twig', [
             'title' => 'Kontakt',
-            'site_name' => $siteName,
-        ]);
+        ] + $base);
 
         return ResponseHelper::html($response, $html);
+    }
+
+    private function renderRateLimit(ResponseInterface $response): ResponseInterface
+    {
+        $base = PageViewBuilder::base($this->context->config);
+        $html = $this->context->twig->render('error.html.twig', [
+            'title' => 'Zu viele Anfragen',
+            'message' => 'Bitte spaeter erneut versuchen.',
+        ] + $base);
+        return ResponseHelper::html($response, $html, 429);
+    }
+
+    private function extractFormData(array $data): array
+    {
+        return [
+            'name' => trim((string) ($data['name'] ?? '')),
+            'email' => trim((string) ($data['email'] ?? '')),
+            'message' => trim((string) ($data['message'] ?? '')),
+            'captcha_id' => trim((string) ($data['captcha_id'] ?? '')),
+            'captcha_answer' => trim((string) ($data['captcha_answer'] ?? '')),
+        ];
+    }
+
+    private function isEmailValid(string $email): bool
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private function isCaptchaValid(array $form, string $ipHash): bool
+    {
+        if ($form['captcha_id'] === '' || $form['captcha_answer'] === '') {
+            return false;
+        }
+
+        return $this->context->captchaService->verify(
+            $form['captcha_id'],
+            $form['captcha_answer'],
+            $ipHash
+        );
+    }
+
+    private function isFormInvalid(array $form, bool $emailValid, bool $captchaOk): bool
+    {
+        return $form['name'] === '' || !$emailValid || $form['message'] === '' || !$captchaOk;
+    }
+
+    private function formValues(array $form): array
+    {
+        return [
+            'name' => $form['name'],
+            'email' => $form['email'],
+            'message' => $form['message'],
+        ];
+    }
+
+    private function renderContactForm(
+        ResponseInterface $response,
+        string $ipHash,
+        array $form,
+        string $error,
+        int $status
+    ): ResponseInterface {
+        $base = PageViewBuilder::base($this->context->config);
+        $challenge = $this->context->captchaService->createChallenge($ipHash);
+        $captchaId = $challenge['captcha_id'];
+        $captchaUrl = '/captcha.png?id=' . urlencode($captchaId);
+        $html = $this->context->twig->render('contact.html.twig', [
+            'title' => 'Kontakt',
+            'captcha_id' => $captchaId,
+            'captcha_url' => $captchaUrl,
+            'show_error' => true,
+            'error_text' => $error,
+            'form_values' => $form,
+        ] + $base);
+        return ResponseHelper::html($response, $html, $status);
     }
 }

@@ -61,21 +61,35 @@ final class Config
         }
 
         foreach ($lines as $line) {
-            $trimmed = trim($line);
-            if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+            $parsed = $this->parseEnvLine($line);
+            if ($parsed === null) {
                 continue;
             }
 
-            $parts = explode('=', $trimmed, 2);
-            if (count($parts) !== 2) {
-                continue;
-            }
-
-            $key = trim($parts[0]);
-            $value = trim($parts[1]);
-            $value = trim($value, "\"'");
-
+            [$key, $value] = $parsed;
             $this->values[$key] = $value;
         }
+    }
+
+    private function parseEnvLine(string $line): ?array
+    {
+        $trimmed = trim($line);
+        if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+            return null;
+        }
+
+        $parts = explode('=', $trimmed, 2);
+        if (count($parts) !== 2) {
+            return null;
+        }
+
+        $key = trim($parts[0]);
+        if ($key === '') {
+            return null;
+        }
+
+        $value = trim($parts[1]);
+        $value = trim($value, "\"'");
+        return [$key, $value];
     }
 }

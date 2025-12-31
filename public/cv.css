@@ -29,21 +29,45 @@ body {
 .layout-main {
   display: flex;
   gap: 16px;
+  flex-direction: column;
 }
 
 .layout-side {
-  flex: 0 0 33%;
-  min-width: 200px;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
 .layout-body {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.layout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.layout-header-main,
+.layout-header-aside {
+  min-width: 0;
+}
+
+.layout-header-aside {
+  margin-left: auto;
+}
+
+.name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .layout-contact {
@@ -202,6 +226,15 @@ body {
 }
 
 @media (max-width: 680px) {
+  .layout-header {
+    flex-direction: column;
+  }
+
+  .layout-header-aside {
+    margin-left: 0;
+    width: 100%;
+  }
+
   .layout-main {
     flex-direction: column;
   }
@@ -214,6 +247,22 @@ body {
   .layout-contact {
     text-align: left;
     margin: 0 0 12px;
+  }
+}
+
+@media (min-width: 681px) {
+  .layout-main {
+    flex-direction: row;
+  }
+
+  .layout-side {
+    flex: 0 0 33%;
+    min-width: 200px;
+    order: 1;
+  }
+
+  .layout-body {
+    order: 2;
   }
 }
 

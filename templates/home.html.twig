@@ -1,16 +1,14 @@
 {% extends 'base.html.twig' %}
 
 {% block content %}
-  <h1>Willkommen</h1>
-  <p class="muted">Kurzprofil und Kontakt in reduzierter Form.</p>
+  {% import 'components/site/lib.html.twig' as ui %}
+
+  {{ ui.page_title('Willkommen') }}
+  {{ ui.muted('Kurzprofil und Kontakt in reduzierter Form.') }}
 
   <div class="section">
-    <p><a href="/cv">Zum Lebenslauf</a></p>
-    <p><a href="/contact">Kontakt aufnehmen</a></p>
-    {% if has_public_cv %}
-      <p class="muted">Der oeffentliche Lebenslauf ist verfuegbar.</p>
-    {% else %}
-      <p class="muted">Noch kein oeffentlicher Lebenslauf vorhanden.</p>
-    {% endif %}
+    <p>{{ ui.link('/cv', 'Zum Lebenslauf') }}</p>
+    <p>{{ ui.link('/contact', 'Kontakt aufnehmen') }}</p>
+    {{ ui.muted(public_cv_message) }}
   </div>
 {% endblock %}

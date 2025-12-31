@@ -6,6 +6,7 @@ use App\Config;
 use App\Cv\CvDataNormalizer;
 use App\Cv\CvRenderer;
 use App\Cv\CvStorage;
+use App\Cv\CvViewModelBuilder;
 use App\Cv\RedactionService;
 use App\Cv\CvValidator;
 use App\Cv\LabelService;
@@ -22,6 +23,7 @@ $twig = TwigFactory::create($rootPath . '/templates');
 $cvStorage = new CvStorage($storage, $rootPath . '/var/cache/html');
 $renderer = new CvRenderer($twig);
 $redactor = new RedactionService();
+$viewBuilder = new CvViewModelBuilder();
 $validator = new CvValidator($rootPath . '/schemas/lebenslauf.schema.json');
 $langSetting = (string) $config->get('APP_LANGS', '');
 $defaultLang = (string) $config->get('APP_LANG', 'de');
@@ -41,54 +43,37 @@ if ($command === 'cv:upload') {
     $jsonPath = $argv[3] ?? '';
 
     if ($profile === '' || $jsonPath === '') {
-        fwrite(STDERR, "Usage: cv:upload <PROFILE> <JSON_PATH>\n");
-        exit(1);
+        fail("Usage: cv:upload <PROFILE> <JSON_PATH>");
     }
 
-    if (!is_file($jsonPath)) {
-        fwrite(STDERR, "JSON file not found: {$jsonPath}\n");
-        exit(1);
-    }
-
-    $content = file_get_contents($jsonPath);
-    $rawData = json_decode((string) $content);
-    $data = json_decode((string) $content, true);
-    if (!is_array($data) || $rawData === null) {
-        fwrite(STDERR, "Invalid JSON: {$jsonPath}\n");
-        exit(1);
-    }
-
-    $errors = $validator->validate($rawData);
-    if (!empty($errors)) {
-        fwrite(STDERR, "Schema validation failed:\n");
-        foreach ($errors as $error) {
-            fwrite(STDERR, "- {$error}\n");
-        }
-        exit(1);
-    }
+    $decoded = loadJsonData($jsonPath);
+    validateSchema($validator, $decoded['raw']);
 
     $langs = parseLangs($langSetting, $defaultLang);
     $primaryLang = $langs[0] ?? $defaultLang;
     foreach ($langs as $lang) {
         $labels = LabelService::fromJsonFile($labelsPath, $lang)->all();
         $normalizer = new CvDataNormalizer($lang);
-        $normalized = $normalizer->normalize($data);
-        $privateHtml = $renderer->renderPrivate($normalized, $labels);
+        $normalized = $normalizer->normalize($decoded['data']);
+        $privateView = $viewBuilder->build($normalized);
+        $privateHtml = $renderer->renderPrivate($privateView, $labels);
         $cvStorage->savePrivateHtmlForLang($profile, $privateHtml, $lang);
         if ($lang === $primaryLang) {
             $cvStorage->savePrivateHtml($profile, $privateHtml);
         }
 
-        $defaultProfile = (string) $config->get('DEFAULT_CV_PROFILE', 'DEFAULT');
-        if (strcasecmp($profile, $defaultProfile) === 0) {
-            $publicData = $redactor->redact($normalized);
-            $publicHtml = $renderer->renderPublic($publicData, $labels);
-            $cvStorage->savePublicHtmlForLang($publicHtml, $lang);
-            if ($lang === $primaryLang) {
-                $cvStorage->savePublicHtml($publicHtml);
-            }
-            fwrite(STDOUT, "Public CV rendered for profile {$profile} ({$lang}).\n");
-        }
+        renderPublicCvIfDefault(
+            $config,
+            $profile,
+            $lang,
+            $primaryLang,
+            $normalized,
+            $labels,
+            $redactor,
+            $viewBuilder,
+            $renderer,
+            $cvStorage
+        );
 
         fwrite(STDOUT, "Private CV rendered for profile {$profile} ({$lang}).\n");
     }
@@ -100,8 +85,7 @@ if ($command === 'token:rotate') {
     $profile = $argv[2] ?? '';
     $count = isset($argv[3]) ? (int) $argv[3] : 1;
     if ($profile === '') {
-        fwrite(STDERR, "Usage: token:rotate <PROFILE> [COUNT]\n");
-        exit(1);
+        fail("Usage: token:rotate <PROFILE> [COUNT]");
     }
 
     $count = max(1, $count);
@@ -121,11 +105,75 @@ if ($command === 'captcha:cleanup') {
     exit(0);
 }
 
-fwrite(STDERR, "Commands:\n");
-fwrite(STDERR, "  cv:upload <PROFILE> <JSON_PATH>\n");
-fwrite(STDERR, "  token:rotate <PROFILE> [COUNT]\n");
-fwrite(STDERR, "  captcha:cleanup\n");
-exit(1);
+fail("Commands:\n  cv:upload <PROFILE> <JSON_PATH>\n  token:rotate <PROFILE> [COUNT]\n  captcha:cleanup");
+
+function fail(string $message, int $code = 1): void
+{
+    fwrite(STDERR, $message . "\n");
+    exit($code);
+}
+
+function loadJsonData(string $jsonPath): array
+{
+    if (!is_file($jsonPath)) {
+        fail("JSON file not found: {$jsonPath}");
+    }
+
+    $content = file_get_contents($jsonPath);
+    $rawData = json_decode((string) $content);
+    $data = json_decode((string) $content, true);
+    if (!is_array($data) || $rawData === null) {
+        fail("Invalid JSON: {$jsonPath}");
+    }
+
+    return ['raw' => $rawData, 'data' => $data];
+}
+
+function validateSchema(CvValidator $validator, mixed $rawData): void
+{
+    $errors = $validator->validate($rawData);
+    if (empty($errors)) {
+        return;
+    }
+
+    fwrite(STDERR, "Schema validation failed:\n");
+    foreach ($errors as $error) {
+        fwrite(STDERR, "- {$error}\n");
+    }
+    exit(1);
+}
+
+function renderPublicCvIfDefault(
+    Config $config,
+    string $profile,
+    string $lang,
+    string $primaryLang,
+    array $normalized,
+    array $labels,
+    RedactionService $redactor,
+    CvViewModelBuilder $viewBuilder,
+    CvRenderer $renderer,
+    CvStorage $cvStorage
+): void {
+    if (!isDefaultProfile($config, $profile)) {
+        return;
+    }
+
+    $publicData = $redactor->redact($normalized);
+    $publicView = $viewBuilder->build($publicData);
+    $publicHtml = $renderer->renderPublic($publicView, $labels);
+    $cvStorage->savePublicHtmlForLang($publicHtml, $lang);
+    if ($lang === $primaryLang) {
+        $cvStorage->savePublicHtml($publicHtml);
+    }
+    fwrite(STDOUT, "Public CV rendered for profile {$profile} ({$lang}).\n");
+}
+
+function isDefaultProfile(Config $config, string $profile): bool
+{
+    $defaultProfile = (string) $config->get('DEFAULT_CV_PROFILE', 'DEFAULT');
+    return strcasecmp($profile, $defaultProfile) === 0;
+}
 
 function parseLangs(string $setting, string $fallback): array
 {

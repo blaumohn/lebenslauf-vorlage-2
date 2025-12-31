@@ -1,7 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block content %}
-  <h1>Danke</h1>
+  {% import 'components/site/lib.html.twig' as ui %}
+
+  {{ ui.page_title('Danke') }}
   <p>Ihre Nachricht wurde versendet.</p>
-  <p><a href="/">Zurueck zur Startseite</a></p>
+  <p>{{ ui.link('/', 'Zurueck zur Startseite') }}</p>
 {% endblock %}

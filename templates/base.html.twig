@@ -26,25 +26,15 @@
   </style>
 </head>
 <body>
+  {% import 'components/site/layout.html.twig' as layout %}
   <div class="wrap">
-    <header>
-      <div>
-        <div class="badge">{{ site_name|default('Lebenslauf') }}</div>
-      </div>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/cv">Lebenslauf</a>
-        <a href="/contact">Kontakt</a>
-      </nav>
-    </header>
+    {{ layout.header(site_name|default('Lebenslauf'), nav_items|default([])) }}
 
     <main class="section card">
       {% block content %}{% endblock %}
     </main>
 
-    <footer>
-      <div>Keine Cookies. Keine Tracker. Kontakt nur per Formular.</div>
-    </footer>
+    {{ layout.footer() }}
   </div>
 </body>
 </html>

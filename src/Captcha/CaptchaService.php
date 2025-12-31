@@ -39,28 +39,14 @@ final class CaptchaService
 
     public function getChallenge(string $id): ?array
     {
-        $data = $this->storage->readJson($this->pathFor($id));
-        if (!$data) {
-            return null;
-        }
-
-        if ($this->isExpired($data) || $this->isUsed($data)) {
-            return null;
-        }
-
-        return $data;
+        return $this->loadActiveChallenge($id);
     }
-
 
     public function verify(string $id, string $answer, string $ipHash): bool
     {
         $path = $this->pathFor($id);
-        $data = $this->storage->readJson($path);
-        if (!$data) {
-            return false;
-        }
-
-        if ($this->isExpired($data) || $this->isUsed($data)) {
+        $data = $this->loadActiveChallenge($id);
+        if ($data === null) {
             return false;
         }
 
@@ -91,7 +77,7 @@ final class CaptchaService
             if (!$data) {
                 continue;
             }
-            if ($this->isExpired($data) || $this->isUsed($data)) {
+            if ($this->shouldDelete($data)) {
                 $this->storage->delete($file);
                 $count++;
             }
@@ -140,6 +126,22 @@ final class CaptchaService
         return $this->dir . DIRECTORY_SEPARATOR . $id . '.json';
     }
 
+    private function loadChallenge(string $id): ?array
+    {
+        $data = $this->storage->readJson($this->pathFor($id));
+        return $data ?: null;
+    }
+
+    private function loadActiveChallenge(string $id): ?array
+    {
+        $data = $this->loadChallenge($id);
+        if ($data === null || $this->isInactive($data)) {
+            return null;
+        }
+
+        return $data;
+    }
+
     private function generateSolution(): string
     {
         $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -158,5 +160,15 @@ final class CaptchaService
     private function isUsed(array $data): bool
     {
         return !empty($data['used_at']);
+    }
+
+    private function isInactive(array $data): bool
+    {
+        return $this->isExpired($data) || $this->isUsed($data);
+    }
+
+    private function shouldDelete(array $data): bool
+    {
+        return $this->isExpired($data) || $this->isUsed($data);
     }
 }

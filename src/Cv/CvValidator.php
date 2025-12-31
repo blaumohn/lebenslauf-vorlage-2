@@ -17,30 +17,14 @@ final class CvValidator
 
     public function validate(mixed $data): array
     {
-        $schemaJson = file_get_contents($this->schemaPath);
-        if ($schemaJson === false) {
-            return ['Schema konnte nicht geladen werden.'];
-        }
-
-        $decoded = json_decode($schemaJson);
-        if ($decoded === null) {
-            return ['Schema ist ungueltig.'];
-        }
-
-        try {
-            $loader = new SchemaLoader();
-            if (is_bool($decoded)) {
-                $schema = $loader->loadBooleanSchema($decoded);
-            } else {
-                $schema = $loader->loadObjectSchema($decoded);
-            }
-        } catch (\Throwable $exception) {
-            return ['Schema ist ungueltig.'];
+        [$loader, $schema, $schemaError] = $this->loadSchema();
+        if ($schemaError !== null) {
+            return [$schemaError];
         }
 
         if (is_array($data)) {
-            $data = json_decode(json_encode($data));
-            if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+            $data = $this->normalizeArrayData($data);
+            if ($data === null) {
                 return ['Daten sind ungueltig.'];
             }
         }
@@ -62,13 +46,48 @@ final class CvValidator
         $messages = [];
         foreach ($errors as $key => $value) {
             $path = $prefix === '' ? $key : $prefix . '.' . $key;
-            if (is_array($value)) {
-                $messages = array_merge($messages, $this->flattenErrors($value, $path));
-            } else {
+            if (!is_array($value)) {
                 $messages[] = $path . ': ' . (string) $value;
+                continue;
             }
+
+            $messages = array_merge($messages, $this->flattenErrors($value, $path));
         }
 
         return $messages;
+    }
+
+    private function loadSchema(): array
+    {
+        $schemaJson = file_get_contents($this->schemaPath);
+        if ($schemaJson === false) {
+            return [null, null, 'Schema konnte nicht geladen werden.'];
+        }
+
+        $decoded = json_decode($schemaJson);
+        if ($decoded === null) {
+            return [null, null, 'Schema ist ungueltig.'];
+        }
+
+        $loader = new SchemaLoader();
+        try {
+            $schema = is_bool($decoded)
+                ? $loader->loadBooleanSchema($decoded)
+                : $loader->loadObjectSchema($decoded);
+        } catch (\Throwable $exception) {
+            return [null, null, 'Schema ist ungueltig.'];
+        }
+
+        return [$loader, $schema, null];
+    }
+
+    private function normalizeArrayData(array $data): mixed
+    {
+        $normalized = json_decode(json_encode($data));
+        if ($normalized === null && json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+
+        return $normalized;
     }
 }

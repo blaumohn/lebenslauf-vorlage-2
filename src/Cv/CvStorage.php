@@ -23,13 +23,7 @@ final class CvStorage
 
     public function getPublicHtmlForLang(?string $lang): ?string
     {
-        $path = $this->publicPath($lang);
-        $html = $this->storage->readText($path);
-        if ($html !== null) {
-            return $html;
-        }
-
-        return $this->storage->readText($this->publicPath());
+        return $this->readWithFallback($this->publicPath($lang), $this->publicPath());
     }
 
     public function getPrivateHtml(string $profile): ?string
@@ -39,13 +33,10 @@ final class CvStorage
 
     public function getPrivateHtmlForLang(string $profile, ?string $lang): ?string
     {
-        $path = $this->privatePath($profile, $lang);
-        $html = $this->storage->readText($path);
-        if ($html !== null) {
-            return $html;
-        }
-
-        return $this->storage->readText($this->privatePath($profile));
+        return $this->readWithFallback(
+            $this->privatePath($profile, $lang),
+            $this->privatePath($profile)
+        );
     }
 
     public function savePublicHtml(string $html): void
@@ -119,5 +110,15 @@ final class CvStorage
         $normalized = strtolower($lang);
         $normalized = preg_replace('/[^a-z0-9_-]+/', '-', $normalized);
         return trim((string) $normalized, '-');
+    }
+
+    private function readWithFallback(string $primaryPath, ?string $fallbackPath = null): ?string
+    {
+        $html = $this->storage->readText($primaryPath);
+        if ($html !== null || $fallbackPath === null) {
+            return $html;
+        }
+
+        return $this->storage->readText($fallbackPath);
     }
 }

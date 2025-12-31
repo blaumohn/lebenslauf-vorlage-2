@@ -59,16 +59,24 @@ final class Request
     public function clientIp(bool $trustProxy = false): string
     {
         if ($trustProxy) {
-            $forwarded = $this->header('X-Forwarded-For');
-            if ($forwarded) {
-                $parts = explode(',', $forwarded);
-                $ip = trim($parts[0]);
-                if ($ip !== '') {
-                    return $ip;
-                }
+            $forwardedIp = $this->forwardedIp();
+            if ($forwardedIp !== null) {
+                return $forwardedIp;
             }
         }
 
         return $this->server['REMOTE_ADDR'] ?? '0.0.0.0';
+    }
+
+    private function forwardedIp(): ?string
+    {
+        $forwarded = $this->header('X-Forwarded-For');
+        if (!$forwarded) {
+            return null;
+        }
+
+        $parts = explode(',', $forwarded);
+        $ip = trim($parts[0]);
+        return $ip === '' ? null : $ip;
     }
 }

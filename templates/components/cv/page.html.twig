@@ -1,0 +1,25 @@
+{% macro contact_public() %}
+  <div class="layout-contact text-small text-muted text-strong">
+    <div>Kontaktformular</div>
+    <div><a href="/contact">/contact</a></div>
+  </div>
+{% endmacro %}
+
+{% macro contact_private(cv) %}
+  <div class="layout-contact text-small text-muted text-strong">
+    <div>{{ cv.kopfdaten.telefon }} | {{ cv.kopfdaten.ort }}</div>
+    <div>{{ cv.kopfdaten.email }}</div>
+    {% if cv.kopfdaten.linkedin is defined %}
+      <div>{{ cv.kopfdaten.linkedin }}</div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro footer(name, footer) %}
+  <footer class="layout-footer">
+    <span>{{ "now"|date("d.m.Y") }} {{ name }} | {{ footer.text }}</span>
+    {% if footer.show_link %}
+      | <a href="{{ footer.link }}" target="_blank" rel="noopener noreferrer">{{ footer.link }}</a>
+    {% endif %}
+  </footer>
+{% endmacro %}

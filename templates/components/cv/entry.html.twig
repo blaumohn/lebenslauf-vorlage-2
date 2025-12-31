@@ -1,0 +1,43 @@
+{% macro header(eintrag) %}
+  <div class="entry-header">
+    <div class="text-body text-strong">
+      {{ eintrag.header_title }}
+    </div>
+    <span class="text-meta">{{ eintrag.header_time }}</span>
+  </div>
+
+  {% if eintrag.show_location %}
+    <div class="entry-ort text-meta">{{ eintrag.location }}</div>
+  {% endif %}
+{% endmacro %}
+
+{% macro points(punkte) %}
+  {% import 'components/cv/lib.html.twig' as ui %}
+  <div>
+    {% for punkt in punkte %}
+      {% if punkt.show_tags %}
+        {{ ui.tag_list(punkt.tags) }}
+      {% endif %}
+      <ul class="list">
+        <li class="text-body">{{ punkt.text }}</li>
+      </ul>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro entry(eintrag) %}
+  <div class="entry">
+    {% if eintrag.show_company %}
+      <div class="text-small text-strong">{{ eintrag.company_line }}</div>
+    {% endif %}
+
+    {% if eintrag.show_project %}
+      <div class="text-small text-strong">{{ eintrag.project_line }}</div>
+    {% endif %}
+
+    <div class="{% if eintrag.grouped %}entry-group{% endif %}">
+      {{ _self.header(eintrag) }}
+      {{ _self.points(eintrag.punkte) }}
+    </div>
+  </div>
+{% endmacro %}

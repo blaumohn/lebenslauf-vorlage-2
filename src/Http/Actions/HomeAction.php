@@ -4,6 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
+use App\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -18,12 +19,15 @@ final class HomeAction
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $siteName = (string) $this->context->config->get('SITE_NAME', 'Lebenslauf');
+        $hasPublic = $this->context->cvStorage->hasPublic();
+        $publicMessage = $hasPublic
+            ? 'Der oeffentliche Lebenslauf ist verfuegbar.'
+            : 'Noch kein oeffentlicher Lebenslauf vorhanden.';
+        $base = PageViewBuilder::base($this->context->config);
         $html = $this->context->twig->render('home.html.twig', [
             'title' => 'Home',
-            'site_name' => $siteName,
-            'has_public_cv' => $this->context->cvStorage->hasPublic(),
-        ]);
+            'public_cv_message' => $publicMessage,
+        ] + $base);
 
         return ResponseHelper::html($response, $html);
     }

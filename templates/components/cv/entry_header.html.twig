@@ -1,0 +1,13 @@
+<div class="entry-header">
+  <div class="text-body text-strong">
+    {% if eintrag.projekt is defined and eintrag.unternehmen is defined %}
+      <span class="text-strong">{{ eintrag.projekt }}</span> |
+    {% endif %}
+    {{ eintrag.titel }}
+  </div>
+  <span class="text-meta">{{ eintrag.zeitraum }}</span>
+</div>
+
+{% if eintrag.ort is defined %}
+  <div class="entry-ort text-meta">{{ eintrag.ort }}</div>
+{% endif %}

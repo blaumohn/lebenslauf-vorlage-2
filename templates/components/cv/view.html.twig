@@ -1,0 +1,73 @@
+{% macro view(cv, etiketten, is_private, name) %}
+  {% import 'components/cv/lib.html.twig' as ui %}
+  {% import 'components/cv/page.html.twig' as page %}
+  {% import 'components/cv/sections.html.twig' as section %}
+  <div class="cv-root">
+    <header class="layout-header">
+      <div class="layout-header-main">
+        {{ ui.name_block(name, cv.kopfdaten.bereich) }}
+      </div>
+      <div class="layout-header-aside">
+        {% if is_private %}
+          {{ page.contact_private(cv) }}
+        {% else %}
+          {{ page.contact_public() }}
+        {% endif %}
+      </div>
+    </header>
+
+    <main class="layout-main">
+      <section class="layout-body">
+        {{ section.motivation(
+          etiketten.motivation._|default('Motivation'),
+          cv.motivation
+        ) }}
+
+        {{ section.entries(
+          etiketten.berufserfahrung._|default('Berufserfahrung'),
+          cv.berufserfahrung
+        ) }}
+
+        {% if cv.opensource is defined %}
+          {{ section.entries(
+            etiketten.opensource._|default('Opensource'),
+            cv.opensource
+          ) }}
+        {% endif %}
+
+        {% if cv.vortraege is defined %}
+          {{ section.talks(
+            etiketten.vortraege._|default('Vorträge'),
+            cv.vortraege
+          ) }}
+        {% endif %}
+
+        {{ section.education(
+          etiketten.ausbildung._|default('Ausbildung'),
+          cv.ausbildung
+        ) }}
+      </section>
+
+      <aside class="layout-side">
+        {{ section.skills(
+          etiketten.faehigkeiten._|default('Fähigkeiten'),
+          cv.faehigkeiten
+        ) }}
+
+        {{ section.languages(
+          etiketten.sprachen._|default('Sprachen'),
+          cv.sprachen
+        ) }}
+
+        {{ section.interests(
+          etiketten.interessen._|default('Interessen'),
+          cv.interessen
+        ) }}
+      </aside>
+    </main>
+
+    {% if cv.footer.show %}
+      {{ page.footer(name, cv.footer) }}
+    {% endif %}
+  </div>
+{% endmacro %}

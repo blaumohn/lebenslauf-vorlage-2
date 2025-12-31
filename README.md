@@ -61,6 +61,15 @@ Loescht abgelaufene CAPTCHA-Dateien.
 composer run test
 ```
 
+## Templates
+
+- Templates verwenden Twig-Makros statt Includes.
+- Basis-UI-Bausteine: `templates/components/site/lib.html.twig`
+- Layout/Navigation: `templates/components/site/layout.html.twig`
+- Form-Elemente: `templates/components/site/form.html.twig`
+- CV: `templates/components/cv/lib.html.twig`, `templates/components/cv/sections.html.twig`, `templates/components/cv/entry.html.twig`
+- CV-Layout-Makros: `templates/components/cv/view.html.twig`, `templates/components/cv/page.html.twig`
+
 ## Staging/Pre-Release
 
 - Dummy-Daten verwenden.

@@ -4,6 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
+use App\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -18,7 +19,6 @@ final class CvAction
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $siteName = (string) $this->context->config->get('SITE_NAME', 'Lebenslauf');
         $params = $request->getQueryParams();
         $token = isset($params['token']) ? (string) $params['token'] : '';
         $lang = isset($params['lang']) ? (string) $params['lang'] : '';
@@ -26,50 +26,81 @@ final class CvAction
         $fallbackLang = $this->defaultLang();
 
         if ($token !== '') {
-            $profile = isset($params['profile']) ? (string) $params['profile'] : '';
-            if ($profile === '') {
-                $profile = $this->context->tokenService->findProfileForToken($token) ?? '';
-            }
-
-            if ($profile === '' || !$this->context->tokenService->verify($profile, $token)) {
-                $html = $this->context->twig->render('error.html.twig', [
-                    'title' => 'Zugriff verweigert',
-                    'message' => 'Token ungueltig oder abgelaufen.',
-                    'site_name' => $siteName,
-                ]);
-                return ResponseHelper::html($response, $html, 403);
-            }
-
-            $privateHtml = $this->context->cvStorage->getPrivateHtmlForLang($profile, $lang);
-            if ($privateHtml === null && $lang !== $fallbackLang) {
-                $privateHtml = $this->context->cvStorage->getPrivateHtmlForLang($profile, $fallbackLang);
-            }
-            if ($privateHtml === null) {
-                $html = $this->context->twig->render('error.html.twig', [
-                    'title' => 'Nicht gefunden',
-                    'message' => 'Privater Lebenslauf noch nicht vorhanden.',
-                    'site_name' => $siteName,
-                ]);
-                return ResponseHelper::html($response, $html, 404);
-            }
-
-            return ResponseHelper::html($response, $privateHtml);
+            return $this->handlePrivateCv($response, $params, $token, $lang, $fallbackLang);
         }
 
-        $publicHtml = $this->context->cvStorage->getPublicHtmlForLang($lang);
-        if ($publicHtml === null && $lang !== $fallbackLang) {
-            $publicHtml = $this->context->cvStorage->getPublicHtmlForLang($fallbackLang);
+        return $this->handlePublicCv($response, $lang, $fallbackLang);
+    }
+
+    private function handlePrivateCv(
+        ResponseInterface $response,
+        array $params,
+        string $token,
+        string $lang,
+        string $fallbackLang
+    ): ResponseInterface {
+        $profile = isset($params['profile']) ? (string) $params['profile'] : '';
+        if ($profile === '') {
+            $profile = $this->context->tokenService->findProfileForToken($token) ?? '';
         }
+
+        if ($profile === '' || !$this->context->tokenService->verify($profile, $token)) {
+            return $this->renderError($response, 'Zugriff verweigert', 'Token ungueltig oder abgelaufen.', 403);
+        }
+
+        $privateHtml = $this->resolvePrivateHtml($profile, $lang, $fallbackLang);
+        if ($privateHtml === null) {
+            return $this->renderError($response, 'Nicht gefunden', 'Privater Lebenslauf noch nicht vorhanden.', 404);
+        }
+
+        return ResponseHelper::html($response, $privateHtml);
+    }
+
+    private function handlePublicCv(
+        ResponseInterface $response,
+        string $lang,
+        string $fallbackLang
+    ): ResponseInterface {
+        $publicHtml = $this->resolvePublicHtml($lang, $fallbackLang);
         if ($publicHtml === null) {
-            $html = $this->context->twig->render('error.html.twig', [
-                'title' => 'Nicht gefunden',
-                'message' => 'Oeffentlicher Lebenslauf noch nicht vorhanden.',
-                'site_name' => $siteName,
-            ]);
-            return ResponseHelper::html($response, $html, 404);
+            return $this->renderError($response, 'Nicht gefunden', 'Oeffentlicher Lebenslauf noch nicht vorhanden.', 404);
         }
 
         return ResponseHelper::html($response, $publicHtml);
+    }
+
+    private function renderError(
+        ResponseInterface $response,
+        string $title,
+        string $message,
+        int $status
+    ): ResponseInterface {
+        $base = PageViewBuilder::base($this->context->config);
+        $html = $this->context->twig->render('error.html.twig', [
+            'title' => $title,
+            'message' => $message,
+        ] + $base);
+        return ResponseHelper::html($response, $html, $status);
+    }
+
+    private function resolvePrivateHtml(string $profile, string $lang, string $fallbackLang): ?string
+    {
+        $privateHtml = $this->context->cvStorage->getPrivateHtmlForLang($profile, $lang);
+        if ($privateHtml !== null || $lang === $fallbackLang) {
+            return $privateHtml;
+        }
+
+        return $this->context->cvStorage->getPrivateHtmlForLang($profile, $fallbackLang);
+    }
+
+    private function resolvePublicHtml(string $lang, string $fallbackLang): ?string
+    {
+        $publicHtml = $this->context->cvStorage->getPublicHtmlForLang($lang);
+        if ($publicHtml !== null || $lang === $fallbackLang) {
+            return $publicHtml;
+        }
+
+        return $this->context->cvStorage->getPublicHtmlForLang($fallbackLang);
     }
 
     private function resolveLang(string $lang): string

@@ -1,0 +1,41 @@
+{% macro section_title(titel, show_line = true) %}
+  <div>
+    {% if show_line %}
+      <div class="section-line"></div>
+    {% endif %}
+    <h2 class="section-title">{{ titel }}</h2>
+  </div>
+{% endmacro %}
+
+{% macro tag_list(tags) %}
+  <div class="tag-list">
+    {% for tag in tags %}
+      <span class="tag">{{ tag }}</span>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro dot_scale(wert) %}
+  <div class="dot-scale">
+    {% for i in 1..5 %}
+      <span class="dot{% if i <= wert %} dot--on{% endif %}"></span>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro skill_group(gruppe) %}
+  <div class="skill-group">
+    <p class="text-small text-strong text-muted">{{ gruppe.stufe }}</p>
+    {{ _self.dot_scale(gruppe.wert) }}
+    {% if gruppe.show_technologien %}
+      {{ _self.tag_list(gruppe.technologien) }}
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro name_block(name, bereich) %}
+  <div class="name-block">
+    <h1 class="text-title-xl">{{ name }}</h1>
+    <p class="text-title text-muted">{{ bereich }}</p>
+  </div>
+{% endmacro %}
