@@ -13,16 +13,16 @@ final class RedactionService
         $kopfdaten = $data['kopfdaten'];
         $name = $kopfdaten['name'] ?? '';
         if (is_array($name)) {
-            $verkurzte = $name['verkurzte'] ?? $name['voll'] ?? '';
-            $voll = $name['voll'] ?? $verkurzte;
+            $kurz = $name['kurz'] ?? $name['voll'] ?? '';
+            $voll = $name['voll'] ?? $kurz;
             $kopfdaten['name'] = [
                 'voll' => $voll,
-                'verkurzte' => $verkurzte,
+                'kurz' => $kurz,
             ];
         } else {
             $kopfdaten['name'] = [
                 'voll' => (string) $name,
-                'verkurzte' => (string) $name,
+                'kurz' => (string) $name,
             ];
         }
 

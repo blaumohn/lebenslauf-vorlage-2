@@ -21,11 +21,15 @@
   "scripts": {
     "dev": [
       "Composer\\Config::disableProcessTimeout",
-      "php bin/dev"
+      "python3 bin/dev-all.py || python bin/dev-all.py"
     ],
+    "cv:build": "php bin/cv-build",
+    "cv:dev": "php bin/cv-dev",
     "cv:upload": "php bin/console cv:upload",
     "token:rotate": "php bin/console token:rotate",
     "captcha:cleanup": "php bin/console captcha:cleanup",
-    "test": "phpunit"
+    "test": "phpunit",
+    "css:build": "npm run build:css",
+    "setup": "python3 bin/setup.py || python bin/setup.py"
   }
 }

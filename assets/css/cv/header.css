@@ -1,0 +1,56 @@
+@layer base {
+  header {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 40rem) {
+    header {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@layer components {
+  header .header-main,
+  header .header-aside {
+    min-width: 0;
+  }
+
+  header .header-aside {
+    justify-self: end;
+  }
+
+  .contact {
+    margin-left: auto;
+    margin-bottom: 16px;
+    text-align: right;
+    line-height: 1.25;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-600);
+  }
+
+  .contact a {
+    text-decoration: none;
+  }
+
+  .contact a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 40rem) {
+    header .header-aside {
+      justify-self: start;
+      width: 100%;
+    }
+
+    .contact {
+      text-align: left;
+      margin: 0 0 12px;
+    }
+  }
+}

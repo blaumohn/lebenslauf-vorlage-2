@@ -105,6 +105,17 @@ if ($command === 'captcha:cleanup') {
     exit(0);
 }
 
+if ($command === 'env:get') {
+    $key = $argv[2] ?? '';
+    if ($key === '') {
+        fail("Usage: env:get <KEY>");
+    }
+
+    $value = (string) $config->get($key, '');
+    fwrite(STDOUT, $value);
+    exit(0);
+}
+
 fail("Commands:\n  cv:upload <PROFILE> <JSON_PATH>\n  token:rotate <PROFILE> [COUNT]\n  captcha:cleanup");
 
 function fail(string $message, int $code = 1): void

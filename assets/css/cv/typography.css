@@ -1,0 +1,21 @@
+@layer components {
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+  .name-title {
+    font-size: 30px;
+    font-weight: 600;
+    color: #000;
+  }
+
+  .name-role {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--gray-500);
+  }
+}

@@ -46,13 +46,13 @@ final class CvDataNormalizer
     {
         return [
             'voll' => $this->normalizeValue($value['voll'] ?? ''),
-            'verkurzte' => $this->normalizeValue($value['verkurzte'] ?? ''),
+            'kurz' => $this->normalizeValue($value['kurz'] ?? ''),
         ];
     }
 
     private function isNameObject(array $value): bool
     {
-        return array_key_exists('voll', $value) || array_key_exists('verkurzte', $value);
+        return array_key_exists('voll', $value) || array_key_exists('kurz', $value);
     }
 
     private function isIntlString(array $value): bool

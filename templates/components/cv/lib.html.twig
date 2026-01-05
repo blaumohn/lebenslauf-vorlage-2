@@ -1,5 +1,5 @@
 {% macro section_title(titel, show_line = true) %}
-  <div>
+  <div class="section-title-block">
     {% if show_line %}
       <div class="section-line"></div>
     {% endif %}
@@ -16,16 +16,17 @@
 {% endmacro %}
 
 {% macro dot_scale(wert) %}
-  <div class="dot-scale">
-    {% for i in 1..5 %}
-      <span class="dot{% if i <= wert %} dot--on{% endif %}"></span>
-    {% endfor %}
-  </div>
+  {% set max = 5 %}
+  {% set dots = '' %}
+  {% for i in 1..max %}
+    {% set dots = dots ~ (i <= wert ? '&#9679;' : '&#9675;') %}
+  {% endfor %}
+  <div class="dot-scale" aria-label="{{ wert }}/{{ max }}">{{ dots|raw }}</div>
 {% endmacro %}
 
 {% macro skill_group(gruppe) %}
   <div class="skill-group">
-    <p class="text-small text-strong text-muted">{{ gruppe.stufe }}</p>
+    <p class="skill-level">{{ gruppe.stufe }}</p>
     {{ _self.dot_scale(gruppe.wert) }}
     {% if gruppe.show_technologien %}
       {{ _self.tag_list(gruppe.technologien) }}
@@ -34,8 +35,8 @@
 {% endmacro %}
 
 {% macro name_block(name, bereich) %}
-  <div class="name-block">
-    <h1 class="text-title-xl">{{ name }}</h1>
-    <p class="text-title text-muted">{{ bereich }}</p>
+  <div class="name">
+    <h1 class="name-title">{{ name }}</h1>
+    <p class="name-role">{{ bereich }}</p>
   </div>
 {% endmacro %}

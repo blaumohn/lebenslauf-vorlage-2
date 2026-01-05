@@ -35,7 +35,7 @@ final class CvValidatorTest extends TestCase
             'kopfdaten' => [
                 'name' => [
                     'voll' => 'Max Mustermann',
-                    'verkurzte' => 'Max M.',
+                    'kurz' => 'Max M.',
                 ],
                 'bereich' => 'Softwareentwicklung',
                 'ort' => 'Berlin',

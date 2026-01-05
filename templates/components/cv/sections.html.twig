@@ -1,55 +1,68 @@
-{% macro motivation(titel, motivation) %}
+{% macro motivation(titel, motivation, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
-  <section class="section">
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
     {{ ui.section_title(titel, false) }}
-    <p class="text-body">{{ motivation }}</p>
+    <div class="section-body">
+      <p class="section-text">{{ motivation }}</p>
+    </div>
   </section>
 {% endmacro %}
 
-{% macro entries(titel, daten) %}
+{% macro entries(titel, daten, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
   {% import 'components/cv/entry.html.twig' as entry %}
-  <section class="section">
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
     {{ ui.section_title(titel) }}
-    {% for eintrag in daten %}
-      {{ entry.entry(eintrag) }}
-    {% endfor %}
+    <div class="section-body">
+      {% for eintrag in daten %}
+        {{ entry.entry(eintrag) }}
+      {% endfor %}
+    </div>
   </section>
 {% endmacro %}
 
-{% macro talks(titel, daten) %}
+{% macro talks(titel, daten, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
   {% import 'components/cv/entry.html.twig' as entry %}
-  <section class="section">
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
     {{ ui.section_title(titel) }}
-    {% for vortrag in daten %}
-      {{ entry.header({
-        header_title: vortrag.titel ~ ' | ' ~ vortrag.beschreibung,
-        header_time: vortrag.datum,
-        show_location: false,
-        location: ''
-      }) }}
-    {% endfor %}
+    <div class="section-body">
+      {% for vortrag in daten %}
+        {{ entry.entry({
+          show_company: false,
+          company_line: '',
+          show_project: true,
+          project_line: vortrag.titel,
+          grouped: false,
+          header_title: vortrag.beschreibung,
+          header_time: vortrag.datum,
+          show_location: false,
+          location: '',
+          punkte: []
+        }) }}
+      {% endfor %}
+    </div>
   </section>
 {% endmacro %}
 
-{% macro education(titel, daten) %}
+{% macro education(titel, daten, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
-  <section class="section">
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
     {{ ui.section_title(titel) }}
-    {% for eintrag in daten %}
-      <ul class="list">
-        <li class="text-body">{{ eintrag.beschreibung }}, {{ eintrag.grad }}, {{ eintrag.uni }}</li>
-      </ul>
-    {% endfor %}
+    <div class="section-body">
+      {% for eintrag in daten %}
+        <ul>
+          <li>{{ eintrag.beschreibung }}, {{ eintrag.grad }}, {{ eintrag.uni }}</li>
+        </ul>
+      {% endfor %}
+    </div>
   </section>
 {% endmacro %}
 
-{% macro skills(titel, daten) %}
+{% macro skills(titel, daten, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
-  <section class="section">
-    {{ ui.section_title(titel) }}
-    <div>
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
+    <div class="section-body">
       {% for gruppe in daten %}
         {{ ui.skill_group(gruppe) }}
       {% endfor %}
@@ -57,22 +70,29 @@
   </section>
 {% endmacro %}
 
-{% macro languages(titel, daten) %}
+{% macro languages(titel, daten, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
-  <section class="section">
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
     {{ ui.section_title(titel) }}
-    <ul class="text-body">
-      {% for sprache in daten %}
-        <li>{{ sprache.sprache }} - <span class="text-meta">{{ sprache.stufe }}</span></li>
-      {% endfor %}
-    </ul>
+    <div class="section-body">
+      <ul class="language-list">
+        {% for sprache in daten %}
+          <li class="language-item">
+            <span>{{ sprache.sprache }}</span>
+            <span class="language-level">{{ sprache.stufe }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
   </section>
 {% endmacro %}
 
-{% macro interests(titel, daten) %}
+{% macro interests(titel, daten, klasse = '') %}
   {% import 'components/cv/lib.html.twig' as ui %}
-  <section class="section">
+  <section{% if klasse %} class="{{ klasse }}"{% endif %}>
     {{ ui.section_title(titel) }}
-    <p class="text-body">{{ daten|join(', ') }}</p>
+    <div class="section-body">
+      <p class="section-text">{{ daten|join(', ') }}</p>
+    </div>
   </section>
 {% endmacro %}

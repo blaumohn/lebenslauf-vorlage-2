@@ -20,10 +20,10 @@
         "name": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["voll", "verkurzte"],
+          "required": ["voll", "kurz"],
           "properties": {
             "voll": { "type": "string" },
-            "verkurzte": { "type": "string" }
+            "kurz": { "type": "string" }
           }
         },
         "bereich": { "$ref": "#/definitions/intlString" },

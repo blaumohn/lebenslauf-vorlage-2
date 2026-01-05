@@ -1,0 +1,21 @@
+{
+  "name": "lebenslauf-vorlage-php-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "screenshot": "node tools/screenshot.mjs --config var/tmp/screenshots.json",
+    "pixel-diff": "node tools/pixel-diff.mjs --a var/tmp/php-de.png --b var/tmp/next-de.png --out var/tmp/diff-de.png",
+    "build:css": "postcss assets/css/cv/index.css -o public/css/cv.css && postcss assets/css/site.css -o public/css/site.css",
+    "css:watch": "python3 bin/css-watch.py || python bin/css-watch.py"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.1.0"
+  },
+  "dependencies": {
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0"
+  }
+}

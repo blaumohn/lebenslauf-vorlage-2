@@ -1,26 +1,34 @@
 {% macro header(eintrag) %}
   <div class="entry-header">
-    <div class="text-body text-strong">
-      {{ eintrag.header_title }}
+    <div class="entry-title">
+      {% if eintrag.show_project %}
+        <span class="entry-project">{{ eintrag.project_line }}</span> | {{ eintrag.header_title }}
+      {% else %}
+        {{ eintrag.header_title }}
+      {% endif %}
     </div>
-    <span class="text-meta">{{ eintrag.header_time }}</span>
+    <span class="entry-time">{{ eintrag.header_time }}</span>
+  {% if eintrag.show_location %}
+    <div class="entry-location">{{ eintrag.location }}</div>
+  {% endif %}
   </div>
 
-  {% if eintrag.show_location %}
-    <div class="entry-ort text-meta">{{ eintrag.location }}</div>
-  {% endif %}
 {% endmacro %}
 
 {% macro points(punkte) %}
   {% import 'components/cv/lib.html.twig' as ui %}
-  <div>
+  <div class="entry-points">
     {% for punkt in punkte %}
-      {% if punkt.show_tags %}
-        {{ ui.tag_list(punkt.tags) }}
-      {% endif %}
-      <ul class="list">
-        <li class="text-body">{{ punkt.text }}</li>
-      </ul>
+      <div class="entry-point">
+        {% if punkt.show_tags %}
+          <div class="entry-tags">
+            {{ ui.tag_list(punkt.tags) }}
+          </div>
+        {% endif %}
+        <ul class="entry-list">
+          <li>{{ punkt.text }}</li>
+        </ul>
+      </div>
     {% endfor %}
   </div>
 {% endmacro %}
@@ -28,16 +36,14 @@
 {% macro entry(eintrag) %}
   <div class="entry">
     {% if eintrag.show_company %}
-      <div class="text-small text-strong">{{ eintrag.company_line }}</div>
+      <div class="entry-company-line">{{ eintrag.company_line }}</div>
     {% endif %}
 
-    {% if eintrag.show_project %}
-      <div class="text-small text-strong">{{ eintrag.project_line }}</div>
-    {% endif %}
-
-    <div class="{% if eintrag.grouped %}entry-group{% endif %}">
+    <div{% if eintrag.grouped %} class="entry-group"{% endif %}>
       {{ _self.header(eintrag) }}
-      {{ _self.points(eintrag.punkte) }}
+      {% if eintrag.punkte is defined and eintrag.punkte|length %}
+        {{ _self.points(eintrag.punkte) }}
+      {% endif %}
     </div>
   </div>
 {% endmacro %}

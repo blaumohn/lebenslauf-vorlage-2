@@ -1,0 +1,150 @@
+@layer components {
+  .entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .entry-company-line,
+  .entry-project-line {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    line-height: 1.25;
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .entry-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+    line-height: 1.25;
+  }
+
+  .entry-project {
+    font-weight: 600;
+    color: var(--gray-800);
+  }
+
+  .entry-time {
+    margin-right: 1rem;
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: var(--gray-700);
+    line-height: 1.25;
+  }
+
+  .entry-location {
+    position: absolute;
+    top: 100%;
+    right: 1rem;
+    text-align: right;
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: var(--gray-700);
+    line-height: 1.25;
+  }
+
+  .entry-group {
+    border-left: 4px solid var(--gray-400);
+    padding-left: 16px;
+    margin-top: 8px;
+  }
+
+  .entry-tags {
+    padding-left: 16px;
+  }
+
+  .entry-points {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .entry-point {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    break-inside: avoid;
+  }
+
+  .entry-list {
+    margin: 0;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+  }
+
+  .tag {
+    padding: 2px 8px;
+    border: 0;
+    border-radius: 4px;
+    background: #e5e7eb;
+  }
+
+  .skill-group {
+    margin-bottom: 0;
+    break-inside: avoid;
+  }
+
+  .skill-level {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    line-height: 1.25;
+  }
+
+  .skill-group .dot-scale,
+  .skill-group .tag-list {
+    padding-left: 4px;
+  }
+
+  .dot-scale {
+    font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875rem;
+    color: var(--gray-500);
+  }
+
+  .language-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--gray-800);
+    line-height: 1.25;
+    padding-left: 0;
+  }
+
+  .language-item {
+    display: flex;
+    max-width: 10rem;
+    justify-content: space-between;
+    gap: 2px 8px;
+    line-height: 1.25;
+  }
+
+  @media (min-width: 40rem) and (max-width: 50rem) {
+    .language-item {
+      flex-direction: column;
+    }
+  }
+
+  .language-level {
+    color: var(--gray-500);
+  }
+}

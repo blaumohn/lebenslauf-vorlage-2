@@ -6,16 +6,26 @@ Shared-hosting-taugliches PHP-MVP mit Twig, dateibasierter Persistenz und ohne C
 
 ```bash
 composer install
+composer run setup
 composer run dev
 ```
 
 Aufruf: http://127.0.0.1:8080
 
-Optional kannst du beim Dev-Server E-Mail-Ausgabe nach STDOUT aktivieren:
+Voraussetzungen: PHP >= 8.1, Node.js, Python 3.
+
+## Build + Dev (YAML -> JSON -> HTML)
+
+Wenn die Daten als YAML vorliegen, kannst du den kompletten Build-Ablauf nutzen:
 
 ```bash
-composer run dev -- --mail-stdout
+composer run cv:build
+composer run cv:dev
 ```
+
+`cv:build` wandelt YAML zu JSON und rendert die statischen HTML-Dateien via `cv:upload`.
+`cv:dev` fuehrt erst den Build aus und startet danach den Dev-Server.
+Wenn `LEBENSLAUF_DATEN_PFAD` ein Verzeichnis ist, werden alle Dateien `daten-<profil>.yaml` gebaut.
 
 ## Konfiguration
 
@@ -26,6 +36,7 @@ composer run dev -- --mail-stdout
   - `var/state/` wichtig (Token-Whitelist)
 - Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG` oder `APP_LANGS`).
 - Mehrsprachigkeit: `APP_LANGS=de,en` aktiviert pro Sprache statische HTML-Dateien.
+- Optional: `.env` wechseln ueber `APP_ENV_FILE` (z. B. `.env.local`).
 
 ## Admin-Workflows (CLI)
 
@@ -59,6 +70,51 @@ Loescht abgelaufene CAPTCHA-Dateien.
 
 ```bash
 composer run test
+```
+
+## Headless Screenshots (Playwright)
+
+```bash
+npm install
+npx playwright install
+npm run screenshot
+```
+
+Mehrere Screenshots:
+
+```bash
+node tools/screenshot.mjs --config var/tmp/screenshots.json --browser chromium
+```
+
+Mit eigenem User-Data-Dir (Playwright-Profil):
+
+```bash
+node tools/screenshot.mjs --config var/tmp/screenshots.json --user-data-dir var/tmp/pw-profile
+```
+
+Falls Playwright den Browser nicht findet, kannst du den Pfad explizit angeben:
+
+```bash
+node tools/screenshot.mjs --config var/tmp/screenshots.json --executable "/path/to/chrome"
+```
+
+### Layout-Abstand messen (Playwright)
+
+Misst den X-Abstand zwischen einer Tag-Kiste und der Abschnittsueberschrift:
+
+```bash
+node tools/measure-gap.mjs --url "http://127.0.0.1:8080/cv?lang=de&token=TOKEN"
+```
+
+### Pixel-Diff (visuelle Abweichung)
+
+```bash
+node tools/pixel-diff.mjs --a var/tmp/php-de.png --b var/tmp/next-de.png --out var/tmp/diff-de.png
+```
+Fuer mehrere Screenshots kannst du eine Konfigdatei nutzen:
+
+```bash
+node tools/screenshot.mjs --config tools/screenshots.sample.json
 ```
 
 ## Templates

@@ -1,0 +1,101 @@
+@layer reset, base, patterns, components, utilities;
+
+@import "./normalise.css" layer(reset);
+
+@layer base {
+  :root {
+    --bg: #f7f4ef;
+    --ink: #1f1f1f;
+    --muted: #6b5f52;
+    --accent: #234d62;
+  }
+
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  ul,
+  ol {
+    padding-left: 18px;
+  }
+}
+
+@layer patterns {
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px;
+  }
+}
+
+@layer base {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  nav a {
+    margin-right: 12px;
+    text-decoration: none;
+  }
+
+  nav a:last-child {
+    margin-right: 0;
+  }
+
+  @media (max-width: 600px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+@layer base {
+  main {
+    margin-top: 24px;
+  }
+
+  section {
+    margin-top: 24px;
+  }
+}
+
+@layer patterns {
+  .muted {
+    color: var(--muted);
+  }
+
+  .card {
+    background: #fff;
+    padding: 24px;
+    border: 1px solid #e6ded3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@layer base {
+  footer {
+    margin-top: 32px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+}
+
+@layer components {
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #efe5d7;
+    border-radius: 999px;
+    font-size: 0.85rem;
+  }
+}

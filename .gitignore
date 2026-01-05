@@ -1,4 +1,5 @@
 /vendor/
+/public/css
 /.env
 /.env.local
 /.env.local.php
@@ -7,3 +8,4 @@
 /.venv/
 /var/*
 !/var/**/.gitkeep
+/node_modules/

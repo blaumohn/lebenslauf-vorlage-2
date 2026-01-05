@@ -1,0 +1,9 @@
+@layer patterns {
+  .page {
+    max-width: 800px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+}

@@ -50,7 +50,7 @@ final class Config
 
     private function loadEnvFile(): void
     {
-        $envPath = $this->rootPath . DIRECTORY_SEPARATOR . '.env';
+        $envPath = $this->resolveEnvPath();
         if (!is_file($envPath)) {
             return;
         }
@@ -69,6 +69,33 @@ final class Config
             [$key, $value] = $parsed;
             $this->values[$key] = $value;
         }
+    }
+
+    private function resolveEnvPath(): string
+    {
+        $override = getenv('APP_ENV_FILE');
+        if ($override !== false && trim((string) $override) !== '') {
+            $path = trim((string) $override);
+            if ($this->isAbsolutePath($path)) {
+                return $path;
+            }
+            return $this->rootPath . DIRECTORY_SEPARATOR . $path;
+        }
+
+        return $this->rootPath . DIRECTORY_SEPARATOR . '.env';
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        if ($path === '') {
+            return false;
+        }
+
+        if ($path[0] === DIRECTORY_SEPARATOR) {
+            return true;
+        }
+
+        return (bool) preg_match('/^[A-Za-z]:\\\\/', $path);
     }
 
     private function parseEnvLine(string $line): ?array
