@@ -72,51 +72,6 @@ Loescht abgelaufene CAPTCHA-Dateien.
 composer run test
 ```
 
-## Headless Screenshots (Playwright)
-
-```bash
-npm install
-npx playwright install
-npm run screenshot
-```
-
-Mehrere Screenshots:
-
-```bash
-node tools/screenshot.mjs --config var/tmp/screenshots.json --browser chromium
-```
-
-Mit eigenem User-Data-Dir (Playwright-Profil):
-
-```bash
-node tools/screenshot.mjs --config var/tmp/screenshots.json --user-data-dir var/tmp/pw-profile
-```
-
-Falls Playwright den Browser nicht findet, kannst du den Pfad explizit angeben:
-
-```bash
-node tools/screenshot.mjs --config var/tmp/screenshots.json --executable "/path/to/chrome"
-```
-
-### Layout-Abstand messen (Playwright)
-
-Misst den X-Abstand zwischen einer Tag-Kiste und der Abschnittsueberschrift:
-
-```bash
-node tools/measure-gap.mjs --url "http://127.0.0.1:8080/cv?lang=de&token=TOKEN"
-```
-
-### Pixel-Diff (visuelle Abweichung)
-
-```bash
-node tools/pixel-diff.mjs --a var/tmp/php-de.png --b var/tmp/next-de.png --out var/tmp/diff-de.png
-```
-Fuer mehrere Screenshots kannst du eine Konfigdatei nutzen:
-
-```bash
-node tools/screenshot.mjs --config tools/screenshots.sample.json
-```
-
 ## Templates
 
 - Templates verwenden Twig-Makros statt Includes.
