@@ -30,6 +30,14 @@
     "captcha:cleanup": "php bin/console captcha:cleanup",
     "test": "phpunit",
     "css:build": "npm run build:css",
-    "setup": "python3 bin/setup.py || python bin/setup.py"
+    "setup": "python3 bin/setup.py || python bin/setup.py",
+    "qa:setup": [
+      "Composer\\Config::disableProcessTimeout",
+      "python3 bin/qa-env.py setup || python bin/qa-env.py setup"
+    ],
+    "qa:dev": [
+      "Composer\\Config::disableProcessTimeout",
+      "python3 bin/qa-env.py dev || python bin/qa-env.py dev"
+    ]
   }
 }

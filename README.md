@@ -13,6 +13,7 @@ composer run dev
 Aufruf: http://127.0.0.1:8080
 
 Voraussetzungen: PHP >= 8.1, Node.js, Python 3.
+Wenn keine `.local/env-*.ini` vorhanden ist, fragt `composer run setup`, ob `tests/fixtures/env-gueltig.ini` als Demo verwendet werden soll.
 
 ## Build + Dev (YAML -> JSON -> HTML)
 
@@ -29,14 +30,14 @@ Wenn `LEBENSLAUF_DATEN_PFAD` ein Verzeichnis ist, werden alle Dateien `daten-<pr
 
 ## Konfiguration
 
-- Datei `.env` anlegen (siehe `.env.example`).
+- `.local/env-common.ini` und `.local/env-<profil>.ini` verwenden (`APP_ENV` steuert das Profil).
 - Wichtige Ordner:
   - `var/tmp/` kurzlebig (CAPTCHA + Rate-Limits)
   - `var/cache/` ableitbar (gerendertes HTML)
   - `var/state/` wichtig (Token-Whitelist)
 - Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG` oder `APP_LANGS`).
 - Mehrsprachigkeit: `APP_LANGS=de,en` aktiviert pro Sprache statische HTML-Dateien.
-- Optional: `.env` wechseln ueber `APP_ENV_FILE` (z. B. `.env.local`).
+- Optional: einzelne INI-Datei ueber `APP_ENV_FILE` setzen.
 
 ## Admin-Workflows (CLI)
 
@@ -71,6 +72,22 @@ Loescht abgelaufene CAPTCHA-Dateien.
 ```bash
 composer run test
 ```
+
+## Isolierte QA-Aufgaben
+
+```bash
+composer run qa:setup
+composer run qa:dev
+```
+
+`qa:setup` klont das Repo in einen temporaeren Ordner, installiert Abhaengigkeiten und nutzt lokale Cache-Verzeichnisse.
+`qa:dev` fuehrt zusaetzlich `cv:build`, PHPUnit-Tests und einen `curl`-Check gegen den Dev-Server aus.
+Mock-Daten kommen aus `tests/fixtures/daten-default.yaml`.
+
+Optionale Umgebungsvariablen:
+- `EXPECTED_GITHUB_USER` prueft den GitHub-Owner der Quelle (via `origin`).
+- `CLONE_SOURCE` setzt eine lokale Quelle oder Git-URL (Default: lokales Repo).
+- `KEEP_QA_CLONE=1` behaelt die temporaere Clone-Umgebung.
 
 ## Templates
 

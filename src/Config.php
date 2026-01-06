@@ -5,13 +5,11 @@ namespace App;
 final class Config
 {
     private string $rootPath;
-    private array $values;
 
     public function __construct(string $rootPath)
     {
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
-        $this->values = [];
-        $this->loadEnvFile();
+        $this->loadEnvFiles();
     }
 
     public function rootPath(): string
@@ -21,10 +19,6 @@ final class Config
 
     public function get(string $key, mixed $default = null): mixed
     {
-        if (array_key_exists($key, $this->values)) {
-            return $this->values[$key];
-        }
-
         $envValue = getenv($key);
         if ($envValue !== false) {
             return $envValue;
@@ -48,75 +42,58 @@ final class Config
         return (int) $value;
     }
 
-    private function loadEnvFile(): void
-    {
-        $envPath = $this->resolveEnvPath();
-        if (!is_file($envPath)) {
-            return;
-        }
-
-        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        if ($lines === false) {
-            return;
-        }
-
-        foreach ($lines as $line) {
-            $parsed = $this->parseEnvLine($line);
-            if ($parsed === null) {
-                continue;
-            }
-
-            [$key, $value] = $parsed;
-            $this->values[$key] = $value;
-        }
-    }
-
-    private function resolveEnvPath(): string
+    private function loadEnvFiles(): void
     {
         $override = getenv('APP_ENV_FILE');
         if ($override !== false && trim((string) $override) !== '') {
-            $path = trim((string) $override);
-            if ($this->isAbsolutePath($path)) {
-                return $path;
-            }
-            return $this->rootPath . DIRECTORY_SEPARATOR . $path;
+            $envPath = $this->resolvePath(trim((string) $override));
+            $this->loadIniFile($envPath);
+            return;
         }
 
-        return $this->rootPath . DIRECTORY_SEPARATOR . '.env';
+        $profile = (string) (getenv('APP_ENV') ?: 'dev');
+        $commonPath = $this->rootPath . DIRECTORY_SEPARATOR . '.local' . DIRECTORY_SEPARATOR . 'env-common.ini';
+        $profilePath = $this->rootPath . DIRECTORY_SEPARATOR . '.local' . DIRECTORY_SEPARATOR . 'env-' . $profile . '.ini';
+        $this->loadIniFile($commonPath);
+        $this->loadIniFile($profilePath);
     }
 
-    private function isAbsolutePath(string $path): bool
+    private function resolvePath(string $path): string
     {
         if ($path === '') {
-            return false;
+            return $path;
         }
 
         if ($path[0] === DIRECTORY_SEPARATOR) {
-            return true;
+            return $path;
         }
 
-        return (bool) preg_match('/^[A-Za-z]:\\\\/', $path);
+        if ((bool) preg_match('/^[A-Za-z]:\\\\/', $path)) {
+            return $path;
+        }
+
+        return $this->rootPath . DIRECTORY_SEPARATOR . $path;
     }
 
-    private function parseEnvLine(string $line): ?array
+    private function loadIniFile(string $path): void
     {
-        $trimmed = trim($line);
-        if ($trimmed === '' || str_starts_with($trimmed, '#')) {
-            return null;
+        if (!is_file($path)) {
+            return;
         }
 
-        $parts = explode('=', $trimmed, 2);
-        if (count($parts) !== 2) {
-            return null;
+        $values = parse_ini_file($path, false, INI_SCANNER_RAW);
+        if ($values === false) {
+            return;
         }
 
-        $key = trim($parts[0]);
-        if ($key === '') {
-            return null;
+        foreach ($values as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+            if (getenv($key) !== false) {
+                continue;
+            }
+            putenv($key . '=' . $value);
         }
-
-        $value = trim($parts[1]);
-        $value = trim($value, "\"'");
-        return [$key, $value];
     }
 }

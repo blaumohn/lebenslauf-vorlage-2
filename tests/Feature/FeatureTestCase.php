@@ -23,7 +23,7 @@ abstract class FeatureTestCase extends TestCase
             $this->root . '/var/cache/html',
             $this->root . '/var/state/tokens',
         ]);
-        $this->writeEnv($this->root . '/.env');
+        $this->writeEnv($this->root . '/.local/env-dev.ini');
     }
 
     protected function tearDown(): void
@@ -53,6 +53,10 @@ abstract class FeatureTestCase extends TestCase
 
     private function writeEnv(string $path): void
     {
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
         $content = [
             'APP_ENV=dev',
             'APP_LANG=de',

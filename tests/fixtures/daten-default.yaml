@@ -1,0 +1,34 @@
+kopfdaten:
+  name:
+    voll: "Max Mustermann"
+    kurz: "Max M."
+  bereich: "Softwareentwicklung"
+  ort: "Berlin"
+  email: "max@example.com"
+  telefon: "+49 123 456"
+motivation: "Kurzbeschreibung."
+faehigkeiten:
+  - stufe: "Senior"
+    wert: 4
+    technologien:
+      - "PHP"
+      - "SQL"
+berufserfahrung:
+  - titel: "Entwickler"
+    zeitraum: "2020-2023"
+    punkte:
+      - tags:
+          - "PHP"
+        text: "Backend-Entwicklung."
+    ort: "Berlin"
+    unternehmen: "Beispiel GmbH"
+sprachen:
+  - sprache: "Deutsch"
+    stufe: "Muttersprache"
+ausbildung:
+  - uni: "Uni"
+    grad: "BSc"
+    beschreibung: "Informatik"
+interessen:
+  - "Lesen"
+  - "Wandern"
