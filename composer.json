@@ -31,13 +31,9 @@
     "test": "phpunit",
     "css:build": "npm run build:css",
     "setup": "python3 bin/setup.py || python bin/setup.py",
-    "qa:setup": [
+    "tests:smoke": [
       "Composer\\Config::disableProcessTimeout",
-      "python3 bin/qa-env.py setup || python bin/qa-env.py setup"
-    ],
-    "qa:dev": [
-      "Composer\\Config::disableProcessTimeout",
-      "python3 bin/qa-env.py dev || python bin/qa-env.py dev"
+      "python3 tests/smoke.py || python tests/smoke.py"
     ]
   }
 }

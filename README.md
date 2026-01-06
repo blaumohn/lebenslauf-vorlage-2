@@ -73,21 +73,19 @@ Loescht abgelaufene CAPTCHA-Dateien.
 composer run test
 ```
 
-## Isolierte QA-Aufgaben
+## Smoke-Tests
 
 ```bash
-composer run qa:setup
-composer run qa:dev
+composer run tests:smoke
 ```
 
-`qa:setup` klont das Repo in einen temporaeren Ordner, installiert Abhaengigkeiten und nutzt lokale Cache-Verzeichnisse.
-`qa:dev` fuehrt zusaetzlich `cv:build`, PHPUnit-Tests und einen `curl`-Check gegen den Dev-Server aus.
-Mock-Daten kommen aus `tests/fixtures/daten-default.yaml`.
+Der Smoke-Test klont das Repo in einen temporaeren Ordner, installiert Abhaengigkeiten, fuehrt `setup` und `test` aus
+und prueft den Dev-Server via `curl`. Mock-Daten kommen aus `tests/fixtures/daten-default.yaml`.
 
 Optionale Umgebungsvariablen:
 - `EXPECTED_GITHUB_USER` prueft den GitHub-Owner der Quelle (via `origin`).
 - `CLONE_SOURCE` setzt eine lokale Quelle oder Git-URL (Default: lokales Repo).
-- `KEEP_QA_CLONE=1` behaelt die temporaere Clone-Umgebung.
+- `KEEP_SMOKE_CLONE=1` behaelt die temporaere Clone-Umgebung.
 
 ## Templates
 
