@@ -34,7 +34,7 @@
       "composer run css:build",
       "composer run cv:build"
     ],
-    "setup": "python3 bin/setup.py || python bin/setup.py",
+    "setup": "php bin/setup.php",
     "tests:smoke": [
       "Composer\\Config::disableProcessTimeout",
       "python3 tests/smoke.py || python tests/smoke.py"

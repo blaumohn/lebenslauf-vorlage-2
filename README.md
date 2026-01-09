@@ -14,7 +14,7 @@ Aufruf: http://127.0.0.1:8080
 Voraussetzungen: PHP >= 8.1, Node.js, Python 3.
 Standardwerte kommen aus `config/env-default.ini`.
 Wenn keine `.local/env-*.ini` vorhanden ist, fragt `composer run setup`, ob `tests/fixtures/env-gueltig.ini` als Demo verwendet werden soll.
-`composer run setup` fuehrt `composer install`, `npm install` und `pip install pyyaml` aus.
+`composer run setup` fuehrt `composer install`, `npm install` und `pip install pyyaml` aus (Wrapper: `bin/setup.php`).
 
 ## Build + Dev (YAML -> JSON -> HTML)
 
