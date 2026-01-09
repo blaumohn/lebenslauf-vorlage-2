@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env .venv/bin/python3
 import os
 import subprocess
 import sys
@@ -55,8 +55,11 @@ def venv_bin(venv_path, name):
 def main():
     root = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     venv_path = os.path.join(root, ".venv")
+    composer_args = sys.argv[1:]
 
     ensure_local_env(root)
+
+    run(["composer", "install", *composer_args], cwd=root)
 
     ensure_venv(venv_path)
     pip_path = venv_bin(venv_path, "pip")

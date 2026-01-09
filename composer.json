@@ -30,10 +30,17 @@
     "captcha:cleanup": "php bin/console captcha:cleanup",
     "test": "phpunit",
     "css:build": "npm run build:css",
+    "build": [
+      "composer run css:build",
+      "composer run cv:build"
+    ],
     "setup": "python3 bin/setup.py || python bin/setup.py",
     "tests:smoke": [
       "Composer\\Config::disableProcessTimeout",
       "python3 tests/smoke.py || python tests/smoke.py"
+    ],
+    "deploy:preview": [
+      "composer run build"
     ]
   }
 }

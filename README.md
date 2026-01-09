@@ -5,7 +5,6 @@ Shared-hosting-taugliches PHP-MVP mit Twig, dateibasierter Persistenz und ohne C
 ## Lokal starten
 
 ```bash
-composer install
 composer run setup
 composer run dev
 ```
@@ -13,7 +12,9 @@ composer run dev
 Aufruf: http://127.0.0.1:8080
 
 Voraussetzungen: PHP >= 8.1, Node.js, Python 3.
+Standardwerte kommen aus `config/env-default.ini`.
 Wenn keine `.local/env-*.ini` vorhanden ist, fragt `composer run setup`, ob `tests/fixtures/env-gueltig.ini` als Demo verwendet werden soll.
+`composer run setup` fuehrt `composer install`, `npm install` und `pip install pyyaml` aus.
 
 ## Build + Dev (YAML -> JSON -> HTML)
 
@@ -38,6 +39,10 @@ Wenn `LEBENSLAUF_DATEN_PFAD` ein Verzeichnis ist, werden alle Dateien `daten-<pr
 - Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG` oder `APP_LANGS`).
 - Mehrsprachigkeit: `APP_LANGS=de,en` aktiviert pro Sprache statische HTML-Dateien.
 - Optional: einzelne INI-Datei ueber `APP_ENV_FILE` setzen.
+
+Details zu Umgebungen und Variablen: `docs/ENVIRONMENTS.md`.
+
+Preview-Build in CI: `composer run setup -- --no-dev --optimize-autoloader --no-interaction` + `composer run build` (Deploy-Ordner via `bin/ci/preview-copy.sh`).
 
 ## Admin-Workflows (CLI)
 

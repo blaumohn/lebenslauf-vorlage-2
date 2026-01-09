@@ -54,11 +54,11 @@ ensureFileExists($console, 'console');
 $targets = resolveYamlTargets($yamlPath, $profile);
 foreach ($targets as $target) {
     ensureFileExists($target['yaml'], 'YAML');
-    $convertCmd = buildCommand($yamlToJson, [$target['yaml'], $jsonPath]);
-    runCommand($convertCmd, 'YAML to JSON conversion failed');
+    $yamlToJsonCmd = renderCmdString($yamlToJson, [$target['yaml'], $jsonPath]);
+    runCommand($yamlToJsonCmd, 'YAML to JSON conversion failed');
 
-    $uploadCmd = buildCommand(PHP_BINARY, [$console, 'cv:upload', $target['profile'], $jsonPath]);
-    runCommand($uploadCmd, 'CV upload failed');
+    $uploadCvCmd = renderCmdString(PHP_BINARY, [$console, 'cv:upload', $target['profile'], $jsonPath]);
+    runCommand($uploadCvCmd, 'CV upload failed');
     fwrite(STDOUT, "CV build completed: {$target['profile']} ({$target['yaml']})\n");
 }
 
@@ -120,7 +120,7 @@ function resolveYamlTargets(string $yamlPath, string $defaultProfile): array
     ]];
 }
 
-function buildCommand(string $binary, array $args): string
+function renderCmdString(string $binary, array $args): string
 {
     $escaped = array_map('escapeshellarg', $args);
     return escapeshellarg($binary) . ' ' . implode(' ', $escaped);

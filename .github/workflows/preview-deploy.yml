@@ -1,0 +1,51 @@
+name: Preview Deploy
+
+on:
+  push:
+    branches:
+      - preview
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: preview
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Load app defaults
+        run: php bin/export-env.php defaults "$GITHUB_ENV"
+
+      - name: Load deploy defaults
+        run: php bin/export-env.php deploy-defaults "$GITHUB_ENV"
+
+      - name: Setup
+        run: composer run setup -- --no-dev --optimize-autoloader --no-interaction
+
+      - name: Build
+        run: composer run build
+
+      - name: Prepare deploy directory
+        run: bin/ci/preview-copy.sh
+
+      - name: FTP deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          port: ${{ secrets.FTP_PORT || env.FTP_PORT }}
+          local-dir: deploy/
+          server-dir: /HTDOCS/

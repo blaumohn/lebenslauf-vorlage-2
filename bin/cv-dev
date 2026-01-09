@@ -26,13 +26,13 @@ if ($envFile !== null) {
     putenv('APP_ENV_FILE=' . $envFile);
 }
 
-$buildCmd = buildCommand(PHP_BINARY, [$rootPath . '/bin/cv-build']);
-runCommand($buildCmd, 'CV build failed');
+$cvBuildCmd= renderCmdString(PHP_BINARY, [$rootPath . '/bin/cv-build']);
+runCommand($cvBuildCmd, 'CV build failed');
 
-$devCmd = buildCommand(PHP_BINARY, [$rootPath . '/bin/dev']);
+$devCmd = renderCmdString(PHP_BINARY, [$rootPath . '/bin/dev']);
 runCommand($devCmd, 'Dev server failed');
 
-function buildCommand(string $binary, array $args): string
+function renderCmdString(string $binary, array $args): string
 {
     $escaped = array_map('escapeshellarg', $args);
     return escapeshellarg($binary) . ' ' . implode(' ', $escaped);

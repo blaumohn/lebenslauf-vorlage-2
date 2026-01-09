@@ -2,13 +2,17 @@
 
 namespace App;
 
+use App\Env\EnvLoader;
+
 final class Config
 {
     private string $rootPath;
+    private EnvLoader $loader;
 
     public function __construct(string $rootPath)
     {
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
+        $this->loader = new EnvLoader();
         $this->loadEnvFiles();
     }
 
@@ -47,15 +51,17 @@ final class Config
         $override = getenv('APP_ENV_FILE');
         if ($override !== false && trim((string) $override) !== '') {
             $envPath = $this->resolvePath(trim((string) $override));
-            $this->loadIniFile($envPath);
+            $this->loader->loadFile($envPath);
             return;
         }
+
+        $this->loader->loadDefaults($this->rootPath);
 
         $profile = (string) (getenv('APP_ENV') ?: 'dev');
         $commonPath = $this->rootPath . DIRECTORY_SEPARATOR . '.local' . DIRECTORY_SEPARATOR . 'env-common.ini';
         $profilePath = $this->rootPath . DIRECTORY_SEPARATOR . '.local' . DIRECTORY_SEPARATOR . 'env-' . $profile . '.ini';
-        $this->loadIniFile($commonPath);
-        $this->loadIniFile($profilePath);
+        $this->loader->loadFile($commonPath);
+        $this->loader->loadFile($profilePath);
     }
 
     private function resolvePath(string $path): string
@@ -75,25 +81,4 @@ final class Config
         return $this->rootPath . DIRECTORY_SEPARATOR . $path;
     }
 
-    private function loadIniFile(string $path): void
-    {
-        if (!is_file($path)) {
-            return;
-        }
-
-        $values = parse_ini_file($path, false, INI_SCANNER_RAW);
-        if ($values === false) {
-            return;
-        }
-
-        foreach ($values as $key => $value) {
-            if (!is_string($key)) {
-                continue;
-            }
-            if (getenv($key) !== false) {
-                continue;
-            }
-            putenv($key . '=' . $value);
-        }
-    }
 }
