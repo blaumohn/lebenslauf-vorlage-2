@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-use App\Env\EnvLoader;
+require_once __DIR__ . '/../src/Env/EnvLoader.php';
 
-require_once __DIR__ . '/../vendor/autoload.php';
+use App\Env\EnvLoader;
 
 $path = $argv[1] ?? '';
 $target = $argv[2] ?? '';
