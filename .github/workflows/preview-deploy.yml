@@ -48,4 +48,4 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           port: ${{ secrets.FTP_PORT || env.FTP_PORT }}
           local-dir: deploy/
-          server-dir: /HTDOCS/
+          server-dir: ${{ vars.FTP_SERVER_DIR }}

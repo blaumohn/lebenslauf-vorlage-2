@@ -43,6 +43,7 @@ Wenn `LEBENSLAUF_DATEN_PFAD` ein Verzeichnis ist, werden alle Dateien `daten-<pr
 Details zu Umgebungen und Variablen: `docs/ENVIRONMENTS.md`.
 
 Preview-Build in CI: `composer run setup -- --no-dev --optimize-autoloader --no-interaction` + `composer run build` (Deploy-Ordner via `bin/ci/preview-copy.sh`).
+FTP-Zielpfad fuer Preview: Environment-Variable `FTP_SERVER_DIR`.
 
 ## Admin-Workflows (CLI)
 

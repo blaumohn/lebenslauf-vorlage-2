@@ -26,6 +26,7 @@ Dieses Dokument beschreibt die Ebenen und Variablen fuer Runtime, Deployment und
 - Demo-Defaults fuer lokale Dev-Profile: `tests/fixtures/env-gueltig.ini`.
 - Lokale Overrides gehoeren in `.local/env-common.ini` und `.local/env-<profil>.ini`.
 - CI/CD setzt Build-Variablen im Workflow und kann Defaults ueberschreiben.
+- FTP-Zielpfad kommt aus der Environment-Variable `FTP_SERVER_DIR` (Preview Environment).
 
 ## CI-Export
 
