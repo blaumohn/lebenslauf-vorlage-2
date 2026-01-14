@@ -14,9 +14,10 @@ final class PythonRunner
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
     }
 
-    public function run(string $script, array $args = [], bool $interactive = false): int
+    public function run(string $script, array $args = [], bool $interactive = false, bool $allowSystem = false): int
     {
-        [$preferVenv, $allowSystem, $promptOnMissingVenv] = $this->resolvePolicy();
+        [$preferVenv, $allowSystemEnv, $promptOnMissingVenv] = $this->resolvePolicy();
+        $allowSystem = $allowSystem || $allowSystemEnv;
         $python = $this->findPython($preferVenv, $allowSystem, $promptOnMissingVenv);
         if ($python === null) {
             fwrite(STDERR, "Python 3 not found (python3 or python).\n");

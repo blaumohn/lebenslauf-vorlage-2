@@ -19,6 +19,7 @@ Defaults come from `config/env-default.ini`.
 If no `.local/env-*.ini` exists, `php bin/cli setup` asks whether to use `tests/fixtures/env-gueltig.ini` as a demo.
 `php bin/cli setup` runs `npm install` and `pip install pyyaml`.
 `php bin/cli run` starts the Python dev runner (options: `--env`, `--build`, `--mail-stdout`).
+Note: `setup` may fall back to system Python, while other commands prefer `.venv`.
 
 ## CLI syntax
 

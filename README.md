@@ -21,6 +21,7 @@ Standardwerte kommen aus `config/env-default.ini`.
 Wenn keine `.local/env-*.ini` vorhanden ist, fragt `composer run setup`, ob `tests/fixtures/env-gueltig.ini` als Demo verwendet werden soll.
 `php bin/cli setup` fuehrt `npm install` und `pip install pyyaml` aus.
 `php bin/cli run` startet den Python-Dev-Runner (Optionen: `--env`, `--build`, `--mail-stdout`).
+Hinweis: `setup` darf System-Python als Fallback nutzen, alle anderen Befehle bevorzugen `.venv`.
 
 ## CLI Syntax
 

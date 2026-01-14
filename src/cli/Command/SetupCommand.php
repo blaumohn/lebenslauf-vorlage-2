@@ -30,7 +30,7 @@ final class SetupCommand extends BaseCommand
         $this->ensureLocalEnv($input);
 
         $runner = new PythonRunner($this->rootPath());
-        return $runner->run('src/cli/tools/setup.py', [], $input->isInteractive());
+        return $runner->run('src/cli/tools/setup.py', [], $input->isInteractive(), true);
     }
 
     private function ensureLocalEnv(InputInterface $input): void
