@@ -8,39 +8,46 @@
     "slim/slim": "^4.12",
     "slim/psr7": "^1.6",
     "twig/twig": "^3.0",
-    "phpmailer/phpmailer": "^6.9"
+    "phpmailer/phpmailer": "^6.9",
+    "symfony/console": "^7.0",
+    "symfony/process": "^7.0",
+    "symfony/filesystem": "^7.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^10.0"
   },
   "autoload": {
     "psr-4": {
-      "App\\": "src/"
+      "App\\Http\\": "src/http/",
+      "App\\Cli\\": "src/cli/",
+      "App\\Env\\": "src/env/"
     }
   },
   "scripts": {
     "dev": [
       "Composer\\Config::disableProcessTimeout",
-      "python3 bin/dev-all.py || python bin/dev-all.py"
+      "php bin/cli run dev"
     ],
-    "cv:build": "php bin/cv-build",
-    "cv:dev": "php bin/cv-dev",
-    "cv:upload": "php bin/console cv:upload",
-    "token:rotate": "php bin/console token:rotate",
-    "captcha:cleanup": "php bin/console captcha:cleanup",
+    "cv:build": "php bin/cli cv build",
+    "cv:upload": "php bin/cli cv upload",
+    "token:rotate": "php bin/cli token rotate",
+    "captcha:cleanup": "php bin/cli captcha cleanup",
+    "env:get": "php bin/cli env get",
+    "env:export": "php bin/cli env export",
     "test": "phpunit",
     "css:build": "npm run build:css",
-    "build": [
-      "composer run css:build",
-      "composer run cv:build"
-    ],
-    "setup": "php bin/setup.php",
+    "build": "php bin/cli build",
+    "build:dev": "php bin/cli build dev",
+    "build:preview": "php bin/cli build preview",
+    "setup": "php bin/cli setup",
+    "setup:dev": "php bin/cli setup dev",
+    "setup:preview": "php bin/cli setup preview",
     "tests:smoke": [
       "Composer\\Config::disableProcessTimeout",
       "python3 tests/smoke.py || python tests/smoke.py"
     ],
     "deploy:preview": [
-      "composer run build"
+      "php bin/cli build preview"
     ]
   }
 }

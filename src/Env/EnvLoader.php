@@ -2,6 +2,8 @@
 
 namespace App\Env;
 
+use App\Env\EnvPaths;
+
 final class EnvLoader
 {
     public function loadDefaults(string $rootPath): void
@@ -36,14 +38,14 @@ final class EnvLoader
         }
     }
 
-    public function exportDefaultsToFile(string $rootPath, string $targetPath): void
+    public function exportDefaultsToFile(EnvPaths $paths, string $targetPath): void
     {
-        $this->exportFile($rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'env-default.ini', $targetPath);
+        $this->exportFile($paths->defaultsFile(), $targetPath);
     }
 
-    public function exportDeployDefaultsToFile(string $rootPath, string $targetPath): void
+    public function exportDeployDefaultsToFile(EnvPaths $paths, string $targetPath): void
     {
-        $this->exportFile($rootPath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'deploy-default.ini', $targetPath);
+        $this->exportFile($paths->deployDefaultsFile(), $targetPath);
     }
 
     private function exportFile(string $path, string $targetPath): void

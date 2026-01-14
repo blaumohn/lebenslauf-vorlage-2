@@ -63,7 +63,8 @@ def build_env(base_env, clone_path):
             "COMPOSER_CACHE_DIR": ensure_cache_dir(os.path.join(cache_root, "composer")),
             "NPM_CONFIG_CACHE": ensure_cache_dir(os.path.join(cache_root, "npm")),
             "PIP_CACHE_DIR": ensure_cache_dir(os.path.join(cache_root, "pip")),
-            "LEBENSLAUF_DATEN_PFAD": os.path.join(clone_path, "tests", "fixtures"),
+            "LEBENSLAUF_DATEN_PFAD": os.path.join(clone_path, ".local", "lebenslauf"),
+            "APP_BASE_PATH": "",
             "APP_ENV": "dev",
             "AUTO_ENV_SETUP": "1",
             "DEFAULT_CV_PROFILE": "default",
@@ -104,7 +105,7 @@ def start_dev_server(clone_path, env):
         popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         popen_kwargs["preexec_fn"] = os.setsid
-    return subprocess.Popen(["composer", "run", "dev"], **popen_kwargs)
+    return subprocess.Popen(["php", "bin/cli", "run", "dev"], **popen_kwargs)
 
 
 def stop_dev_server(proc):
@@ -141,7 +142,7 @@ class SmokeTests(unittest.TestCase):
         clone_repo(source, cls.clone_path)
         cls.env = build_env(os.environ, cls.clone_path)
         run(["composer", "install", "--no-interaction", "--prefer-dist"], cwd=cls.clone_path, env=cls.env)
-        run(["composer", "run", "setup"], cwd=cls.clone_path, env=cls.env)
+        run(["php", "bin/cli", "setup", "dev"], cwd=cls.clone_path, env=cls.env)
 
     @classmethod
     def tearDownClass(cls):
@@ -155,7 +156,7 @@ class SmokeTests(unittest.TestCase):
         env_path = os.path.join(self.clone_path, ".local", "env-dev.ini")
         self.assertTrue(os.path.isfile(env_path), "Expected .local/env-dev.ini to exist")
 
-        run(["composer", "run", "cv:build"], cwd=self.clone_path, env=self.env)
+        run(["php", "bin/cli", "cv", "build", "dev"], cwd=self.clone_path, env=self.env)
 
         run(["composer", "run", "test"], cwd=self.clone_path, env=self.env)
 

@@ -4,7 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
-use App\View\PageViewBuilder;
+use App\Http\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -32,7 +32,7 @@ final class ContactFormAction
     {
         $trustProxy = $this->context->config->getBool('TRUST_PROXY', false);
         $ip = $this->context->ipResolver->resolve($request, $trustProxy);
-        return hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'salt'));
+        return hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'change-me'));
     }
 
     private function isRateLimited(string $ipHash): bool

@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+function main(): int
+{
+    require __DIR__ . '/../vendor/autoload.php';
+
+    $app = new App\Cli\Application();
+    return $app->run();
+}
+
+exit(main());

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Security\RateLimiter;
-use App\Storage\FileStorage;
+use App\Http\Security\RateLimiter;
+use App\Http\Storage\FileStorage;
 use PHPUnit\Framework\TestCase;
 
 final class RateLimiterTest extends TestCase

@@ -4,7 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
-use App\View\PageViewBuilder;
+use App\Http\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -21,7 +21,7 @@ final class ContactSubmitAction
     {
         $trustProxy = $this->context->config->getBool('TRUST_PROXY', false);
         $ip = $this->context->ipResolver->resolve($request, $trustProxy);
-        $ipHash = hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'salt'));
+        $ipHash = hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'change-me'));
 
         $window = $this->context->config->getInt('RATE_LIMIT_WINDOW_SECONDS', 600);
         $maxPost = $this->context->config->getInt('CONTACT_MAX_POST', 3);

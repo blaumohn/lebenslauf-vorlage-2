@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Security\TokenService;
-use App\Storage\FileStorage;
+use App\Http\Security\TokenService;
+use App\Http\Storage\FileStorage;
 use PHPUnit\Framework\TestCase;
 
 final class TokenServiceTest extends TestCase

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Captcha\CaptchaService;
-use App\Storage\FileStorage;
+use App\Http\Captcha\CaptchaService;
+use App\Http\Storage\FileStorage;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
 final class ContactFeatureTest extends FeatureTestCase

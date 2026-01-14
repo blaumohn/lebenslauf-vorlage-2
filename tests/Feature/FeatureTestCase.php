@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Config;
+use App\Env\Env;
 use App\Http\AppBuilder;
 use PHPUnit\Framework\TestCase;
 use Slim\App;
@@ -14,8 +14,9 @@ abstract class FeatureTestCase extends TestCase
     protected function setUp(): void
     {
         $this->root = sys_get_temp_dir() . '/php-mvp-app-' . bin2hex(random_bytes(6));
+        putenv('APP_ENV=dev');
         mkdir($this->root, 0775, true);
-        $this->copyDir($this->projectRoot() . '/templates', $this->root . '/templates');
+        $this->copyDir($this->projectRoot() . '/src/resources/templates', $this->root . '/src/resources/templates');
         $this->copyDir($this->projectRoot() . '/labels', $this->root . '/labels');
         $this->ensureDirs([
             $this->root . '/var/tmp/captcha',
@@ -33,7 +34,7 @@ abstract class FeatureTestCase extends TestCase
 
     protected function app(): App
     {
-        $config = new Config($this->root);
+        $config = new Env($this->root);
         return AppBuilder::build($config);
     }
 
@@ -59,6 +60,7 @@ abstract class FeatureTestCase extends TestCase
         }
         $content = [
             'APP_ENV=dev',
+            'APP_BASE_PATH=',
             'APP_LANG=de',
             'APP_LANGS=de,en',
             'LABELS_PATH=labels/etiketten.json',

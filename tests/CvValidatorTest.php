@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Cv\CvValidator;
+use App\Http\Cv\CvValidator;
 use PHPUnit\Framework\TestCase;
 
 final class CvValidatorTest extends TestCase

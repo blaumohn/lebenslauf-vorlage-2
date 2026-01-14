@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Storage\FileStorage;
-use App\Storage\StorageException;
+use App\Http\Storage\FileStorage;
+use App\Http\Storage\StorageException;
 use PHPUnit\Framework\TestCase;
 
 final class StorageExceptionTest extends TestCase

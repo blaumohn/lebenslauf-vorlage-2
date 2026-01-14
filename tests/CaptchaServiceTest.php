@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Captcha\CaptchaService;
-use App\Storage\FileStorage;
+use App\Http\Captcha\CaptchaService;
+use App\Http\Storage\FileStorage;
 use PHPUnit\Framework\TestCase;
 
 final class CaptchaServiceTest extends TestCase

@@ -2,8 +2,8 @@
 
 namespace App\Http;
 
-use App\Storage\StorageException;
-use App\View\PageViewBuilder;
+use App\Http\Storage\StorageException;
+use App\Http\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Psr7\Response;
