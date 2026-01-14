@@ -82,8 +82,17 @@ def clone_repo(source, target):
     run(["git", "clone", source, target])
 
 
-def wait_for_server(url, retries=20, delay=0.5):
+def wait_for_server(url, process, retries=20, delay=0.5):
     for _ in range(retries):
+        exit_code = process.poll()
+        if exit_code is not None:
+            stdout, stderr = process.communicate(timeout=2)
+            raise RuntimeError(
+                "Dev-Server ist beendet.\n"
+                f"Exit-Code: {exit_code}\n"
+                f"STDOUT:\n{stdout}\n"
+                f"STDERR:\n{stderr}"
+            )
         try:
             fetch(url)
             return
@@ -105,7 +114,13 @@ def start_dev_server(clone_path, env):
         popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         popen_kwargs["preexec_fn"] = os.setsid
-    return subprocess.Popen(["php", "bin/cli", "run", "dev"], **popen_kwargs)
+    return subprocess.Popen(
+        ["php", "bin/cli", "run", "dev"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        **popen_kwargs,
+    )
 
 
 def stop_dev_server(proc):
@@ -162,7 +177,7 @@ class SmokeTests(unittest.TestCase):
 
         proc = start_dev_server(self.clone_path, self.env)
         try:
-            wait_for_server("http://127.0.0.1:8080/")
+            wait_for_server("http://127.0.0.1:8080/", proc)
             html = fetch("http://127.0.0.1:8080/cv")
             self.assertIn("Lebenslauf", html)
         finally:

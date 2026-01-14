@@ -11,20 +11,27 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-#[AsCommand(name: 'token rotate', description: 'Rotiere Token-Dateien.')]
-final class TokenRotateCommand extends BaseCommand
+#[AsCommand(name: 'token', description: 'Token-Tools (rotate).')]
+final class TokenCommand extends BaseCommand
 {
     protected function configure(): void
     {
-        $this->addArgument('profile', InputArgument::REQUIRED, 'Token-Profil')
+        $this->addArgument('action', InputArgument::REQUIRED, 'rotate')
+            ->addArgument('profile', InputArgument::OPTIONAL, 'Token-Profil')
             ->addArgument('count', InputArgument::OPTIONAL, 'Anzahl Token', '1');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $action = strtolower(trim((string) $input->getArgument('action')));
+        if ($action !== 'rotate') {
+            $output->writeln('<error>Usage: token rotate <PROFIL> [COUNT]</error>');
+            return Command::FAILURE;
+        }
+
         $profile = trim((string) $input->getArgument('profile'));
         if ($profile === '') {
-            $output->writeln('<error>Usage: token rotate <PROFILE> [COUNT]</error>');
+            $output->writeln('<error>Usage: token rotate <PROFIL> [COUNT]</error>');
             return Command::FAILURE;
         }
 

@@ -33,4 +33,4 @@ Dieses Dokument beschreibt die Ebenen und Variablen fuer Runtime, Deployment und
 
 ## CI-Export
 
-Die GitHub Actions laden Defaults ueber `bin/cli env export`; die Preview-Pipeline nutzt danach `composer install --no-dev --optimize-autoloader --no-interaction`, `composer run setup -- preview` und `composer run build -- preview`.
+Die GitHub Actions laden Defaults ueber `bin/cli env export`; die Preview-Pipeline nutzt danach `composer install --no-dev --optimize-autoloader --no-interaction`, `php bin/cli setup preview` und `php bin/cli build preview`.
