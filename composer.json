@@ -2,14 +2,24 @@
   "name": "local/lebenslauf-vorlage",
   "description": "Shared-hosting-friendly CV site (PHP + Twig) with file-based state.",
   "type": "project",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/blaumohn/env-pipeline-spec-php"
+    }
+  ],
   "require": {
     "php": ">=8.1",
+    "blaumohn/env-pipeline-spec-php": "dev-main",
     "opis/json-schema": "^2.4",
     "slim/slim": "^4.12",
     "slim/psr7": "^1.6",
     "twig/twig": "^3.0",
     "phpmailer/phpmailer": "^6.9",
     "symfony/console": "^7.0",
+    "symfony/config": "^7.0",
+    "symfony/dotenv": "^7.0",
+    "symfony/yaml": "^7.0",
     "symfony/process": "^7.0",
     "symfony/filesystem": "^7.0"
   },
@@ -18,9 +28,9 @@
   },
   "autoload": {
     "psr-4": {
+      "App\\Content\\": "src/content/",
       "App\\Http\\": "src/http/",
-      "App\\Cli\\": "src/cli/",
-      "App\\Env\\": "src/env/"
+      "App\\Cli\\": "src/cli/"
     }
   },
   "scripts": {
@@ -33,7 +43,9 @@
     "token:rotate": "php bin/cli token rotate",
     "captcha:cleanup": "php bin/cli captcha cleanup",
     "env:get": "php bin/cli env get",
-    "env:export": "php bin/cli env export",
+    "env:compile": "php bin/cli env compile",
+    "env:lint": "php bin/cli env lint",
+    "env:show": "php bin/cli env show",
     "test": "phpunit",
     "css:build": "npm run build:css",
     "build": "php bin/cli build",

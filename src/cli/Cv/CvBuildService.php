@@ -2,16 +2,17 @@
 
 namespace App\Cli\Cv;
 
-use App\Cli\PythonRunner;
-use App\Env\Env;
+use App\Content\ContentConfig;
+use EnvPipelineSpec\Env\Env;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 final class CvBuildService
 {
     private string $rootPath;
     private Env $env;
-    private PythonRunner $python;
+    private ContentConfig $content;
     private ContentSourceResolver $resolver;
     private CvUploadService $uploader;
 
@@ -19,7 +20,7 @@ final class CvBuildService
     {
         $this->env = $env;
         $this->rootPath = $env->rootPath();
-        $this->python = new PythonRunner($this->rootPath);
+        $this->content = new ContentConfig($this->rootPath);
         $this->resolver = new ContentSourceResolver($env);
         $this->uploader = new CvUploadService($env);
     }
@@ -46,23 +47,45 @@ final class CvBuildService
         $yamlPath = (string) ($target['yaml'] ?? '');
         $profile = (string) ($target['profile'] ?? '');
         $this->ensureFileExists($yamlPath, 'YAML');
-        $this->runYamlToJson($yamlPath, $jsonPath, $interactive);
+        $this->runYamlToJson($yamlPath, $jsonPath);
         $this->uploader->upload($profile, $jsonPath, $output);
         $output->writeln("CV build completed: {$profile} ({$yamlPath})");
     }
 
-    private function runYamlToJson(string $yamlPath, string $jsonPath, bool $interactive): void
+    private function runYamlToJson(string $yamlPath, string $jsonPath): void
     {
-        $script = Path::join('src', 'cli', 'tools', 'yaml_to_json.py');
-        $exitCode = $this->python->run($script, [$yamlPath, $jsonPath], $interactive);
-        if ($exitCode !== 0) {
-            throw new \RuntimeException('YAML to JSON conversion failed.');
+        $data = $this->parseYaml($yamlPath);
+        $json = $this->encodeJson($data);
+        if (file_put_contents($jsonPath, $json) === false) {
+            throw new \RuntimeException("JSON write failed: {$jsonPath}");
         }
+    }
+
+    private function parseYaml(string $path): array
+    {
+        try {
+            $data = Yaml::parseFile($path);
+        } catch (ParseException $error) {
+            throw new \RuntimeException("YAML parse failed: {$path}", 0, $error);
+        }
+        if (!is_array($data)) {
+            throw new \RuntimeException("YAML content is not a map: {$path}");
+        }
+        return $data;
+    }
+
+    private function encodeJson(array $data): string
+    {
+        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            throw new \RuntimeException('JSON encode failed.');
+        }
+        return $json;
     }
 
     private function defaultProfile(): string
     {
-        return (string) $this->env->get('CV_PROFILE', $this->env->get('DEFAULT_CV_PROFILE', 'default'));
+        return $this->content->cvProfile();
     }
 
     private function isAutomated(): bool

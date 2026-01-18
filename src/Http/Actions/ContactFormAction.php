@@ -32,13 +32,14 @@ final class ContactFormAction
     {
         $trustProxy = $this->context->config->getBool('TRUST_PROXY', false);
         $ip = $this->context->ipResolver->resolve($request, $trustProxy);
-        return hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'change-me'));
+        $salt = $this->context->config->requireString('IP_SALT');
+        return hash_hmac('sha256', $ip, $salt);
     }
 
     private function isRateLimited(string $ipHash): bool
     {
-        $window = $this->context->config->getInt('RATE_LIMIT_WINDOW_SECONDS', 600);
-        $maxGet = $this->context->config->getInt('CAPTCHA_MAX_GET', 5);
+        $window = $this->context->config->requireInt('RATE_LIMIT_WINDOW_SECONDS');
+        $maxGet = $this->context->config->requireInt('CAPTCHA_MAX_GET');
         return !$this->context->rateLimiter->allow('contact_get_' . $ipHash, $maxGet, $window);
     }
 
@@ -46,10 +47,10 @@ final class ContactFormAction
         ResponseInterface $response,
         int $status
     ): ResponseInterface {
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base($this->context->content);
         $html = $this->context->twig->render('error.html.twig', [
             'title' => 'Zu viele Anfragen',
-            'message' => 'Bitte spaeter erneut versuchen.',
+            'message' => 'Bitte später erneut versuchen.',
         ] + $base);
         return ResponseHelper::html($response, $html, $status);
     }
@@ -59,7 +60,7 @@ final class ContactFormAction
         string $ipHash,
         ?string $error
     ): ResponseInterface {
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base($this->context->content);
         $challenge = $this->context->captchaService->createChallenge($ipHash);
         $captchaId = $challenge['captcha_id'];
         $captchaUrl = '/captcha.png?id=' . urlencode($captchaId);

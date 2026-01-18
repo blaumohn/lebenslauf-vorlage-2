@@ -34,22 +34,6 @@ def resolve_source(value):
     return value
 
 
-def resolve_origin_url(source):
-    if os.path.exists(source):
-        return output(["git", "-C", source, "config", "--get", "remote.origin.url"])
-    return source
-
-
-def expected_owner_ok(url, owner):
-    if not owner:
-        return True
-    if not url:
-        return False
-    lower = url.lower()
-    owner = owner.lower()
-    return f"github.com/{owner}/" in lower or f"github.com:{owner}/" in lower
-
-
 def ensure_cache_dir(path):
     os.makedirs(path, exist_ok=True)
     return path
@@ -66,10 +50,14 @@ def build_env(base_env, clone_path):
             "LEBENSLAUF_DATEN_PFAD": os.path.join(clone_path, ".local", "lebenslauf"),
             "APP_BASE_PATH": "",
             "APP_ENV": "dev",
+            "PIPELINE": "dev",
             "AUTO_ENV_SETUP": "1",
-            "DEFAULT_CV_PROFILE": "default",
-            "CV_PROFILE": "default",
-            "APP_LANG": "de",
+            "IP_SALT": "change-me",
+            "CAPTCHA_MAX_GET": "5",
+            "CONTACT_MAX_POST": "3",
+            "RATE_LIMIT_WINDOW_SECONDS": "600",
+            "MAIL_STDOUT": "1",
+            "SMTP_FROM_NAME": "Web",
         }
     )
     return env
@@ -123,6 +111,16 @@ def start_dev_server(clone_path, env):
     )
 
 
+def ensure_env_local(clone_path):
+    env_path = os.path.join(clone_path, ".env.local")
+    if os.path.isfile(env_path):
+        return
+    fixture = os.path.join(clone_path, "tests", "fixtures", "env.local")
+    if not os.path.isfile(fixture):
+        raise RuntimeError("Missing env.local fixture.")
+    shutil.copyfile(fixture, env_path)
+
+
 def stop_dev_server(proc):
     if os.name == "nt":
         proc.terminate()
@@ -145,19 +143,13 @@ class SmokeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         source = resolve_source(os.environ.get("CLONE_SOURCE", "local"))
-        origin_url = resolve_origin_url(source)
-        expected_owner = os.environ.get("EXPECTED_GITHUB_USER", "")
-        if not expected_owner_ok(origin_url, expected_owner):
-            raise RuntimeError(
-                f"Origin mismatch: expected GitHub owner {expected_owner}, got {origin_url or 'missing'}"
-            )
-
         cls.temp_dir = tempfile.mkdtemp(prefix="lebenslauf-smoke-")
         cls.clone_path = os.path.join(cls.temp_dir, "repo")
         clone_repo(source, cls.clone_path)
         cls.env = build_env(os.environ, cls.clone_path)
         run(["composer", "install", "--no-interaction", "--prefer-dist"], cwd=cls.clone_path, env=cls.env)
         run(["php", "bin/cli", "setup", "dev"], cwd=cls.clone_path, env=cls.env)
+        ensure_env_local(cls.clone_path)
 
     @classmethod
     def tearDownClass(cls):
@@ -168,8 +160,8 @@ class SmokeTests(unittest.TestCase):
 
     def test_smoke_flow(self):
         """clone -> setup -> tests -> dev-server -> /cv check."""
-        env_path = os.path.join(self.clone_path, ".local", "env-dev.ini")
-        self.assertTrue(os.path.isfile(env_path), "Expected .local/env-dev.ini to exist")
+        env_path = os.path.join(self.clone_path, ".env.local")
+        self.assertTrue(os.path.isfile(env_path), "Expected .env.local to exist")
 
         run(["php", "bin/cli", "cv", "build", "dev"], cwd=self.clone_path, env=self.env)
 

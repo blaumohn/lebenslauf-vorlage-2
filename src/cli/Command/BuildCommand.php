@@ -3,7 +3,9 @@
 namespace App\Cli\Command;
 
 use App\Cli\Cv\CvBuildService;
-use App\Env\Env;
+use EnvPipelineSpec\Env\Env;
+use EnvPipelineSpec\Env\EnvCompiler;
+use EnvPipelineSpec\Env\Context;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,6 +34,16 @@ final class BuildCommand extends BaseCommand
             return $exitCode;
         }
 
+        $compiler = new EnvCompiler($this->rootPath());
+        $buildContext = $this->resolveContext($compiler, $profile, 'build');
+        if (!$this->validateEnv($compiler, $buildContext, $input, $output)) {
+            return Command::FAILURE;
+        }
+        $runtimeContext = new Context($buildContext->pipeline(), 'runtime', $buildContext->profile());
+        if (!$this->compileEnv($compiler, $runtimeContext, $input, $output)) {
+            return Command::FAILURE;
+        }
+
         $env = new Env($this->rootPath());
         $builder = new CvBuildService($env);
 
@@ -43,6 +55,45 @@ final class BuildCommand extends BaseCommand
         }
 
         return Command::SUCCESS;
+    }
+
+    private function resolveContext(EnvCompiler $compiler, string $profile, string $phase): Context
+    {
+        return $compiler->resolveContext([
+            'pipeline' => 'dev',
+            'phase' => $phase,
+            'profile' => $profile,
+        ]);
+    }
+
+    private function validateEnv(
+        EnvCompiler $compiler,
+        Context $context,
+        InputInterface $input,
+        OutputInterface $output
+    ): bool {
+        try {
+            $compiler->validate($context, $input->isInteractive());
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
+            return false;
+        }
+        return true;
+    }
+
+    private function compileEnv(
+        EnvCompiler $compiler,
+        Context $context,
+        InputInterface $input,
+        OutputInterface $output
+    ): bool {
+        try {
+            $compiler->compile($context, $input->isInteractive());
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
+            return false;
+        }
+        return true;
     }
 
     private function runCssBuild(OutputInterface $output): int

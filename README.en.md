@@ -12,14 +12,18 @@ php bin/cli setup dev
 php bin/cli run dev
 ```
 
+`run` compiles the runtime env to `var/config/env.php`.
+
+Create `.env.local` before the first run (see `.env.template`).
+
 The same commands are also available as `composer` scripts.
 
 Requirements: PHP >= 8.1, Node.js, Python 3.
-Defaults come from `config/env-default.ini`.
-If no `.local/env-*.ini` exists, `php bin/cli setup` asks whether to use `tests/fixtures/env-gueltig.ini` as a demo.
-`php bin/cli setup` runs `npm install` and `pip install pyyaml`.
+Defaults come from `.env` files (see `.env.template`).
+If no `.env.local` exists, `php bin/cli setup` asks whether to use `tests/fixtures/env.local` as a demo.
+`php bin/cli setup` runs `npm install`.
 `php bin/cli run` starts the Python dev runner (options: `--env`, `--build`, `--mail-stdout`).
-Note: `setup` may fall back to system Python, while other commands prefer `.venv`.
+Note: `setup` creates `.venv` using system Python; other commands prefer `.venv`.
 
 ## CLI syntax
 
@@ -50,16 +54,19 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
 
 ## Configuration
 
-- Use `.local/env-common.ini` and `.local/env-<profile>.ini` (`APP_ENV` selects the profile).
+- Use `.env`/`.env.local` and `.env.<PIPELINE>` variants (see `docs/ENVIRONMENTS.md`).
+- Content config lives in `.local/content.ini` (site name, languages, profiles, contact texts).
+- Example env values live in `.env.template`.
 - Important folders:
   - `var/tmp/` short-lived (CAPTCHA + rate limits)
   - `var/cache/` derived (rendered HTML)
   - `var/state/` important (token whitelist)
-- Labels for section titles: `labels/etiketten.json` (language via `APP_LANG` or `APP_LANGS`).
-- Multilingual: `APP_LANGS=de,en` writes static HTML per language.
-- Optional: single INI file via `APP_ENV_FILE`.
+- Labels for section titles: `src/resources/labels.json`.
+- Multilingual output is controlled via `.local/content.ini`.
+- Env rules live in `config/env.manifest.yaml`.
 
 Details on environments and variables: `docs/ENVIRONMENTS.md`.
+Deployments use `var/config/env.php` as the compiled runtime env (`php bin/cli env compile`).
 
 Preview build in CI: `composer install --no-dev --optimize-autoloader --no-interaction` + `php bin/cli setup preview` + `php bin/cli build preview` (deploy dir via `bin/ci/preview-copy.sh`).
 FTP target path for preview: environment variable `FTP_SERVER_DIR`.
@@ -73,8 +80,8 @@ Base path for preview without rewrite: `APP_BASE_PATH` (e.g. `/public`).
 php bin/cli cv upload <PROFILE> <JSON_PATH>
 ```
 
-Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<PROFILE>` equals `DEFAULT_CV_PROFILE`, it also creates `cv-public.<lang>.html`.
-The default language (first in `APP_LANGS`, otherwise `APP_LANG`) also writes legacy files `cv-private-<profile>.html` and `cv-public.html`.
+Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<PROFILE>` equals the default profile from `.local/content.ini`, it also creates `cv-public.<lang>.html`.
+The default language (from `.local/content.ini`) also writes legacy files `cv-private-<profile>.html` and `cv-public.html`.
 JSON is validated against `schemas/lebenslauf.schema.json`.
 Note: `APP_ENV` must be set (optional via `--app-env <profile>`).
 
@@ -110,7 +117,6 @@ The smoke test clones the repo into a temporary directory, installs dependencies
 Mock data comes from `tests/fixtures/lebenslauf/daten-gueltig.yaml`.
 
 Optional environment variables:
-- `EXPECTED_GITHUB_USER` checks the GitHub owner of the source (via `origin`).
 - `CLONE_SOURCE` sets a local source or Git URL (default: local repo).
 - `KEEP_SMOKE_CLONE=1` keeps the temporary clone.
 

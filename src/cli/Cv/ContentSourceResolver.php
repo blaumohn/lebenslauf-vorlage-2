@@ -2,7 +2,7 @@
 
 namespace App\Cli\Cv;
 
-use App\Env\Env;
+use EnvPipelineSpec\Env\Env;
 use Symfony\Component\Filesystem\Path;
 
 final class ContentSourceResolver

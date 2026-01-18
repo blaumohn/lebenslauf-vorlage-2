@@ -2,8 +2,8 @@
 
 namespace App\Http;
 
+use App\Content\ContentConfig;
 use App\Http\Captcha\CaptchaService;
-use App\Env\Env;
 use App\Http\Contact\MailService;
 use App\Http\Cv\CvStorage;
 use App\Http\Security\RateLimiter;
@@ -14,7 +14,8 @@ use Twig\Environment;
 
 final class AppContext
 {
-    public Env $config;
+    public EnvCompiled $config;
+    public ContentConfig $content;
     public Environment $twig;
     public CvStorage $cvStorage;
     public TokenService $tokenService;
@@ -23,13 +24,14 @@ final class AppContext
     public MailService $mailService;
     public IpResolver $ipResolver;
 
-    public static function fromConfig(Env $config): self
+    public static function fromConfig(EnvCompiled $config, ContentConfig $content): self
     {
         $rootPath = $config->rootPath();
         $storage = new FileStorage();
 
         $context = new self();
         $context->config = $config;
+        $context->content = $content;
         $context->twig = TwigFactory::create($rootPath . '/src/resources/templates');
         TwigFactory::configure($context->twig, $config->basePath());
         $context->cvStorage = new CvStorage($storage, $rootPath . '/var/cache/html');
@@ -40,7 +42,7 @@ final class AppContext
             $config->getInt('CAPTCHA_TTL_SECONDS', 600)
         );
         $context->rateLimiter = new RateLimiter($storage, $rootPath . '/var/tmp/ratelimit');
-        $context->mailService = new MailService($config);
+        $context->mailService = new MailService($config, $content);
         $context->ipResolver = new IpResolver();
 
         return $context;

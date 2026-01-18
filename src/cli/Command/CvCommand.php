@@ -4,7 +4,9 @@ namespace App\Cli\Command;
 
 use App\Cli\Cv\CvBuildService;
 use App\Cli\Cv\CvUploadService;
-use App\Env\Env;
+use EnvPipelineSpec\Env\EnvCompiler;
+use EnvPipelineSpec\Env\Context;
+use EnvPipelineSpec\Env\Env;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,7 +22,7 @@ final class CvCommand extends BaseCommand
         $this->addArgument('action', InputArgument::REQUIRED, 'build oder upload')
             ->addArgument('profile', InputArgument::OPTIONAL, 'Profilname')
             ->addArgument('json', InputArgument::OPTIONAL, 'JSON-Pfad (bei upload)')
-            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'APP_ENV fuer die Ausfuehrung setzen');
+            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'APP_ENV für die Ausführung setzen');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -45,6 +47,11 @@ final class CvCommand extends BaseCommand
         }
 
         $this->setProfileEnv($profile);
+        $compiler = new EnvCompiler($this->rootPath());
+        $context = $this->resolveContext($compiler, $profile, 'build');
+        if (!$this->validateEnv($compiler, $context, $input, $output)) {
+            return Command::FAILURE;
+        }
         $env = new Env($this->rootPath());
         $builder = new CvBuildService($env);
 
@@ -72,6 +79,11 @@ final class CvCommand extends BaseCommand
             return Command::FAILURE;
         }
 
+        $compiler = new EnvCompiler($this->rootPath());
+        $context = $this->resolveContext($compiler, $profile, 'build');
+        if (!$this->validateEnv($compiler, $context, $input, $output)) {
+            return Command::FAILURE;
+        }
         $env = new Env($this->rootPath());
         $service = new CvUploadService($env);
 
@@ -83,5 +95,29 @@ final class CvCommand extends BaseCommand
         }
 
         return Command::SUCCESS;
+    }
+
+    private function resolveContext(EnvCompiler $compiler, string $profile, string $phase): Context
+    {
+        return $compiler->resolveContext([
+            'pipeline' => 'dev',
+            'phase' => $phase,
+            'profile' => $profile,
+        ]);
+    }
+
+    private function validateEnv(
+        EnvCompiler $compiler,
+        Context $context,
+        InputInterface $input,
+        OutputInterface $output
+    ): bool {
+        try {
+            $compiler->validate($context, $input->isInteractive());
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
+            return false;
+        }
+        return true;
     }
 }

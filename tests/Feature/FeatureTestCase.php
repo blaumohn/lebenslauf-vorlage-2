@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Env\Env;
+use EnvPipelineSpec\Env\EnvCompiler;
 use App\Http\AppBuilder;
+use App\Http\EnvCompiled;
 use PHPUnit\Framework\TestCase;
 use Slim\App;
 
@@ -16,15 +17,22 @@ abstract class FeatureTestCase extends TestCase
         $this->root = sys_get_temp_dir() . '/php-mvp-app-' . bin2hex(random_bytes(6));
         putenv('APP_ENV=dev');
         mkdir($this->root, 0775, true);
+        $this->copyDir($this->projectRoot() . '/config', $this->root . '/config');
         $this->copyDir($this->projectRoot() . '/src/resources/templates', $this->root . '/src/resources/templates');
-        $this->copyDir($this->projectRoot() . '/labels', $this->root . '/labels');
+        $this->copyFile(
+            $this->projectRoot() . '/src/resources/labels.json',
+            $this->root . '/src/resources/labels.json'
+        );
         $this->ensureDirs([
             $this->root . '/var/tmp/captcha',
             $this->root . '/var/tmp/ratelimit',
             $this->root . '/var/cache/html',
             $this->root . '/var/state/tokens',
+            $this->root . '/var/config',
         ]);
-        $this->writeEnv($this->root . '/.local/env-dev.ini');
+        $this->writeEnv($this->root . '/.env.local');
+        $this->writeContent($this->root . '/.local/content.ini');
+        $this->compileEnv();
     }
 
     protected function tearDown(): void
@@ -34,7 +42,7 @@ abstract class FeatureTestCase extends TestCase
 
     protected function app(): App
     {
-        $config = new Env($this->root);
+        $config = new EnvCompiled($this->root);
         return AppBuilder::build($config);
     }
 
@@ -59,23 +67,56 @@ abstract class FeatureTestCase extends TestCase
             mkdir($dir, 0775, true);
         }
         $content = [
+            'PIPELINE=dev',
+            'PHASE=runtime',
+            'PROFILE=dev',
             'APP_ENV=dev',
             'APP_BASE_PATH=',
-            'APP_LANG=de',
-            'APP_LANGS=de,en',
-            'LABELS_PATH=labels/etiketten.json',
-            'SITE_NAME=Test',
             'IP_SALT=test-salt',
             'TRUST_PROXY=0',
             'CAPTCHA_TTL_SECONDS=600',
             'CAPTCHA_MAX_GET=5',
             'CONTACT_MAX_POST=3',
             'RATE_LIMIT_WINDOW_SECONDS=600',
-            'CONTACT_TO=test@example.com',
-            'CONTACT_FROM=web@example.com',
+            'SMTP_FROM_NAME=Test',
             'MAIL_STDOUT=1',
         ];
         file_put_contents($path, implode("\n", $content) . "\n");
+    }
+
+    private function writeContent(string $path): void
+    {
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        $content = [
+            '[site]',
+            'name=Test',
+            'lang=de',
+            'langs=de,en',
+            '',
+            '[cv]',
+            'default_profile=default',
+            'profile=default',
+            '',
+            '[contact]',
+            'to=test@example.com',
+            'from=web@example.com',
+            'subject=Kontaktformular',
+        ];
+        file_put_contents($path, implode("\n", $content) . "\n");
+    }
+
+    private function compileEnv(): void
+    {
+        $compiler = new EnvCompiler($this->root);
+        $context = $compiler->resolveContext([
+            'pipeline' => 'dev',
+            'phase' => 'runtime',
+            'profile' => 'dev',
+        ]);
+        $compiler->compile($context, false);
     }
 
     private function copyDir(string $source, string $dest): void
@@ -103,6 +144,15 @@ abstract class FeatureTestCase extends TestCase
                 copy($srcPath, $destPath);
             }
         }
+    }
+
+    private function copyFile(string $source, string $dest): void
+    {
+        $dir = dirname($dest);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        copy($source, $dest);
     }
 
     private function removeDir(string $dir): void

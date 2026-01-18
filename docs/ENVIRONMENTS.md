@@ -1,36 +1,40 @@
 # Environments
 
-Dieses Dokument beschreibt die Ebenen und Variablen fuer Runtime, Deployment und Inhalts-Deployment.
+Dieses Dokument beschreibt die Env-Architektur mit Pipeline/Phase/Profil.
 
-## Ebenen
+## Kontext
 
-- Runtime (PHP-Server): laeuft ueber `index.php` und nutzt Templates, Renderer und Storage.
-- Deployment: wie die Runtime ausgeliefert wird (Dev lokal, Preview/Prod via CI/CD).
-- Inhalts-Deployment: YAML -> JSON -> HTML via `cv build`/`cv upload`.
+- `PIPELINE`: Projekt-Pipeline (z. B. `dev`, `smoketest`, `delivery`)
+- `PHASE`: Pipeline-Phase (z. B. `setup`, `build`, `runtime`, `deploy`)
+- `PROFILE`: optionales Profil (z. B. `dev`, `preview`, `prod`)
 
-## Variablen-Matrix
+## Referenzen
 
-| Ebene | Zweck | Variablen (Beispiele) | Quelle |
-| --- | --- | --- | --- |
-| Runtime | Allgemeine App-Defaults | `APP_URL`, `APP_LANG`, `LABELS_PATH`, `DEFAULT_CV_PROFILE` | `config/env-default.ini` |
-| Runtime | Pflicht-Profile | `APP_ENV` | CLI/CI (erzwungen) |
-| Runtime | Base-Path fuer Hosting | `APP_BASE_PATH` | Environment/`.local` |
-| Runtime | CV Datenpfade | `LEBENSLAUF_DATEN_PFAD`, `LEBENSLAUF_JSON_PFAD` | Defaults + `.local/env-*.ini` |
-| Runtime | Sicherheit/Rate Limits | `IP_SALT`, `CAPTCHA_TTL_SECONDS`, `RATE_LIMIT_WINDOW_SECONDS` | `config/env-default.ini` |
-| Runtime | Mail/SMTP | `CONTACT_*`, `SMTP_*`, `MAIL_STDOUT` | `config/env-default.ini` |
-| Deployment (CI) | Preview-Build | `APP_ENV`, `LEBENSLAUF_DATEN_PFAD`, `CV_PROFILE` | Workflow/Environment |
-| Inhalts-Deployment | Build der HTMLs | `LEBENSLAUF_DATEN_PFAD` oder `LEBENSLAUF_YAML_PFAD` | Local/CI `env` |
+- Beispielwerte: `.env.template`
+- Struktur/Regeln: `config/env.manifest.yaml` (variables + pipelines)
+
+## Dotenv-Ladereihenfolge
+
+1) System-Env
+2) `.env`
+3) `.env.local`
+4) `.env.<PIPELINE>`
+5) `.env.<PIPELINE>.local`
+6) `.env.<PIPELINE>.<PROFILE>` (optional)
+7) `.env.<PIPELINE>.<PROFILE>.local` (optional)
 
 ## Regeln
 
-- Defaults gehoeren in `config/env-default.ini` (keine Secrets).
-- Deployment-Defaults gehoeren in `config/deploy-default.ini` (keine Secrets).
-- Demo-Defaults fuer lokale Dev-Profile: `tests/fixtures/env-gueltig.ini`.
-- Lokale Overrides gehoeren in `.local/env-common.ini` und `.local/env-<profil>.ini`.
-- CI/CD setzt Build-Variablen im Workflow und kann Defaults ueberschreiben.
-- FTP-Zielpfad kommt aus der Environment-Variable `FTP_SERVER_DIR` (Preview Environment).
-- Inhaltsdaten werden ueber `ContentSourceResolver` gesammelt.
+- `config/env.manifest.yaml` definiert `variables` (Bereiche + Quellen) und `pipelines`.
+- `allowed` kann Gruppen aus `variables` oder einzelne Keys enthalten.
+- `sources` im Manifest erzwingt, aus welchen Quellen Variablen kommen duerfen (z. B. nur `system` oder `local`).
+- Build erzeugt `var/config/env.php` als aufgeloeste Runtime-Konfiguration.
+- Runtime liest nur `var/config/env.php` (kein `getenv()/putenv()`).
+- Kompilieren via `php bin/cli env compile --phase runtime --pipeline <name> --profile <name>`.
+- Inhaltliche Defaults gehoeren in `.local/content.ini` (keine Env-Variable).
+- Labels sind Teil des UI und liegen unter `src/resources/labels.json`.
 
-## CI-Export
+## Hinweise
 
-Die GitHub Actions laden Defaults ueber `bin/cli env export`; die Preview-Pipeline nutzt danach `composer install --no-dev --optimize-autoloader --no-interaction`, `php bin/cli setup preview` und `php bin/cli build preview`.
+- Fuer lokale Entwicklung erzeugt `setup` eine `.env.local` (Demo aus `tests/fixtures/env.local`).
+- CI/CD setzt Variablen ueber Workflow-Umgebungen.

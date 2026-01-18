@@ -8,31 +8,52 @@ use PHPUnit\Framework\TestCase;
 
 final class StorageExceptionTest extends TestCase
 {
-    private string $tempDir;
+    private string $readOnlyTempDir;
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir() . '/storage-test-' . bin2hex(random_bytes(6));
-        mkdir($this->tempDir, 0555, true);
+        $this->readOnlyTempDir = sys_get_temp_dir() . '/storage-test-' . bin2hex(random_bytes(6));
+        mkdir($this->readOnlyTempDir, 0555, true);
     }
 
     protected function tearDown(): void
     {
-        @chmod($this->tempDir, 0775);
-        $this->removeDir($this->tempDir);
+        @chmod($this->readOnlyTempDir, 0775);
+        $this->removeDir($this->readOnlyTempDir);
     }
 
     public function testWriteTextThrowsOnPermissionError(): void
     {
         $storage = new FileStorage();
-        $path = $this->tempDir . '/file.txt';
+        $path = $this->readOnlyTempDir . '/file.txt';
 
-        if (is_writable($this->tempDir)) {
+        if (is_writable($this->readOnlyTempDir)) {
             $this->markTestSkipped('Temp dir is writable; cannot simulate permission error.');
         }
 
-        $this->expectException(StorageException::class);
-        $storage->writeText($path, 'data');
+        $warning = $this->expectExceptionAndCaptureWarning(
+            fn () => $storage->writeText($path, 'data')
+        );
+        $this->assertNotSame('', $warning);
+    }
+
+    private function expectExceptionAndCaptureWarning(callable $action): string
+    {
+        $warning = '';
+        set_error_handler(static function (int $level, string $message) use (&$warning): bool {
+            if (($level & E_WARNING) === 0) {
+                return false;
+            }
+            $warning = $message;
+            return true;
+        });
+        try {
+            $this->expectException(StorageException::class);
+            $action();
+        } finally {
+            restore_error_handler();
+        }
+        return $warning;
     }
 
     private function removeDir(string $dir): void

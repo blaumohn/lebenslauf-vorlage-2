@@ -2,13 +2,13 @@
 
 namespace App\Http\View;
 
-use App\Env\Env;
+use App\Content\ContentConfig;
 
 final class PageViewBuilder
 {
-    public static function base(Env $config): array
+    public static function base(ContentConfig $content): array
     {
-        $siteName = (string) $config->get('SITE_NAME', 'Lebenslauf');
+        $siteName = $content->siteName();
         return [
             'site_name' => $siteName,
             'nav_items' => [

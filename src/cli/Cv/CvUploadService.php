@@ -2,7 +2,8 @@
 
 namespace App\Cli\Cv;
 
-use App\Env\Env;
+use App\Content\ContentConfig;
+use EnvPipelineSpec\Env\Env;
 use App\Http\Cv\CvDataNormalizer;
 use App\Http\Cv\CvRenderer;
 use App\Http\Cv\CvStorage;
@@ -18,6 +19,7 @@ use Symfony\Component\Filesystem\Path;
 final class CvUploadService
 {
     private Env $env;
+    private ContentConfig $content;
     private string $rootPath;
     private CvStorage $cvStorage;
     private CvValidator $validator;
@@ -25,28 +27,27 @@ final class CvUploadService
     private CvViewModelBuilder $viewBuilder;
     private RedactionService $redactor;
     private string $labelsPath;
-    private string $langSetting;
     private string $defaultLang;
 
     public function __construct(Env $env)
     {
         $this->env = $env;
         $this->rootPath = $env->rootPath();
+        $this->content = new ContentConfig($this->rootPath);
         $this->cvStorage = $this->buildCvStorage();
         $this->validator = $this->buildValidator();
         $this->renderer = $this->buildRenderer();
         $this->viewBuilder = new CvViewModelBuilder();
         $this->redactor = new RedactionService();
         $this->labelsPath = $this->resolveLabelsPath();
-        $this->langSetting = (string) $env->get('APP_LANGS', '');
-        $this->defaultLang = (string) $env->get('APP_LANG', 'de');
+        $this->defaultLang = $this->content->defaultLang();
     }
 
     public function upload(string $profile, string $jsonPath, OutputInterface $output): void
     {
         $decoded = $this->loadJson($jsonPath);
         $this->validate($decoded['raw'], $output);
-        $langs = $this->parseLangs($this->langSetting, $this->defaultLang);
+        $langs = $this->content->langs();
         $primaryLang = $langs[0] ?? $this->defaultLang;
 
         foreach ($langs as $lang) {
@@ -137,40 +138,14 @@ final class CvUploadService
         $output->writeln("Public CV rendered for profile {$profile} ({$lang}).");
     }
 
-    private function parseLangs(string $setting, string $fallback): array
-    {
-        $setting = trim($setting);
-        if ($setting === '') {
-            $fallback = trim($fallback);
-            return $fallback === '' ? [] : [strtolower($fallback)];
-        }
-        $parts = preg_split('/\s*,\s*/', $setting);
-        if ($parts === false) {
-            return [];
-        }
-        return $this->normalizeLangs($parts);
-    }
-
-    private function normalizeLangs(array $parts): array
-    {
-        $langs = [];
-        foreach ($parts as $part) {
-            $value = strtolower(trim((string) $part));
-            if ($value !== '') {
-                $langs[] = $value;
-            }
-        }
-        return array_values(array_unique($langs));
-    }
-
     private function resolveLabelsPath(): string
     {
-        return (string) $this->env->get('LABELS_PATH', Path::join($this->rootPath, 'labels', 'etiketten.json'));
+        return Path::join($this->rootPath, 'src', 'resources', 'labels.json');
     }
 
     private function isDefaultProfile(string $profile): bool
     {
-        $defaultProfile = (string) $this->env->get('DEFAULT_CV_PROFILE', 'default');
+        $defaultProfile = $this->content->defaultProfile();
         return strcasecmp($profile, $defaultProfile) === 0;
     }
 

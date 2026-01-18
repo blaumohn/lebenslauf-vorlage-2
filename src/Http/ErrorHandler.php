@@ -28,14 +28,14 @@ final class ErrorHandler
         $message = 'Ein unerwarteter Fehler ist aufgetreten.';
 
         if ($exception instanceof StorageException) {
-            $message = 'Datei konnte nicht gespeichert werden. Bitte Dateirechte pruefen.';
+            $message = 'Datei konnte nicht gespeichert werden. Bitte Dateirechte prüfen.';
         }
 
         if ($displayErrorDetails) {
             $message .= ' ' . $exception->getMessage();
         }
 
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base($this->context->content);
         $html = $this->context->twig->render('error.html.twig', [
             'title' => 'Serverfehler',
             'message' => $message,

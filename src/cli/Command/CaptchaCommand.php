@@ -2,7 +2,9 @@
 
 namespace App\Cli\Command;
 
-use App\Env\Env;
+use EnvPipelineSpec\Env\Env;
+use EnvPipelineSpec\Env\EnvCompiler;
+use EnvPipelineSpec\Env\Context;
 use App\Http\Captcha\CaptchaService;
 use App\Http\Storage\FileStorage;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -19,7 +21,7 @@ final class CaptchaCommand extends BaseCommand
     protected function configure(): void
     {
         $this->addArgument('action', InputArgument::REQUIRED, 'cleanup')
-            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'APP_ENV fuer die Ausfuehrung setzen');
+            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'APP_ENV für die Ausführung setzen');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -35,6 +37,13 @@ final class CaptchaCommand extends BaseCommand
             $this->setProfileEnv($appEnv);
         }
 
+        $profile = (string) (getenv('APP_ENV') ?: '');
+        $compiler = new EnvCompiler($this->rootPath());
+        $context = $this->resolveContext($compiler, $profile, 'runtime');
+        if (!$this->validateEnv($compiler, $context, $input, $output)) {
+            return Command::FAILURE;
+        }
+
         try {
             $env = new Env($this->rootPath());
         } catch (\RuntimeException $exception) {
@@ -46,6 +55,30 @@ final class CaptchaCommand extends BaseCommand
         $deleted = $service->cleanupExpired();
         $output->writeln("Deleted {$deleted} expired CAPTCHA files.");
         return Command::SUCCESS;
+    }
+
+    private function resolveContext(EnvCompiler $compiler, string $profile, string $phase): Context
+    {
+        return $compiler->resolveContext([
+            'pipeline' => 'dev',
+            'phase' => $phase,
+            'profile' => $profile !== '' ? $profile : null,
+        ]);
+    }
+
+    private function validateEnv(
+        EnvCompiler $compiler,
+        Context $context,
+        InputInterface $input,
+        OutputInterface $output
+    ): bool {
+        try {
+            $compiler->validate($context, $input->isInteractive());
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
+            return false;
+        }
+        return true;
     }
 
     private function buildCaptchaService(Env $env): CaptchaService

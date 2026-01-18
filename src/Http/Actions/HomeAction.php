@@ -21,9 +21,9 @@ final class HomeAction
     {
         $hasPublic = $this->context->cvStorage->hasPublic();
         $publicMessage = $hasPublic
-            ? 'Der oeffentliche Lebenslauf ist verfuegbar.'
-            : 'Noch kein oeffentlicher Lebenslauf vorhanden.';
-        $base = PageViewBuilder::base($this->context->config);
+            ? 'Der öffentliche Lebenslauf ist verfügbar.'
+            : 'Noch kein öffentlicher Lebenslauf vorhanden.';
+        $base = PageViewBuilder::base($this->context->content);
         $html = $this->context->twig->render('home.html.twig', [
             'title' => 'Home',
             'public_cv_message' => $publicMessage,

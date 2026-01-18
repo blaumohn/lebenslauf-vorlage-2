@@ -2,21 +2,24 @@
 
 namespace App\Http\Contact;
 
-use App\Env\Env;
+use App\Content\ContentConfig;
+use App\Http\EnvCompiled;
 use PHPMailer\PHPMailer\PHPMailer;
 
 final class MailService
 {
-    private Env $config;
+    private EnvCompiled $config;
+    private ContentConfig $content;
 
-    public function __construct(Env $config)
+    public function __construct(EnvCompiled $config, ContentConfig $content)
     {
         $this->config = $config;
+        $this->content = $content;
     }
 
     public function send(string $replyName, string $replyEmail, string $message): bool
     {
-        if ($this->config->getBool('MAIL_STDOUT', false)) {
+        if ($this->config->requireBool('MAIL_STDOUT')) {
             return $this->sendToStdout($replyName, $replyEmail, $message);
         }
 
@@ -48,7 +51,7 @@ final class MailService
 
     private function contactRecipient(): string
     {
-        return (string) $this->config->get('CONTACT_TO', '');
+        return $this->content->contactTo();
     }
 
     private function createMailer(string $replyName, string $replyEmail, string $to): PHPMailer
@@ -57,11 +60,11 @@ final class MailService
         $this->configureSmtp($mailer);
 
         $fromEmail = $this->resolveFromEmail($to);
-        $fromName = (string) $this->config->get('SMTP_FROM_NAME', 'Web');
+        $fromName = $this->config->requireString('SMTP_FROM_NAME');
         $mailer->setFrom($fromEmail, $fromName);
         $mailer->addAddress($to);
         $mailer->addReplyTo($replyEmail, $replyName);
-        $mailer->Subject = (string) $this->config->get('CONTACT_SUBJECT', 'Kontaktformular');
+        $mailer->Subject = $this->content->contactSubject();
 
         return $mailer;
     }
@@ -84,7 +87,8 @@ final class MailService
 
     private function resolveFromEmail(string $recipient): string
     {
-        $fromEmail = (string) $this->config->get('CONTACT_FROM', $recipient);
+        $fromEmail = $this->content->contactFrom();
+        $fromEmail = $fromEmail !== '' ? $fromEmail : $recipient;
         $configuredFromEmail = (string) $this->config->get('SMTP_FROM_EMAIL', '');
         return $configuredFromEmail !== '' ? $configuredFromEmail : $fromEmail;
     }

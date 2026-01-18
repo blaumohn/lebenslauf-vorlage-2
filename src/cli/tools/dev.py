@@ -11,7 +11,6 @@ from watchers import css, manager, twig, yaml_data
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run dev server with watchers.")
-    parser.add_argument("--env", help="Set APP_ENV_FILE for this run.")
     parser.add_argument("--build", action="store_true", help="Run cv build before starting dev.")
     parser.add_argument("--mail-stdout", action="store_true", help="Send mail output to stdout.")
     return parser.parse_args()
@@ -115,8 +114,6 @@ def register_css_watch(watch_manager):
 
 def build_runtime_env(args):
     process_env = dict(os.environ)
-    if args.env:
-        process_env["APP_ENV_FILE"] = args.env
     if args.mail_stdout:
         process_env["MAIL_STDOUT"] = "1"
     return process_env

@@ -25,7 +25,7 @@ final class CvValidator
         if (is_array($data)) {
             $data = $this->normalizeArrayData($data);
             if ($data === null) {
-                return ['Daten sind ungueltig.'];
+                return ['Daten sind ungültig.'];
             }
         }
 
@@ -66,7 +66,7 @@ final class CvValidator
 
         $decoded = json_decode($schemaJson);
         if ($decoded === null) {
-            return [null, null, 'Schema ist ungueltig.'];
+            return [null, null, 'Schema ist ungültig.'];
         }
 
         $loader = new SchemaLoader();
@@ -75,7 +75,7 @@ final class CvValidator
                 ? $loader->loadBooleanSchema($decoded)
                 : $loader->loadObjectSchema($decoded);
         } catch (\Throwable $exception) {
-            return [null, null, 'Schema ist ungueltig.'];
+            return [null, null, 'Schema ist ungültig.'];
         }
 
         return [$loader, $schema, null];
