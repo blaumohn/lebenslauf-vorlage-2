@@ -12,7 +12,7 @@ php bin/cli setup dev
 php bin/cli run dev
 ```
 
-`run` compiles the runtime env to `var/config/env.php`.
+`run` compiles the runtime config to `var/config/env.php`.
 
 Create `.env.local` before the first run (see `.env.template`).
 
@@ -63,10 +63,10 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
   - `var/state/` important (token whitelist)
 - Labels for section titles: `src/resources/labels.json`.
 - Multilingual output is controlled via `.local/content.ini`.
-- Env rules live in `config/env.manifest.yaml`.
+- Config rules live in `config/env.manifest.yaml`.
 
 Details on environments and variables: `docs/ENVIRONMENTS.md`.
-Deployments use `var/config/env.php` as the compiled runtime env (`php bin/cli env compile`).
+Deployments use `var/config/env.php` as the compiled runtime config (`php bin/cli config compile`).
 
 Preview build in CI: `composer install --no-dev --optimize-autoloader --no-interaction` + `php bin/cli setup preview` + `php bin/cli build preview` (deploy dir via `bin/ci/preview-copy.sh`).
 FTP target path for preview: environment variable `FTP_SERVER_DIR`.

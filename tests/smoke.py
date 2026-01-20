@@ -96,19 +96,16 @@ def fetch(url):
     return body.decode("utf-8", errors="replace")
 
 
-def start_dev_server(clone_path, env):
+def start_dev_server(clone_path, env, demo=False):
     popen_kwargs = {"cwd": clone_path, "env": env}
     if os.name == "nt":
         popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         popen_kwargs["preexec_fn"] = os.setsid
-    return subprocess.Popen(
-        ["php", "bin/cli", "run", "dev"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        **popen_kwargs,
-    )
+    cmd = ["php", "bin/cli", "run", "dev"]
+    if demo:
+        cmd.append("--demo")
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **popen_kwargs)
 
 
 def ensure_env_local(clone_path):
@@ -148,8 +145,6 @@ class SmokeTests(unittest.TestCase):
         clone_repo(source, cls.clone_path)
         cls.env = build_env(os.environ, cls.clone_path)
         run(["composer", "install", "--no-interaction", "--prefer-dist"], cwd=cls.clone_path, env=cls.env)
-        run(["php", "bin/cli", "setup", "dev"], cwd=cls.clone_path, env=cls.env)
-        ensure_env_local(cls.clone_path)
 
     @classmethod
     def tearDownClass(cls):
@@ -158,8 +153,17 @@ class SmokeTests(unittest.TestCase):
             return
         shutil.rmtree(cls.temp_dir, ignore_errors=True)
 
-    def test_smoke_flow(self):
-        """clone -> setup -> tests -> dev-server -> /cv check."""
+    def run_setup(self, create_templates=False):
+        cmd = ["php", "bin/cli", "setup", "dev"]
+        if create_templates:
+            cmd.append("--create-data-templates")
+        run(cmd, cwd=self.clone_path, env=self.env)
+
+    def test_smoke_create_templates(self):
+        """setup --create-data-templates -> tests -> dev-server -> /cv check."""
+        self.run_setup(create_templates=True)
+        ensure_env_local(self.clone_path)
+
         env_path = os.path.join(self.clone_path, ".env.local")
         self.assertTrue(os.path.isfile(env_path), "Expected .env.local to exist")
 
@@ -168,6 +172,19 @@ class SmokeTests(unittest.TestCase):
         run(["composer", "run", "test"], cwd=self.clone_path, env=self.env)
 
         proc = start_dev_server(self.clone_path, self.env)
+        try:
+            wait_for_server("http://127.0.0.1:8080/", proc)
+            html = fetch("http://127.0.0.1:8080/cv")
+            self.assertIn("Lebenslauf", html)
+        finally:
+            stop_dev_server(proc)
+
+    def test_smoke_demo(self):
+        """setup -> dev-server --demo -> /cv check."""
+        self.run_setup()
+        ensure_env_local(self.clone_path)
+
+        proc = start_dev_server(self.clone_path, self.env, demo=True)
         try:
             wait_for_server("http://127.0.0.1:8080/", proc)
             html = fetch("http://127.0.0.1:8080/cv")

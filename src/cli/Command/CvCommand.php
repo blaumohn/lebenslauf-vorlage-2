@@ -4,9 +4,10 @@ namespace App\Cli\Command;
 
 use App\Cli\Cv\CvBuildService;
 use App\Cli\Cv\CvUploadService;
-use EnvPipelineSpec\Env\EnvCompiler;
-use EnvPipelineSpec\Env\Context;
-use EnvPipelineSpec\Env\Env;
+use ConfigPipelineSpec\Config\ConfigCompiler;
+use ConfigPipelineSpec\Config\Context;
+use ConfigPipelineSpec\Config\Config;
+use ConfigPipelineSpec\Config\ConfigSnapshot;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -41,18 +42,15 @@ final class CvCommand extends BaseCommand
 
     private function handleBuild(InputInterface $input, OutputInterface $output): int
     {
-        $profile = $this->requireProfile($input, $output);
-        if ($profile === null) {
+        $this->applyAppEnvFromArg($input);
+        $this->setPhaseEnv('build');
+        $compiler = new ConfigCompiler($this->rootPath());
+        $context = $this->resolveContext($compiler, 'build');
+        $snapshot = $this->resolveSnapshot($compiler, $context, $input, $output);
+        if ($snapshot === null) {
             return Command::FAILURE;
         }
-
-        $this->setProfileEnv($profile);
-        $compiler = new EnvCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $profile, 'build');
-        if (!$this->validateEnv($compiler, $context, $input, $output)) {
-            return Command::FAILURE;
-        }
-        $env = new Env($this->rootPath());
+        $env = new Config($this->rootPath(), $snapshot->values());
         $builder = new CvBuildService($env);
 
         try {
@@ -79,12 +77,14 @@ final class CvCommand extends BaseCommand
             return Command::FAILURE;
         }
 
-        $compiler = new EnvCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $profile, 'build');
-        if (!$this->validateEnv($compiler, $context, $input, $output)) {
+        $this->setPhaseEnv('build');
+        $compiler = new ConfigCompiler($this->rootPath());
+        $context = $this->resolveContext($compiler, 'build');
+        $snapshot = $this->resolveSnapshot($compiler, $context, $input, $output);
+        if ($snapshot === null) {
             return Command::FAILURE;
         }
-        $env = new Env($this->rootPath());
+        $env = new Config($this->rootPath(), $snapshot->values());
         $service = new CvUploadService($env);
 
         try {
@@ -97,7 +97,7 @@ final class CvCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function resolveContext(EnvCompiler $compiler, string $profile, string $phase): Context
+    private function resolveContext(ConfigCompiler $compiler, string $phase): Context
     {
         return $compiler->resolveContext([
             'pipeline' => 'dev',
@@ -106,18 +106,17 @@ final class CvCommand extends BaseCommand
         ]);
     }
 
-    private function validateEnv(
-        EnvCompiler $compiler,
+    private function resolveSnapshot(
+        ConfigCompiler $compiler,
         Context $context,
         InputInterface $input,
         OutputInterface $output
-    ): bool {
+    ): ?ConfigSnapshot {
         try {
-            $compiler->validate($context, $input->isInteractive());
+            return $compiler->resolve($context);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
-            return false;
+            return null;
         }
-        return true;
     }
 }

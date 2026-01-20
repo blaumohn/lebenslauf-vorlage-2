@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use EnvPipelineSpec\Env\EnvCompiler;
+use ConfigPipelineSpec\Config\ConfigCompiler;
 use App\Http\AppBuilder;
-use App\Http\EnvCompiled;
+use App\Http\ConfigCompiled;
 use PHPUnit\Framework\TestCase;
 use Slim\App;
 
@@ -15,7 +15,6 @@ abstract class FeatureTestCase extends TestCase
     protected function setUp(): void
     {
         $this->root = sys_get_temp_dir() . '/php-mvp-app-' . bin2hex(random_bytes(6));
-        putenv('APP_ENV=dev');
         mkdir($this->root, 0775, true);
         $this->copyDir($this->projectRoot() . '/config', $this->root . '/config');
         $this->copyDir($this->projectRoot() . '/src/resources/templates', $this->root . '/src/resources/templates');
@@ -42,7 +41,7 @@ abstract class FeatureTestCase extends TestCase
 
     protected function app(): App
     {
-        $config = new EnvCompiled($this->root);
+        $config = new ConfigCompiled($this->root);
         return AppBuilder::build($config);
     }
 
@@ -110,7 +109,7 @@ abstract class FeatureTestCase extends TestCase
 
     private function compileEnv(): void
     {
-        $compiler = new EnvCompiler($this->root);
+        $compiler = new ConfigCompiler($this->root);
         $context = $compiler->resolveContext([
             'pipeline' => 'dev',
             'phase' => 'runtime',

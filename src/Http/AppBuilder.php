@@ -2,14 +2,14 @@
 
 namespace App\Http;
 
-use App\Http\EnvCompiled;
+use App\Http\ConfigCompiled;
 use App\Content\ContentConfig;
 use Slim\App;
 use Slim\Factory\AppFactory as SlimAppFactory;
 
 final class AppBuilder
 {
-    public static function build(EnvCompiled $config): App
+    public static function build(ConfigCompiled $config): App
     {
         $content = new ContentConfig($config->rootPath());
         $context = AppContext::fromConfig($config, $content);

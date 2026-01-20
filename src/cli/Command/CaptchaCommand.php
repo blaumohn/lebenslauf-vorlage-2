@@ -2,9 +2,10 @@
 
 namespace App\Cli\Command;
 
-use EnvPipelineSpec\Env\Env;
-use EnvPipelineSpec\Env\EnvCompiler;
-use EnvPipelineSpec\Env\Context;
+use ConfigPipelineSpec\Config\Config;
+use ConfigPipelineSpec\Config\ConfigCompiler;
+use ConfigPipelineSpec\Config\Context;
+use ConfigPipelineSpec\Config\ConfigSnapshot;
 use App\Http\Captcha\CaptchaService;
 use App\Http\Storage\FileStorage;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -37,15 +38,17 @@ final class CaptchaCommand extends BaseCommand
             $this->setProfileEnv($appEnv);
         }
 
-        $profile = (string) (getenv('APP_ENV') ?: '');
-        $compiler = new EnvCompiler($this->rootPath());
+        $profile = $appEnv;
+        $this->setPhaseEnv('runtime');
+        $compiler = new ConfigCompiler($this->rootPath());
         $context = $this->resolveContext($compiler, $profile, 'runtime');
-        if (!$this->validateEnv($compiler, $context, $input, $output)) {
+        $snapshot = $this->resolveSnapshot($compiler, $context, $input, $output);
+        if ($snapshot === null) {
             return Command::FAILURE;
         }
 
         try {
-            $env = new Env($this->rootPath());
+            $env = new Config($this->rootPath(), $snapshot->values());
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
@@ -57,7 +60,7 @@ final class CaptchaCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function resolveContext(EnvCompiler $compiler, string $profile, string $phase): Context
+    private function resolveContext(ConfigCompiler $compiler, string $profile, string $phase): Context
     {
         return $compiler->resolveContext([
             'pipeline' => 'dev',
@@ -66,22 +69,21 @@ final class CaptchaCommand extends BaseCommand
         ]);
     }
 
-    private function validateEnv(
-        EnvCompiler $compiler,
+    private function resolveSnapshot(
+        ConfigCompiler $compiler,
         Context $context,
         InputInterface $input,
         OutputInterface $output
-    ): bool {
+    ): ?ConfigSnapshot {
         try {
-            $compiler->validate($context, $input->isInteractive());
+            return $compiler->resolve($context);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
-            return false;
+            return null;
         }
-        return true;
     }
 
-    private function buildCaptchaService(Env $env): CaptchaService
+    private function buildCaptchaService(Config $env): CaptchaService
     {
         $storage = new FileStorage();
         $path = Path::join($this->rootPath(), 'var', 'tmp', 'captcha');

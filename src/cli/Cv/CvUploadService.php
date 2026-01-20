@@ -3,7 +3,7 @@
 namespace App\Cli\Cv;
 
 use App\Content\ContentConfig;
-use EnvPipelineSpec\Env\Env;
+use ConfigPipelineSpec\Config\Config;
 use App\Http\Cv\CvDataNormalizer;
 use App\Http\Cv\CvRenderer;
 use App\Http\Cv\CvStorage;
@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Path;
 
 final class CvUploadService
 {
-    private Env $env;
+    private Config $env;
     private ContentConfig $content;
     private string $rootPath;
     private CvStorage $cvStorage;
@@ -29,7 +29,7 @@ final class CvUploadService
     private string $labelsPath;
     private string $defaultLang;
 
-    public function __construct(Env $env)
+    public function __construct(Config $env)
     {
         $this->env = $env;
         $this->rootPath = $env->rootPath();

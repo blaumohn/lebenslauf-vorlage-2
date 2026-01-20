@@ -5,12 +5,12 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/blaumohn/env-pipeline-spec-php"
+      "url": "https://github.com/blaumohn/config-pipeline-spec-php"
     }
   ],
   "require": {
     "php": ">=8.1",
-    "blaumohn/env-pipeline-spec-php": "dev-main",
+    "blaumohn/config-pipeline-spec-php": "dev-main",
     "opis/json-schema": "^2.4",
     "slim/slim": "^4.12",
     "slim/psr7": "^1.6",
@@ -42,10 +42,10 @@
     "cv:upload": "php bin/cli cv upload",
     "token:rotate": "php bin/cli token rotate",
     "captcha:cleanup": "php bin/cli captcha cleanup",
-    "env:get": "php bin/cli env get",
-    "env:compile": "php bin/cli env compile",
-    "env:lint": "php bin/cli env lint",
-    "env:show": "php bin/cli env show",
+    "config:get": "php bin/cli config get",
+    "config:compile": "php bin/cli config compile",
+    "config:lint": "php bin/cli config lint",
+    "config:show": "php bin/cli config show",
     "test": "phpunit",
     "css:build": "npm run build:css",
     "build": "php bin/cli build",

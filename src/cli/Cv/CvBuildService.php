@@ -3,7 +3,7 @@
 namespace App\Cli\Cv;
 
 use App\Content\ContentConfig;
-use EnvPipelineSpec\Env\Env;
+use ConfigPipelineSpec\Config\Config;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -11,12 +11,12 @@ use Symfony\Component\Yaml\Yaml;
 final class CvBuildService
 {
     private string $rootPath;
-    private Env $env;
+    private Config $env;
     private ContentConfig $content;
     private ContentSourceResolver $resolver;
     private CvUploadService $uploader;
 
-    public function __construct(Env $env)
+    public function __construct(Config $env)
     {
         $this->env = $env;
         $this->rootPath = $env->rootPath();
@@ -36,7 +36,7 @@ final class CvBuildService
         }
     }
 
-    private function resolveTargets(bool $interactive): array
+    private function resolveTargets(): array
     {
         $defaultProfile = $this->defaultProfile();
         return $this->resolver->resolveTargets($defaultProfile, $interactive, $this->isAutomated());
@@ -88,10 +88,6 @@ final class CvBuildService
         return $this->content->cvProfile();
     }
 
-    private function isAutomated(): bool
-    {
-        return getenv('AUTO_ENV_SETUP') === '1';
-    }
 
     private function ensureDir(string $path): void
     {

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1dc59e0544e37142a4c44157d2a06d60",
+    "content-hash": "3423bc5d9d076eaf0e6e63c98ff2a626",
     "packages": [
         {
-            "name": "blaumohn/env-pipeline-spec-php",
+            "name": "blaumohn/config-pipeline-spec-php",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/blaumohn/env-pipeline-spec-php.git",
-                "reference": "89aa5619cd1073e348461b0d19802858f7fed74e"
+                "url": "https://github.com/blaumohn/config-pipeline-spec-php.git",
+                "reference": "86dd0d2675562aa7e3d8d3996ae8a27c031be7f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/blaumohn/env-pipeline-spec-php/zipball/89aa5619cd1073e348461b0d19802858f7fed74e",
-                "reference": "89aa5619cd1073e348461b0d19802858f7fed74e",
+                "url": "https://api.github.com/repos/blaumohn/config-pipeline-spec-php/zipball/86dd0d2675562aa7e3d8d3996ae8a27c031be7f1",
+                "reference": "86dd0d2675562aa7e3d8d3996ae8a27c031be7f1",
                 "shasum": ""
             },
             "require": {
@@ -34,20 +34,20 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "EnvPipelineSpec\\": "src/"
+                    "ConfigPipelineSpec\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "EnvPipelineSpec\\Tests\\": "tests/"
+                    "ConfigPipelineSpec\\Tests\\": "tests/"
                 }
             },
-            "description": "Pipeline/phase based env manifest with Dotenv loading and policy validation.",
+            "description": "Pipeline/phase based config manifest with Dotenv loading and policy validation.",
             "support": {
-                "source": "https://github.com/blaumohn/env-pipeline-spec-php/tree/main",
-                "issues": "https://github.com/blaumohn/env-pipeline-spec-php/issues"
+                "source": "https://github.com/blaumohn/config-pipeline-spec-php/tree/main",
+                "issues": "https://github.com/blaumohn/config-pipeline-spec-php/issues"
             },
-            "time": "2026-01-17T18:45:44+00:00"
+            "time": "2026-01-20T17:08:56+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -3788,7 +3788,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "blaumohn/env-pipeline-spec-php": 20
+        "blaumohn/config-pipeline-spec-php": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

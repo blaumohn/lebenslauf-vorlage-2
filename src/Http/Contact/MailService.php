@@ -3,15 +3,15 @@
 namespace App\Http\Contact;
 
 use App\Content\ContentConfig;
-use App\Http\EnvCompiled;
+use App\Http\ConfigCompiled;
 use PHPMailer\PHPMailer\PHPMailer;
 
 final class MailService
 {
-    private EnvCompiled $config;
+    private ConfigCompiled $config;
     private ContentConfig $content;
 
-    public function __construct(EnvCompiled $config, ContentConfig $content)
+    public function __construct(ConfigCompiled $config, ContentConfig $content)
     {
         $this->config = $config;
         $this->content = $content;
@@ -29,7 +29,7 @@ final class MailService
         }
 
         $mailer = $this->createMailer($replyName, $replyEmail, $to);
-        $mailer->Body = $message;
+        $mailer->Body = $this->buildMessageBody($replyName, $replyEmail, $message);
 
         return $mailer->send();
     }
@@ -37,9 +37,7 @@ final class MailService
     private function sendToStdout(string $replyName, string $replyEmail, string $message): bool
     {
         $payload = "=== CONTACT FORM ===\n";
-        $payload .= "Name: {$replyName}\n";
-        $payload .= "Email: {$replyEmail}\n\n";
-        $payload .= $message . "\n";
+        $payload .= $this->buildMessageBody($replyName, $replyEmail, $message);
         $stream = fopen('php://stdout', 'wb');
         if ($stream === false) {
             error_log($payload);
@@ -47,6 +45,14 @@ final class MailService
             fwrite($stream, $payload);
         }
         return true;
+    }
+
+    private function buildMessageBody(string $replyName, string $replyEmail, string $message): string
+    {
+        $payload = "Name: {$replyName}\n";
+        $payload .= "E-Mail: {$replyEmail}\n\n";
+        $payload .= "Nachricht:\n{$message}\n";
+        return $payload;
     }
 
     private function contactRecipient(): string

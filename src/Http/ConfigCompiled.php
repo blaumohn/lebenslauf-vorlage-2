@@ -4,7 +4,7 @@ namespace App\Http;
 
 use Symfony\Component\Filesystem\Path;
 
-final class EnvCompiled
+final class ConfigCompiled
 {
     private string $rootPath;
     private array $data;
@@ -14,11 +14,11 @@ final class EnvCompiled
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
         $path = Path::join($this->rootPath, 'var', 'config', 'env.php');
         if (!is_file($path)) {
-            throw new \RuntimeException("Compiled env fehlt: {$path}");
+            throw new \RuntimeException("Compiled config fehlt: {$path}");
         }
         $data = require $path;
         if (!is_array($data)) {
-            throw new \RuntimeException("Compiled env ungültig: {$path}");
+            throw new \RuntimeException("Compiled config ungueltig: {$path}");
         }
         $this->data = $data;
     }
@@ -55,7 +55,7 @@ final class EnvCompiled
     {
         $value = $this->get($key, null);
         if ($value === null || trim((string) $value) === '') {
-            throw new \RuntimeException("Missing required env: {$key}");
+            throw new \RuntimeException("Missing required config: {$key}");
         }
         return (string) $value;
     }
@@ -64,7 +64,7 @@ final class EnvCompiled
     {
         $value = $this->get($key, null);
         if ($value === null || $value === '') {
-            throw new \RuntimeException("Missing required env: {$key}");
+            throw new \RuntimeException("Missing required config: {$key}");
         }
         return (int) $value;
     }
@@ -73,7 +73,7 @@ final class EnvCompiled
     {
         $value = $this->get($key, null);
         if ($value === null || $value === '') {
-            throw new \RuntimeException("Missing required env: {$key}");
+            throw new \RuntimeException("Missing required config: {$key}");
         }
         return in_array(strtolower((string) $value), ['1', 'true', 'yes', 'on'], true);
     }

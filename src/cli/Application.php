@@ -5,7 +5,7 @@ namespace App\Cli;
 use App\Cli\Command\BuildCommand;
 use App\Cli\Command\CaptchaCommand;
 use App\Cli\Command\CvCommand;
-use App\Cli\Command\EnvCommand;
+use App\Cli\Command\ConfigCommand;
 use App\Cli\Command\RunCommand;
 use App\Cli\Command\SetupCommand;
 use App\Cli\Command\TokenCommand;
@@ -27,6 +27,6 @@ final class Application extends SymfonyApplication
         $this->add(new CvCommand());
         $this->add(new TokenCommand());
         $this->add(new CaptchaCommand());
-        $this->add(new EnvCommand());
+        $this->add(new ConfigCommand());
     }
 }

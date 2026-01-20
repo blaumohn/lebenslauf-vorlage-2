@@ -14,7 +14,7 @@ use Twig\Environment;
 
 final class AppContext
 {
-    public EnvCompiled $config;
+    public ConfigCompiled $config;
     public ContentConfig $content;
     public Environment $twig;
     public CvStorage $cvStorage;
@@ -24,7 +24,7 @@ final class AppContext
     public MailService $mailService;
     public IpResolver $ipResolver;
 
-    public static function fromConfig(EnvCompiled $config, ContentConfig $content): self
+    public static function fromConfig(ConfigCompiled $config, ContentConfig $content): self
     {
         $rootPath = $config->rootPath();
         $storage = new FileStorage();

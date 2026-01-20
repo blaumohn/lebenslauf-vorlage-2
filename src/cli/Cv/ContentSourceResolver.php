@@ -2,14 +2,14 @@
 
 namespace App\Cli\Cv;
 
-use EnvPipelineSpec\Env\Env;
+use ConfigPipelineSpec\Config\Config;
 use Symfony\Component\Filesystem\Path;
 
 final class ContentSourceResolver
 {
-    private Env $env;
+    private Config $env;
 
-    public function __construct(Env $env)
+    public function __construct(Config $env)
     {
         $this->env = $env;
     }
@@ -58,7 +58,7 @@ final class ContentSourceResolver
     {
         $yamlPath = $this->yamlPath();
         if ($yamlPath === '') {
-            throw new \RuntimeException('Missing env: LEBENSLAUF_DATEN_PFAD or LEBENSLAUF_YAML_PFAD');
+            throw new \RuntimeException('Missing config: LEBENSLAUF_DATEN_PFAD or LEBENSLAUF_YAML_PFAD');
         }
         return $yamlPath;
     }

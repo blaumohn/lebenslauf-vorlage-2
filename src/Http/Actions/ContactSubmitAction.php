@@ -48,8 +48,7 @@ final class ContactSubmitAction
             );
         }
 
-        $body = "Name: {$form['name']}\nE-Mail: {$form['email']}\n\nNachricht:\n{$form['message']}\n";
-        $sent = $this->context->mailService->send($form['name'], $form['email'], $body);
+        $sent = $this->context->mailService->send($form['name'], $form['email'], $form['message']);
         if (!$sent) {
             return $this->renderContactForm(
                 $response,
