@@ -52,7 +52,7 @@ final class ConfigCommand extends BaseCommand
         }
 
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+        $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
         if ($context === null) {
             return Command::FAILURE;
         }
@@ -71,7 +71,7 @@ final class ConfigCommand extends BaseCommand
     private function handleShow(InputInterface $input, OutputInterface $output): int
     {
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+        $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
         if ($context === null) {
             return Command::FAILURE;
         }
@@ -98,7 +98,7 @@ final class ConfigCommand extends BaseCommand
     private function handleLint(InputInterface $input, OutputInterface $output): int
     {
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+        $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
         if ($context === null) {
             return Command::FAILURE;
         }
@@ -119,7 +119,7 @@ final class ConfigCommand extends BaseCommand
 
         $compiler = new ConfigCompiler($this->rootPath());
         try {
-            $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+            $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
             if ($context === null) {
                 return Command::FAILURE;
             }
@@ -133,7 +133,7 @@ final class ConfigCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    protected function resolveContext(
+    private function resolveContextForCommand(
         ConfigCompiler $compiler,
         InputInterface $input,
         OutputInterface $output,
