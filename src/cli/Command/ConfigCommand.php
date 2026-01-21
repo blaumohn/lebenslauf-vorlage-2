@@ -133,7 +133,7 @@ final class ConfigCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function resolveContext(
+    protected function resolveContext(
         ConfigCompiler $compiler,
         InputInterface $input,
         OutputInterface $output,
