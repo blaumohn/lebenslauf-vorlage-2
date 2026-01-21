@@ -1,12 +1,11 @@
 # Environments
 
-Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase/Profil.
+Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase.
 
 ## Kontext
 
 - `PIPELINE`: Projekt-Pipeline (z. B. `dev`, `smoketest`, `delivery`)
 - `PHASE`: Pipeline-Phase (z. B. `setup`, `build`, `runtime`, `deploy`)
-- `PROFILE`: optionales Profil (z. B. `dev`, `preview`, `prod`)
 
 ## Referenzen
 
@@ -21,12 +20,8 @@ Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase/Profil.
 4) `.env.<PIPELINE>.local`
 5) `.env.<PIPELINE>.<PHASE>`
 6) `.env.<PIPELINE>.<PHASE>.local`
-7) `.env.<PIPELINE>.<PROFILE>` (optional)
-8) `.env.<PIPELINE>.<PROFILE>.local` (optional)
-9) `.env.<PIPELINE>.<PROFILE>.<PHASE>` (optional)
-10) `.env.<PIPELINE>.<PROFILE>.<PHASE>.local` (optional)
 
-Beispiel: `.env.dev.build`, `.env.dev.runtime`, `.env.dev.preview.runtime`.
+Beispiel: `.env.dev.build`, `.env.dev.runtime`.
 
 ## Regeln
 
@@ -35,9 +30,23 @@ Beispiel: `.env.dev.build`, `.env.dev.runtime`, `.env.dev.preview.runtime`.
 - `sources` im Manifest erzwingt, aus welchen Quellen Variablen kommen duerfen (z. B. nur `system` oder `local`).
 - Build erzeugt `var/config/env.php` als aufgeloeste Runtime-Konfiguration.
 - Runtime liest nur `var/config/env.php` (kein `getenv()/putenv()`).
-- Kompilieren via `php bin/cli config compile --phase runtime --pipeline <name> --profile <name>`.
+- Kompilieren via `php bin/cli config compile <pipeline> --phase runtime`.
 - Inhaltliche Defaults gehoeren in `.local/content.ini` (keine Env-Variable).
 - Labels sind Teil des UI und liegen unter `src/resources/labels.json`.
+
+## CLI-Modell
+
+Phasen werden direkt ausgefuehrt:
+
+```
+cli <phase> <pipeline> [args]
+```
+
+Beispiele:
+
+- `php bin/cli setup dev`
+- `php bin/cli build dev cv`
+- `php bin/cli run dev`
 
 ## Hinweise
 

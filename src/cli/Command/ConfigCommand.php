@@ -17,12 +17,10 @@ final class ConfigCommand extends BaseCommand
     protected function configure(): void
     {
         $this->addArgument('action', InputArgument::REQUIRED, 'get, show, lint oder compile')
+            ->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
             ->addArgument('arg1', InputArgument::OPTIONAL, 'KEY')
             ->addArgument('arg2', InputArgument::OPTIONAL, 'TARGET (bei compile)')
-            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'APP_ENV fuer die Ausfuehrung setzen')
-            ->addOption('pipeline', null, InputOption::VALUE_REQUIRED, 'Pipeline-Name')
-            ->addOption('phase', null, InputOption::VALUE_REQUIRED, 'Phase-Name')
-            ->addOption('profile', null, InputOption::VALUE_REQUIRED, 'Profil');
+            ->addOption('phase', null, InputOption::VALUE_REQUIRED, 'Phase-Name');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -41,7 +39,7 @@ final class ConfigCommand extends BaseCommand
             return $this->handleCompile($input, $output);
         }
 
-        $output->writeln('<error>Usage: config get <KEY> | config show | config lint | config compile [TARGET]</error>');
+        $output->writeln('<error>Usage: config <action> <PIPELINE> [ARGS]</error>');
         return Command::FAILURE;
     }
 
@@ -49,12 +47,15 @@ final class ConfigCommand extends BaseCommand
     {
         $key = trim((string) $input->getArgument('arg1'));
         if ($key === '') {
-            $output->writeln('<error>Usage: config get <KEY></error>');
+            $output->writeln('<error>Usage: config get <PIPELINE> <KEY></error>');
             return Command::FAILURE;
         }
 
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $input, 'runtime');
+        $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+        if ($context === null) {
+            return Command::FAILURE;
+        }
         try {
             $snapshot = $compiler->validate($context, $input->isInteractive());
         } catch (\RuntimeException $exception) {
@@ -70,7 +71,10 @@ final class ConfigCommand extends BaseCommand
     private function handleShow(InputInterface $input, OutputInterface $output): int
     {
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $input, 'runtime');
+        $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+        if ($context === null) {
+            return Command::FAILURE;
+        }
         try {
             $snapshot = $compiler->validate($context, $input->isInteractive());
         } catch (\RuntimeException $exception) {
@@ -80,7 +84,6 @@ final class ConfigCommand extends BaseCommand
 
         $output->writeln("Pipeline: {$context->pipeline()}");
         $output->writeln("Phase: {$context->phase()}");
-        $output->writeln("Profile: " . ($context->profile() ?? '-'));
         $output->writeln('Config-Dateien:');
         foreach ($snapshot->loadedFiles() as $file) {
             $output->writeln('- ' . $file);
@@ -95,7 +98,10 @@ final class ConfigCommand extends BaseCommand
     private function handleLint(InputInterface $input, OutputInterface $output): int
     {
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $input, 'runtime');
+        $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+        if ($context === null) {
+            return Command::FAILURE;
+        }
         try {
             $compiler->validate($context, $input->isInteractive());
         } catch (\RuntimeException $exception) {
@@ -113,7 +119,10 @@ final class ConfigCommand extends BaseCommand
 
         $compiler = new ConfigCompiler($this->rootPath());
         try {
-            $context = $this->resolveContext($compiler, $input, 'runtime');
+            $context = $this->resolveContext($compiler, $input, $output, 'runtime');
+            if ($context === null) {
+                return Command::FAILURE;
+            }
             $path = $compiler->compile($context, $input->isInteractive(), $targetPath);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
@@ -124,25 +133,31 @@ final class ConfigCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function resolveContext(ConfigCompiler $compiler, InputInterface $input, string $phase): Context
+    private function resolveContext(
+        ConfigCompiler $compiler,
+        InputInterface $input,
+        OutputInterface $output,
+        string $phase
+    ): ?Context
     {
-        $appEnv = trim((string) $input->getOption('app-env'));
-        if ($appEnv !== '') {
-            $this->setProfileEnv($appEnv);
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
+            return null;
         }
+        $requestedPhase = $this->resolveOptionString($input, 'phase');
+        $contextPhase = $requestedPhase ?? $phase;
 
-        return $compiler->resolveContext(
-            [
-                'pipeline' => 'dev',
-                'phase' => $phase,
-                'profile' => $appEnv !== '' ? $appEnv : null,
-            ],
-            [
-                'pipeline' => $input->getOption('pipeline'),
-                'phase' => $input->getOption('phase'),
-                'profile' => $input->getOption('profile'),
-            ]
-        );
+        return parent::resolveContext($compiler, $pipeline, $contextPhase);
+    }
+
+    private function resolveOptionString(InputInterface $input, string $name): ?string
+    {
+        $value = $input->getOption($name);
+        if (!is_string($value)) {
+            return null;
+        }
+        $value = trim($value);
+        return $value === '' ? null : $value;
     }
 
     private function resolvePath(string $path): string

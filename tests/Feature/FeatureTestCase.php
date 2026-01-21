@@ -68,7 +68,6 @@ abstract class FeatureTestCase extends TestCase
         $content = [
             'PIPELINE=dev',
             'PHASE=runtime',
-            'PROFILE=dev',
             'APP_ENV=dev',
             'APP_BASE_PATH=',
             'IP_SALT=test-salt',
@@ -113,7 +112,6 @@ abstract class FeatureTestCase extends TestCase
         $context = $compiler->resolveContext([
             'pipeline' => 'dev',
             'phase' => 'runtime',
-            'profile' => 'dev',
         ]);
         $compiler->compile($context, false);
     }

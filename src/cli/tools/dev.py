@@ -22,7 +22,9 @@ def main():
     supervisor.install_signal_handlers()
 
     start_php_server(process_env, root_path, supervisor)
-    file_watcher = setup_watchers(supervisor, process_env, root_path, args.demo)
+    file_watcher = setup_watchers(
+        supervisor, process_env, root_path, args.demo, args.pipeline
+    )
 
     exit_code = supervisor.run(file_watcher)
     sys.exit(exit_code)
@@ -30,20 +32,25 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Dev-Server mit Watchern starten.")
+    parser.add_argument("--pipeline", required=True, help="Pipeline-Name.")
     parser.add_argument("--build", action="store_true", help="CV-Build vor dem Start ausfuehren.")
     parser.add_argument("--demo", action="store_true", help="Demo-Fixtures fuer den CV-Build nutzen.")
     parser.add_argument("--mail-stdout", action="store_true", help="Mail-Ausgabe nach stdout senden.")
     return parser.parse_args()
 
 
-def setup_watchers(supervisor, process_env, root_path, demo):
+def setup_watchers(supervisor, process_env, root_path, demo, pipeline):
     start_css_watch(supervisor)
     file_watcher = FileWatcher()
-    yaml_path, yaml_dir = resolve_yaml_inputs(process_env, root_path)
+    yaml_path, yaml_dir = resolve_yaml_inputs(process_env, root_path, pipeline)
+
+    def build_fn(build_env, build_root, build_demo):
+        run_cv_build(build_env, build_root, build_demo, pipeline)
+
     schedule_yaml(
-        file_watcher, process_env, root_path, demo, yaml_path, yaml_dir, run_cv_build
+        file_watcher, process_env, root_path, demo, yaml_path, yaml_dir, build_fn
     )
-    schedule_twig(file_watcher, process_env, root_path, demo, run_cv_build)
+    schedule_twig(file_watcher, process_env, root_path, demo, build_fn)
     file_watcher.start()
     return file_watcher
 
@@ -59,17 +66,18 @@ def start_css_watch(supervisor):
         supervisor.start(f"css-{index}", cmd)
 
 
-def resolve_yaml_inputs(process_env, root_path):
-    yaml_path = get_config_value("LEBENSLAUF_YAML_PFAD", process_env, root_path)
-    yaml_dir = get_config_value("LEBENSLAUF_DATEN_PFAD", process_env, root_path)
+def resolve_yaml_inputs(process_env, root_path, pipeline):
+    yaml_path = get_config_value(
+        "LEBENSLAUF_YAML_PFAD", process_env, root_path, pipeline
+    )
+    yaml_dir = get_config_value(
+        "LEBENSLAUF_DATEN_PFAD", process_env, root_path, pipeline
+    )
     return resolve_path(root_path, yaml_path), resolve_path(root_path, yaml_dir)
 
 
-def get_config_value(key, process_env, root_path):
-    cmd = ["php", "bin/cli", "env", "get", key]
-    profile = process_env.get("APP_ENV")
-    if profile:
-        cmd.extend(["--profile", profile])
+def get_config_value(key, process_env, root_path, pipeline):
+    cmd = ["php", "bin/cli", "config", "get", pipeline, key]
     result = subprocess.run(cmd, capture_output=True, text=True, env=process_env, cwd=root_path)
     if result.returncode != 0:
         return ""
@@ -93,14 +101,18 @@ def build_runtime_env(args):
 
 def ensure_initial_build(args, process_env, root_path):
     if args.build:
-        run_cv_build(process_env, root_path, args.demo)
+        run_cv_build(process_env, root_path, args.demo, args.pipeline)
 
 
-def run_cv_build(process_env, root_path, demo=False):
+def run_cv_build(process_env, root_path, demo, pipeline):
     build_env = dict(process_env)
     if demo:
         build_env.update(demo_env(root_path))
-    run_checked(["php", "bin/cli", "cv", "build"], build_env, root_path)
+    run_checked(
+        ["php", "bin/cli", "build", pipeline, "cv"],
+        build_env,
+        root_path,
+    )
 
 
 def run_checked(cmd, process_env, root_path):

@@ -22,34 +22,48 @@ Requirements: PHP >= 8.1, Node.js, Python 3.
 Defaults come from `.env` files (see `.env.template`).
 If no `.env.local` exists, `php bin/cli setup` asks whether to use `tests/fixtures/env.local` as a demo.
 `php bin/cli setup` runs `npm install`.
-`php bin/cli run` starts the Python dev runner (options: `--env`, `--build`, `--mail-stdout`).
+`php bin/cli run` starts the Python dev runner (options: `--build`, `--demo`, `--mail-stdout`).
 Note: `setup` creates `.venv` using system Python; other commands prefer `.venv`.
 
 ## CLI syntax
 
 ```bash
 # Lifecycle
-php bin/cli setup <profile>
-php bin/cli build <profile>
-php bin/cli run <profile> [--build] [--env <file>] [--mail-stdout]
+php bin/cli setup <pipeline>
+php bin/cli build <pipeline> [cv|css|upload]
+php bin/cli run <pipeline> [--build] [--demo] [--mail-stdout]
 
 # Content
-php bin/cli cv build <profile>
-php bin/cli cv upload <profile> <json>
+php bin/cli build <pipeline> cv
+php bin/cli build <pipeline> upload <cv-profile> <json>
 
 # Security
 php bin/cli token rotate <profile> [count]
-php bin/cli captcha cleanup
+php bin/cli captcha <pipeline> [cleanup]
 ```
+
+## CLI model
+
+Phases are executed directly:
+
+```
+cli <phase> <pipeline> [args]
+```
+
+Examples:
+
+- `php bin/cli setup dev`
+- `php bin/cli build dev cv`
+- `php bin/cli run dev`
 
 ## Build + dev (YAML -> JSON -> HTML)
 
 ```bash
-php bin/cli cv build dev
+php bin/cli build dev cv
 php bin/cli build dev
 ```
 
-`cv build` converts YAML to JSON and renders the static HTML via `cv upload`.
+`build <pipeline> cv` converts YAML to JSON and renders the static HTML via `build <pipeline> upload`.
 If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are built.
 
 ## Configuration
@@ -66,7 +80,7 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
 - Config rules live in `config/env.manifest.yaml`.
 
 Details on environments and variables: `docs/ENVIRONMENTS.md`.
-Deployments use `var/config/env.php` as the compiled runtime config (`php bin/cli config compile`).
+Deployments use `var/config/env.php` as the compiled runtime config (`php bin/cli config compile <pipeline>`).
 
 Preview build in CI: `composer install --no-dev --optimize-autoloader --no-interaction` + `php bin/cli setup preview` + `php bin/cli build preview` (deploy dir via `bin/ci/preview-copy.sh`).
 FTP target path for preview: environment variable `FTP_SERVER_DIR`.
@@ -77,18 +91,17 @@ Base path for preview without rewrite: `APP_BASE_PATH` (e.g. `/public`).
 ### Upload CV
 
 ```bash
-php bin/cli cv upload <PROFILE> <JSON_PATH>
+php bin/cli build <PIPELINE> upload <CV_PROFILE> <JSON_PATH>
 ```
 
-Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<PROFILE>` equals the default profile from `.local/content.ini`, it also creates `cv-public.<lang>.html`.
+Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<CV_PROFILE>` equals the default profile from `.local/content.ini`, it also creates `cv-public.<lang>.html`.
 The default language (from `.local/content.ini`) also writes legacy files `cv-private-<profile>.html` and `cv-public.html`.
 JSON is validated against `schemas/lebenslauf.schema.json`.
-Note: `APP_ENV` must be set (optional via `--app-env <profile>`).
 
 ### Rotate tokens
 
 ```bash
-php bin/cli token rotate <PROFILE> [COUNT]
+php bin/cli token rotate <TOKEN_PROFILE> [COUNT]
 ```
 
 Outputs new tokens once and stores hashes only in `var/state/tokens/<profile>.txt`.
@@ -96,7 +109,7 @@ Outputs new tokens once and stores hashes only in `var/state/tokens/<profile>.tx
 ### CAPTCHA cleanup
 
 ```bash
-php bin/cli captcha cleanup
+php bin/cli captcha <PIPELINE>
 ```
 
 Deletes expired CAPTCHA files.

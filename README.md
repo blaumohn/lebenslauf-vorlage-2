@@ -59,9 +59,23 @@ subject=Kontaktformular
 ## Build (YAML -> JSON -> HTML)
 
 ```bash
-php bin/cli cv build dev
+php bin/cli build dev cv
 php bin/cli build dev
 ```
+
+## CLI-Modell
+
+Phasen werden direkt ausgefuehrt:
+
+```
+cli <phase> <pipeline> [args]
+```
+
+Beispiele:
+
+- `php bin/cli setup dev`
+- `php bin/cli build dev cv`
+- `php bin/cli run dev`
 
 ## Projektstruktur
 
@@ -83,6 +97,6 @@ php bin/cli build dev
 
 ## Umgebungsvariablen
 
-Die Config-Policy (Pipeline/Phase/Profil) ist in `docs/ENVIRONMENTS.md` beschrieben.
+Die Config-Policy (Pipeline/Phase) ist in `docs/ENVIRONMENTS.md` beschrieben.
 Beispielwerte stehen in `.env.template`, Regeln in `config/env.manifest.yaml`.
-Fuer Deployments wird die Runtime-Config als `var/config/env.php` erzeugt (siehe `php bin/cli config compile`).
+Fuer Deployments wird die Runtime-Config als `var/config/env.php` erzeugt (siehe `php bin/cli config compile <pipeline>`).

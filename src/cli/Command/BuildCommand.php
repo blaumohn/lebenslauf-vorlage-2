@@ -3,9 +3,9 @@
 namespace App\Cli\Command;
 
 use App\Cli\Cv\CvBuildService;
+use App\Cli\Cv\CvUploadService;
 use ConfigPipelineSpec\Config\Config;
 use ConfigPipelineSpec\Config\ConfigCompiler;
-use ConfigPipelineSpec\Config\Context;
 use ConfigPipelineSpec\Config\ConfigSnapshot;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,54 +19,92 @@ final class BuildCommand extends BaseCommand
 {
     protected function configure(): void
     {
-        $this->addArgument('profile', InputArgument::REQUIRED, 'Profilname (z. B. dev)');
+        $this->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
+            ->addArgument('task', InputArgument::OPTIONAL, 'Subtask (cv, css, upload, all)')
+            ->addArgument('arg1', InputArgument::OPTIONAL, 'CV-Profil (bei upload)')
+            ->addArgument('arg2', InputArgument::OPTIONAL, 'JSON-Pfad (bei upload)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $profile = $this->requireProfile($input, $output);
-        if ($profile === null) {
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
             return Command::FAILURE;
         }
 
-        $this->setProfileEnv($profile);
+        $task = strtolower(trim((string) $input->getArgument('task')));
+        if ($task === '' || $task === 'all') {
+            return $this->runAll($pipeline, $input, $output);
+        }
+        if ($task === 'css') {
+            return $this->runCssOnly($output);
+        }
+        if ($task === 'cv') {
+            return $this->runCvOnly($pipeline, $input, $output);
+        }
+        if ($task === 'upload') {
+            return $this->runCvUpload($pipeline, $input, $output);
+        }
+
+        $output->writeln('<error>Usage: build <PIPELINE> [cv|css|upload|all] [ARGS]</error>');
+        return Command::FAILURE;
+    }
+
+    private function runAll(string $pipeline, InputInterface $input, OutputInterface $output): int
+    {
         $exitCode = $this->runCssBuild($output);
         if ($exitCode !== 0) {
             return $exitCode;
         }
+        return $this->runCvOnly($pipeline, $input, $output);
+    }
 
+    private function runCssOnly(OutputInterface $output): int
+    {
+        return $this->runCssBuild($output);
+    }
+
+    private function runCvOnly(string $pipeline, InputInterface $input, OutputInterface $output): int
+    {
         $compiler = new ConfigCompiler($this->rootPath());
-        $buildContext = $this->resolveContext($compiler, 'build');
-        $buildSnapshot = $this->resolveSnapshot($compiler, $buildContext, $input, $output);
+        $buildSnapshot = $this->resolveBuildSnapshot($compiler, $pipeline, $input, $output);
         if ($buildSnapshot === null) {
             return Command::FAILURE;
         }
-        $runtimeContext = new Context($buildContext->pipeline(), 'runtime', $buildContext->profile());
-        if (!$this->compileEnv($compiler, $runtimeContext, $input, $output)) {
+        if (!$this->compileRuntimeConfig($compiler, $pipeline, $input, $output)) {
+            return Command::FAILURE;
+        }
+        if (!$this->runCvBuild($buildSnapshot, $input, $output)) {
+            return Command::FAILURE;
+        }
+        return Command::SUCCESS;
+    }
+
+    private function runCvUpload(string $pipeline, InputInterface $input, OutputInterface $output): int
+    {
+        $cvProfile = trim((string) $input->getArgument('arg1'));
+        $jsonPath = trim((string) $input->getArgument('arg2'));
+        if ($cvProfile === '' || $jsonPath === '') {
+            $output->writeln('<error>Usage: build <PIPELINE> upload <CV_PROFIL> <JSON></error>');
             return Command::FAILURE;
         }
 
-        if (!$this->runCvBuild($buildSnapshot, $input, $output)) {
+        $compiler = new ConfigCompiler($this->rootPath());
+        $buildSnapshot = $this->resolveBuildSnapshot($compiler, $pipeline, $input, $output);
+        if ($buildSnapshot === null) {
+            return Command::FAILURE;
+        }
+        $env = new Config($this->rootPath(), $buildSnapshot->values());
+        $service = new CvUploadService($env);
+
+        try {
+            $service->upload($cvProfile, $jsonPath, $output);
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
         }
 
         return Command::SUCCESS;
-    }
-
-    private function prepareBuildEnv(InputInterface $input): void
-    {
-        $this->applyAppEnvFromArg($input);
-        $this->setPhaseEnv('build');
-    }
-
-    private function compileRuntimeEnv(
-        ConfigCompiler $compiler,
-        Context $buildContext,
-        InputInterface $input,
-        OutputInterface $output
-    ): bool {
-        $runtimeContext = new Context($buildContext->pipeline(), 'runtime', $buildContext->profile());
-        return $this->compileEnv($compiler, $runtimeContext, $input, $output);
     }
 
     private function runCvBuild(ConfigSnapshot $snapshot, InputInterface $input, OutputInterface $output): bool
@@ -75,7 +113,7 @@ final class BuildCommand extends BaseCommand
         $builder = new CvBuildService($env);
 
         try {
-            $builder->build($output);
+            $builder->build($output, $input->isInteractive());
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return false;
@@ -83,21 +121,13 @@ final class BuildCommand extends BaseCommand
         return true;
     }
 
-    private function resolveContext(ConfigCompiler $compiler, string $phase): Context
-    {
-        return $compiler->resolveContext([
-            'pipeline' => 'dev',
-            'phase' => $phase,
-            'profile' => $profile,
-        ]);
-    }
-
-    private function resolveSnapshot(
+    private function resolveBuildSnapshot(
         ConfigCompiler $compiler,
-        Context $context,
+        string $pipeline,
         InputInterface $input,
         OutputInterface $output
     ): ?ConfigSnapshot {
+        $context = $this->resolveContext($compiler, $pipeline, 'build');
         try {
             return $compiler->resolve($context);
         } catch (\RuntimeException $exception) {
@@ -106,12 +136,13 @@ final class BuildCommand extends BaseCommand
         }
     }
 
-    private function compileEnv(
+    private function compileRuntimeConfig(
         ConfigCompiler $compiler,
-        Context $context,
+        string $pipeline,
         InputInterface $input,
         OutputInterface $output
     ): bool {
+        $context = $this->resolveContext($compiler, $pipeline, 'runtime');
         try {
             $compiler->compile($context, $input->isInteractive());
         } catch (\RuntimeException $exception) {

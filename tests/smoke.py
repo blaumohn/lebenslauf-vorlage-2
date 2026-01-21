@@ -167,7 +167,7 @@ class SmokeTests(unittest.TestCase):
         env_path = os.path.join(self.clone_path, ".env.local")
         self.assertTrue(os.path.isfile(env_path), "Expected .env.local to exist")
 
-        run(["php", "bin/cli", "cv", "build", "dev"], cwd=self.clone_path, env=self.env)
+        run(["php", "bin/cli", "build", "dev", "cv"], cwd=self.clone_path, env=self.env)
 
         run(["composer", "run", "test"], cwd=self.clone_path, env=self.env)
 

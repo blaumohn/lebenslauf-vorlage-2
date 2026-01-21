@@ -18,14 +18,16 @@ final class SetupCommand extends BaseCommand
 {
     protected function configure(): void
     {
-        $this->addArgument('profile', InputArgument::OPTIONAL, 'APP_ENV (optional)')
+        $this->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
             ->addOption('create-data-templates', null, InputOption::VALUE_NONE, 'Demo-Inhalte nach .local kopieren');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->applyAppEnvFromArg($input);
-        $this->setPhaseEnv('setup');
+        if ($this->requirePipeline($input, $output) === null) {
+            return Command::FAILURE;
+        }
+
         if ($input->getOption('create-data-templates')) {
             $this->createDataTemplates();
         }

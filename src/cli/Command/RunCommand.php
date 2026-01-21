@@ -3,8 +3,8 @@
 namespace App\Cli\Command;
 
 use App\Cli\PythonRunner;
-use EnvPipelineSpec\Env\EnvCompiler;
-use EnvPipelineSpec\Env\Context;
+use ConfigPipelineSpec\Config\ConfigCompiler;
+use ConfigPipelineSpec\Config\Context;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,38 +17,40 @@ final class RunCommand extends BaseCommand
 {
     protected function configure(): void
     {
-        $this->addArgument('profile', InputArgument::REQUIRED, 'Profilname (z. B. dev)')
-            ->addOption('build', null, InputOption::VALUE_NONE, 'Vor dem Start cv build ausführen')
+        $this->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
+            ->addOption('build', null, InputOption::VALUE_NONE, 'Vor dem Start cv build ausfuehren')
+            ->addOption('demo', null, InputOption::VALUE_NONE, 'Demo-Daten verwenden')
             ->addOption('mail-stdout', null, InputOption::VALUE_NONE, 'Mail-Ausgabe nach STDOUT');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $profile = $this->requireProfile($input, $output);
-        if ($profile === null) {
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
             return Command::FAILURE;
         }
-        if (strtolower($profile) !== 'dev') {
-            $output->writeln('<error>run ist nur für das Profil dev erlaubt.</error>');
+        if (strtolower($pipeline) !== 'dev') {
+            $output->writeln('<error>run ist nur fuer die Pipeline dev erlaubt.</error>');
             return Command::FAILURE;
         }
-
-        $this->setProfileEnv($profile);
-        $compiler = new EnvCompiler($this->rootPath());
-        $runtimeContext = $this->resolveContext($compiler, $profile, 'runtime');
-        if (!$this->compileEnv($compiler, $runtimeContext, $input, $output)) {
+        $compiler = new ConfigCompiler($this->rootPath());
+        $runtimeContext = $this->resolveContext($compiler, $pipeline, 'runtime');
+        if (!$this->compileConfig($compiler, $runtimeContext, $input, $output)) {
             return Command::FAILURE;
         }
         $runner = new PythonRunner($this->rootPath());
-        $args = $this->devArgs($input);
+        $args = $this->devArgs($input, $pipeline);
         return $runner->run('src/cli/tools/dev.py', $args, $input->isInteractive());
     }
 
-    private function devArgs(InputInterface $input): array
+    private function devArgs(InputInterface $input, string $pipeline): array
     {
-        $args = [];
+        $args = ['--pipeline', $pipeline];
         if ($input->getOption('build')) {
             $args[] = '--build';
+        }
+        if ($input->getOption('demo')) {
+            $args[] = '--demo';
         }
         if ($input->getOption('mail-stdout')) {
             $args[] = '--mail-stdout';
@@ -56,17 +58,8 @@ final class RunCommand extends BaseCommand
         return $args;
     }
 
-    private function resolveContext(EnvCompiler $compiler, string $profile, string $phase): Context
-    {
-        return $compiler->resolveContext([
-            'pipeline' => 'dev',
-            'phase' => $phase,
-            'profile' => $profile,
-        ]);
-    }
-
-    private function compileEnv(
-        EnvCompiler $compiler,
+    private function compileConfig(
+        ConfigCompiler $compiler,
         Context $context,
         InputInterface $input,
         OutputInterface $output

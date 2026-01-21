@@ -12,7 +12,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
@@ -21,27 +20,24 @@ final class CaptchaCommand extends BaseCommand
 {
     protected function configure(): void
     {
-        $this->addArgument('action', InputArgument::REQUIRED, 'cleanup')
-            ->addOption('app-env', null, InputOption::VALUE_REQUIRED, 'APP_ENV für die Ausführung setzen');
+        $this->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
+            ->addArgument('action', InputArgument::OPTIONAL, 'cleanup', 'cleanup');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $action = strtolower(trim((string) $input->getArgument('action')));
         if ($action !== 'cleanup') {
-            $output->writeln('<error>Usage: captcha cleanup</error>');
+            $output->writeln('<error>Usage: captcha <PIPELINE> [cleanup]</error>');
             return Command::FAILURE;
         }
 
-        $appEnv = trim((string) $input->getOption('app-env'));
-        if ($appEnv !== '') {
-            $this->setProfileEnv($appEnv);
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
+            return Command::FAILURE;
         }
-
-        $profile = $appEnv;
-        $this->setPhaseEnv('runtime');
         $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $profile, 'runtime');
+        $context = $this->resolveContext($compiler, $pipeline, 'runtime');
         $snapshot = $this->resolveSnapshot($compiler, $context, $input, $output);
         if ($snapshot === null) {
             return Command::FAILURE;
@@ -58,15 +54,6 @@ final class CaptchaCommand extends BaseCommand
         $deleted = $service->cleanupExpired();
         $output->writeln("Deleted {$deleted} expired CAPTCHA files.");
         return Command::SUCCESS;
-    }
-
-    private function resolveContext(ConfigCompiler $compiler, string $profile, string $phase): Context
-    {
-        return $compiler->resolveContext([
-            'pipeline' => 'dev',
-            'phase' => $phase,
-            'profile' => $profile !== '' ? $profile : null,
-        ]);
     }
 
     private function resolveSnapshot(
