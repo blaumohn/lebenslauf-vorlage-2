@@ -68,7 +68,6 @@ abstract class FeatureTestCase extends TestCase
         $content = [
             'PIPELINE=dev',
             'PHASE=runtime',
-            'APP_ENV=dev',
             'APP_BASE_PATH=',
             'IP_SALT=test-salt',
             'TRUST_PROXY=0',

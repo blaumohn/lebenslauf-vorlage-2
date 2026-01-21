@@ -49,7 +49,6 @@ def build_env(base_env, clone_path):
             "PIP_CACHE_DIR": ensure_cache_dir(os.path.join(cache_root, "pip")),
             "LEBENSLAUF_DATEN_PFAD": os.path.join(clone_path, ".local", "lebenslauf"),
             "APP_BASE_PATH": "",
-            "APP_ENV": "dev",
             "PIPELINE": "dev",
             "AUTO_ENV_SETUP": "1",
             "IP_SALT": "change-me",
