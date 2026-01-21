@@ -145,8 +145,8 @@ final class CvUploadService
 
     private function isDefaultProfile(string $profile): bool
     {
-        $defaultProfile = $this->content->defaultProfile();
-        return strcasecmp($profile, $defaultProfile) === 0;
+        $publicProfile = $this->content->publicProfile();
+        return strcasecmp($profile, $publicProfile) === 0;
     }
 
     private function buildCvStorage(): CvStorage

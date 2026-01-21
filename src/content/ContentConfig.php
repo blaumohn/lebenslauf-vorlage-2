@@ -29,14 +29,9 @@ final class ContentConfig
         return $this->parseLangs($raw, $this->defaultLang());
     }
 
-    public function defaultProfile(): string
+    public function publicProfile(): string
     {
-        return $this->getString('cv', 'default_profile', 'default');
-    }
-
-    public function cvProfile(): string
-    {
-        return $this->getString('cv', 'profile', $this->defaultProfile());
+        return $this->getString('cv', 'public_profile', 'default');
     }
 
     public function contactTo(): string

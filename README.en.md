@@ -69,7 +69,7 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
 ## Configuration
 
 - Use `.env`/`.env.local` and `.env.<PIPELINE>` variants (see `docs/ENVIRONMENTS.md`).
-- Content config lives in `.local/content.ini` (site name, languages, profiles, contact texts).
+- Content config lives in `.local/content.ini` (site name, languages, public profile, contact texts).
 - Example env values live in `.env.template`.
 - Important folders:
   - `var/tmp/` short-lived (CAPTCHA + rate limits)

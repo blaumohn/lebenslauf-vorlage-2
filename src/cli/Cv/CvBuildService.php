@@ -38,8 +38,8 @@ final class CvBuildService
 
     private function resolveTargets(): array
     {
-        $defaultProfile = $this->defaultProfile();
-        return $this->resolver->resolveTargets($defaultProfile, $interactive, $this->isAutomated());
+        $publicProfile = $this->publicProfile();
+        return $this->resolver->resolveTargets($publicProfile, $interactive, $this->isAutomated());
     }
 
     private function buildTarget(array $target, string $jsonPath, OutputInterface $output, bool $interactive): void
@@ -83,9 +83,9 @@ final class CvBuildService
         return $json;
     }
 
-    private function defaultProfile(): string
+    private function publicProfile(): string
     {
-        return $this->content->cvProfile();
+        return $this->content->publicProfile();
     }
 
 

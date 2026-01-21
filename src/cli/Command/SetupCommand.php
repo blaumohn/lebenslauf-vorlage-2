@@ -76,7 +76,7 @@ final class SetupCommand extends BaseCommand
     private function resolveDefaultProfile(): string
     {
         $config = new ContentConfig($this->rootPath());
-        return $config->defaultProfile();
+        return $config->publicProfile();
     }
 
     private function demoSourcePath(): string

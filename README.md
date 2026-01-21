@@ -43,8 +43,7 @@ lang=de
 langs=de,en
 
 [cv]
-default_profile=default
-profile=default
+public_profile=default
 
 [contact]
 to=contact@example.com
