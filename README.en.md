@@ -69,15 +69,19 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
 ## Configuration
 
 - Use `.env`/`.env.local` and `.env.<PIPELINE>` variants (see `docs/ENVIRONMENTS.md`).
-- Content config lives in `.local/content.ini` (site name, languages, public profile, contact texts).
 - Example env values live in `.env.template`.
 - Important folders:
   - `var/tmp/` short-lived (CAPTCHA + rate limits)
   - `var/cache/` derived (rendered HTML)
   - `var/state/` important (token whitelist)
 - Labels for section titles: `src/resources/labels.json`.
-- Multilingual output is controlled via `.local/content.ini`.
+- Page texts (title/contact) live in Twig templates.
 - Config rules live in `config/env.manifest.yaml`.
+
+Relevant config keys:
+- `LEBENSLAUF_PUBLIC_PROFILE` (build)
+- `LEBENSLAUF_LANG_DEFAULT`, `LEBENSLAUF_LANGS` (runtime)
+- `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` (runtime)
 
 Details on environments and variables: `docs/ENVIRONMENTS.md`.
 Deployments use `var/config/env.php` as the compiled runtime config (`php bin/cli config compile <pipeline>`).
@@ -94,8 +98,8 @@ Base path for preview without rewrite: `APP_BASE_PATH` (e.g. `/public`).
 php bin/cli build <PIPELINE> upload <CV_PROFILE> <JSON_PATH>
 ```
 
-Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<CV_PROFILE>` equals the default profile from `.local/content.ini`, it also creates `cv-public.<lang>.html`.
-The default language (from `.local/content.ini`) also writes legacy files `cv-private-<profile>.html` and `cv-public.html`.
+Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<CV_PROFILE>` equals `LEBENSLAUF_PUBLIC_PROFILE`, it also creates `cv-public.<lang>.html`.
+The default language (from `LEBENSLAUF_LANG_DEFAULT`) also writes legacy files `cv-private-<profile>.html` and `cv-public.html`.
 JSON is validated against `schemas/lebenslauf.schema.json`.
 
 ### Rotate tokens

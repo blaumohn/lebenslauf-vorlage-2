@@ -3,7 +3,6 @@
 namespace App\Cli\Command;
 
 use App\Cli\PythonRunner;
-use App\Content\ContentConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,7 +18,7 @@ final class SetupCommand extends BaseCommand
     protected function configure(): void
     {
         $this->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
-            ->addOption('create-data-templates', null, InputOption::VALUE_NONE, 'Demo-Inhalte nach .local kopieren');
+            ->addOption('create-demo-content', null, InputOption::VALUE_NONE, 'Demo-Inhalte nach .local kopieren');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -28,8 +27,8 @@ final class SetupCommand extends BaseCommand
             return Command::FAILURE;
         }
 
-        if ($input->getOption('create-data-templates')) {
-            $this->createDataTemplates();
+        if ($input->getOption('create-demo-content')) {
+            $this->createDemoContent();
         }
 
         $runner = new PythonRunner($this->rootPath());
@@ -46,23 +45,7 @@ final class SetupCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function createDataTemplates(): void
-    {
-        $this->ensureContentIni();
-        $this->ensureDemoData();
-    }
-
-    private function ensureContentIni(): void
-    {
-        $target = $this->contentIniPath();
-        if (is_file($target)) {
-            return;
-        }
-        $source = $this->contentTemplatePath();
-        $this->copyFile($source, $target);
-    }
-
-    private function ensureDemoData(): void
+    private function createDemoContent(): void
     {
         $profile = $this->resolveDefaultProfile();
         $target = $this->demoTargetPath($profile);
@@ -75,8 +58,8 @@ final class SetupCommand extends BaseCommand
 
     private function resolveDefaultProfile(): string
     {
-        $config = new ContentConfig($this->rootPath());
-        return $config->publicProfile();
+        $value = trim((string) getenv('LEBENSLAUF_PUBLIC_PROFILE'));
+        return $value !== '' ? $value : 'default';
     }
 
     private function demoSourcePath(): string
@@ -87,16 +70,6 @@ final class SetupCommand extends BaseCommand
     private function demoTargetPath(string $profile): string
     {
         return $this->joinPath('.local', 'lebenslauf', 'daten-' . $profile . '.yaml');
-    }
-
-    private function contentIniPath(): string
-    {
-        return $this->joinPath('.local', 'content.ini');
-    }
-
-    private function contentTemplatePath(): string
-    {
-        return $this->joinPath('config', 'content.template.ini');
     }
 
     private function copyFile(string $source, string $target): void

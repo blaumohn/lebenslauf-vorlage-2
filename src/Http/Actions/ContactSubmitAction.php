@@ -59,7 +59,7 @@ final class ContactSubmitAction
             );
         }
 
-        $base = PageViewBuilder::base($this->context->content);
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('contact_ok.html.twig', [
             'title' => 'Kontakt',
         ] + $base);
@@ -69,7 +69,7 @@ final class ContactSubmitAction
 
     private function renderRateLimit(ResponseInterface $response): ResponseInterface
     {
-        $base = PageViewBuilder::base($this->context->content);
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('error.html.twig', [
             'title' => 'Zu viele Anfragen',
             'message' => 'Bitte später erneut versuchen.',
@@ -127,7 +127,7 @@ final class ContactSubmitAction
         string $error,
         int $status
     ): ResponseInterface {
-        $base = PageViewBuilder::base($this->context->content);
+        $base = PageViewBuilder::base();
         $challenge = $this->context->captchaService->createChallenge($ipHash);
         $captchaId = $challenge['captcha_id'];
         $captchaUrl = '/captcha.png?id=' . urlencode($captchaId);

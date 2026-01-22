@@ -31,7 +31,7 @@ Beispiel: `.env.dev.build`, `.env.dev.runtime`.
 - Build erzeugt `var/config/env.php` als aufgeloeste Runtime-Konfiguration.
 - Runtime liest nur `var/config/env.php` (kein `getenv()/putenv()`).
 - Kompilieren via `php bin/cli config compile <pipeline> --phase runtime`.
-- Inhaltliche Defaults gehoeren in `.local/content.ini` (keine Env-Variable).
+- Inhaltliche Defaults (z. B. Lebenslauf-Sprachen) liegen in Config-Keys.
 - Labels sind Teil des UI und liegen unter `src/resources/labels.json`.
 
 ## CLI-Modell

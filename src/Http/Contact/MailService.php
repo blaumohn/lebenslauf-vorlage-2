@@ -2,19 +2,16 @@
 
 namespace App\Http\Contact;
 
-use App\Content\ContentConfig;
 use App\Http\ConfigCompiled;
 use PHPMailer\PHPMailer\PHPMailer;
 
 final class MailService
 {
     private ConfigCompiled $config;
-    private ContentConfig $content;
 
-    public function __construct(ConfigCompiled $config, ContentConfig $content)
+    public function __construct(ConfigCompiled $config)
     {
         $this->config = $config;
-        $this->content = $content;
     }
 
     public function send(string $replyName, string $replyEmail, string $message): bool
@@ -57,7 +54,7 @@ final class MailService
 
     private function contactRecipient(): string
     {
-        return $this->content->contactTo();
+        return (string) $this->config->get('CONTACT_TO_EMAIL', '');
     }
 
     private function createMailer(string $replyName, string $replyEmail, string $to): PHPMailer
@@ -70,7 +67,7 @@ final class MailService
         $mailer->setFrom($fromEmail, $fromName);
         $mailer->addAddress($to);
         $mailer->addReplyTo($replyEmail, $replyName);
-        $mailer->Subject = $this->content->contactSubject();
+        $mailer->Subject = 'Kontaktformular';
 
         return $mailer;
     }
@@ -93,7 +90,7 @@ final class MailService
 
     private function resolveFromEmail(string $recipient): string
     {
-        $fromEmail = $this->content->contactFrom();
+        $fromEmail = (string) $this->config->get('CONTACT_FROM_EMAIL', '');
         $fromEmail = $fromEmail !== '' ? $fromEmail : $recipient;
         $configuredFromEmail = (string) $this->config->get('SMTP_FROM_EMAIL', '');
         return $configuredFromEmail !== '' ? $configuredFromEmail : $fromEmail;

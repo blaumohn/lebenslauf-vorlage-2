@@ -2,7 +2,6 @@
 
 namespace App\Cli\Cv;
 
-use App\Content\ContentConfig;
 use ConfigPipelineSpec\Config\Config;
 use App\Http\Cv\CvDataNormalizer;
 use App\Http\Cv\CvRenderer;
@@ -19,7 +18,6 @@ use Symfony\Component\Filesystem\Path;
 final class CvUploadService
 {
     private Config $env;
-    private ContentConfig $content;
     private string $rootPath;
     private CvStorage $cvStorage;
     private CvValidator $validator;
@@ -33,21 +31,20 @@ final class CvUploadService
     {
         $this->env = $env;
         $this->rootPath = $env->rootPath();
-        $this->content = new ContentConfig($this->rootPath);
         $this->cvStorage = $this->buildCvStorage();
         $this->validator = $this->buildValidator();
         $this->renderer = $this->buildRenderer();
         $this->viewBuilder = new CvViewModelBuilder();
         $this->redactor = new RedactionService();
         $this->labelsPath = $this->resolveLabelsPath();
-        $this->defaultLang = $this->content->defaultLang();
+        $this->defaultLang = $this->resolveDefaultLang();
     }
 
     public function upload(string $profile, string $jsonPath, OutputInterface $output): void
     {
         $decoded = $this->loadJson($jsonPath);
         $this->validate($decoded['raw'], $output);
-        $langs = $this->content->langs();
+        $langs = $this->resolveLangs();
         $primaryLang = $langs[0] ?? $this->defaultLang;
 
         foreach ($langs as $lang) {
@@ -145,8 +142,53 @@ final class CvUploadService
 
     private function isDefaultProfile(string $profile): bool
     {
-        $publicProfile = $this->content->publicProfile();
+        $publicProfile = $this->resolvePublicProfile();
         return strcasecmp($profile, $publicProfile) === 0;
+    }
+
+    private function resolvePublicProfile(): string
+    {
+        $value = trim((string) $this->env->get('LEBENSLAUF_PUBLIC_PROFILE', 'default'));
+        return $value === '' ? 'default' : $value;
+    }
+
+    private function resolveDefaultLang(): string
+    {
+        $raw = (string) $this->env->get('LEBENSLAUF_LANG_DEFAULT', 'de');
+        $value = strtolower(trim($raw));
+        return $value === '' ? 'de' : $value;
+    }
+
+    private function resolveLangs(): array
+    {
+        $raw = (string) $this->env->get('LEBENSLAUF_LANGS', '');
+        return $this->parseLangs($raw, $this->defaultLang);
+    }
+
+    private function parseLangs(string $raw, string $fallback): array
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            $fallback = strtolower(trim($fallback));
+            return $fallback === '' ? [] : [$fallback];
+        }
+        $parts = preg_split('/\s*,\s*/', $raw);
+        if ($parts === false) {
+            return [];
+        }
+        return $this->normalizeLangs($parts);
+    }
+
+    private function normalizeLangs(array $parts): array
+    {
+        $langs = [];
+        foreach ($parts as $part) {
+            $value = strtolower(trim((string) $part));
+            if ($value !== '') {
+                $langs[] = $value;
+            }
+        }
+        return array_values(array_unique($langs));
     }
 
     private function buildCvStorage(): CvStorage

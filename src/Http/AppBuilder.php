@@ -3,7 +3,6 @@
 namespace App\Http;
 
 use App\Http\ConfigCompiled;
-use App\Content\ContentConfig;
 use Slim\App;
 use Slim\Factory\AppFactory as SlimAppFactory;
 
@@ -11,8 +10,7 @@ final class AppBuilder
 {
     public static function build(ConfigCompiled $config): App
     {
-        $content = new ContentConfig($config->rootPath());
-        $context = AppContext::fromConfig($config, $content);
+        $context = AppContext::fromConfig($config);
 
         $app = SlimAppFactory::create();
         $app->addBodyParsingMiddleware();

@@ -75,7 +75,7 @@ final class CvAction
         string $message,
         int $status
     ): ResponseInterface {
-        $base = PageViewBuilder::base($this->context->content);
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('error.html.twig', [
             'title' => $title,
             'message' => $message,
@@ -121,11 +121,45 @@ final class CvAction
     private function defaultLang(): string
     {
         $supported = $this->supportedLangs();
-        return $supported[0] ?? $this->context->content->defaultLang();
+        return $supported[0] ?? $this->resolveDefaultLang();
     }
 
     private function supportedLangs(): array
     {
-        return $this->context->content->langs();
+        $raw = (string) $this->context->config->get('LEBENSLAUF_LANGS', '');
+        return $this->parseLangs($raw, $this->resolveDefaultLang());
+    }
+
+    private function resolveDefaultLang(): string
+    {
+        $raw = (string) $this->context->config->get('LEBENSLAUF_LANG_DEFAULT', 'de');
+        $value = strtolower(trim($raw));
+        return $value === '' ? 'de' : $value;
+    }
+
+    private function parseLangs(string $raw, string $fallback): array
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            $fallback = strtolower(trim($fallback));
+            return $fallback === '' ? [] : [$fallback];
+        }
+        $parts = preg_split('/\s*,\s*/', $raw);
+        if ($parts === false) {
+            return [];
+        }
+        return $this->normalizeLangs($parts);
+    }
+
+    private function normalizeLangs(array $parts): array
+    {
+        $langs = [];
+        foreach ($parts as $part) {
+            $value = strtolower(trim((string) $part));
+            if ($value !== '') {
+                $langs[] = $value;
+            }
+        }
+        return array_values(array_unique($langs));
     }
 }

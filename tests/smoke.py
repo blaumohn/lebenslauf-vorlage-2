@@ -51,9 +51,14 @@ def build_env(base_env, clone_path):
             "APP_BASE_PATH": "",
             "PIPELINE": "dev",
             "AUTO_ENV_SETUP": "1",
+            "LEBENSLAUF_PUBLIC_PROFILE": "default",
+            "LEBENSLAUF_LANG_DEFAULT": "de",
+            "LEBENSLAUF_LANGS": "de,en",
             "IP_SALT": "change-me",
             "CAPTCHA_MAX_GET": "5",
             "CONTACT_MAX_POST": "3",
+            "CONTACT_TO_EMAIL": "test@example.com",
+            "CONTACT_FROM_EMAIL": "web@example.com",
             "RATE_LIMIT_WINDOW_SECONDS": "600",
             "MAIL_STDOUT": "1",
             "SMTP_FROM_NAME": "Web",
@@ -155,11 +160,11 @@ class SmokeTests(unittest.TestCase):
     def run_setup(self, create_templates=False):
         cmd = ["php", "bin/cli", "setup", "dev"]
         if create_templates:
-            cmd.append("--create-data-templates")
+            cmd.append("--create-demo-content")
         run(cmd, cwd=self.clone_path, env=self.env)
 
     def test_smoke_create_templates(self):
-        """setup --create-data-templates -> tests -> dev-server -> /cv check."""
+        """setup --create-demo-content -> tests -> dev-server -> /cv check."""
         self.run_setup(create_templates=True)
         ensure_env_local(self.clone_path)
 

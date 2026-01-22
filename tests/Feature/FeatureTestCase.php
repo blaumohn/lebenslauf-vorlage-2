@@ -30,7 +30,6 @@ abstract class FeatureTestCase extends TestCase
             $this->root . '/var/config',
         ]);
         $this->writeEnv($this->root . '/.env.local');
-        $this->writeContent($this->root . '/.local/content.ini');
         $this->compileEnv();
     }
 
@@ -69,37 +68,19 @@ abstract class FeatureTestCase extends TestCase
             'PIPELINE=dev',
             'PHASE=runtime',
             'APP_BASE_PATH=',
+            'LEBENSLAUF_PUBLIC_PROFILE=default',
+            'LEBENSLAUF_LANG_DEFAULT=de',
+            'LEBENSLAUF_LANGS=de,en',
             'IP_SALT=test-salt',
             'TRUST_PROXY=0',
             'CAPTCHA_TTL_SECONDS=600',
             'CAPTCHA_MAX_GET=5',
             'CONTACT_MAX_POST=3',
+            'CONTACT_TO_EMAIL=test@example.com',
+            'CONTACT_FROM_EMAIL=web@example.com',
             'RATE_LIMIT_WINDOW_SECONDS=600',
             'SMTP_FROM_NAME=Test',
             'MAIL_STDOUT=1',
-        ];
-        file_put_contents($path, implode("\n", $content) . "\n");
-    }
-
-    private function writeContent(string $path): void
-    {
-        $dir = dirname($path);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-        $content = [
-            '[site]',
-            'name=Test',
-            'lang=de',
-            'langs=de,en',
-            '',
-            '[cv]',
-            'public_profile=default',
-            '',
-            '[contact]',
-            'to=test@example.com',
-            'from=web@example.com',
-            'subject=Kontaktformular',
         ];
         file_put_contents($path, implode("\n", $content) . "\n");
     }

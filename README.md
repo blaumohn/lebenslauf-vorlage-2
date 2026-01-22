@@ -34,26 +34,15 @@ Vor dem ersten Start `.env.local` anlegen (siehe `.env.template`).
 
 ## Daten bearbeiten
 
-- `.local/content.ini` enthält inhaltliche Einstellungen (kein Env), z. B.:
-
-```ini
-[site]
-name=Lebenslauf
-lang=de
-langs=de,en
-
-[cv]
-public_profile=default
-
-[contact]
-to=contact@example.com
-from=web@example.com
-subject=Kontaktformular
-```
-
 - YAML-Daten liegen standardmäßig in `.local/lebenslauf` (`LEBENSLAUF_DATEN_PFAD`).
 - Nur Dateien `daten-<profil>.yaml` werden berücksichtigt (z. B. `daten-entwickler.yaml`).
 - UI-Labels/Übersetzungen liegen in `src/resources/labels.json` (Repo-Beitrag möglich).
+- Seitentexte (z. B. Seitentitel/Kontakt) liegen direkt in Twig-Templates.
+
+Relevante Config-Werte (Runtime/Build):
+- `LEBENSLAUF_PUBLIC_PROFILE` (Build)
+- `LEBENSLAUF_LANG_DEFAULT`, `LEBENSLAUF_LANGS` (Runtime)
+- `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` (Runtime)
 
 ## Build (YAML -> JSON -> HTML)
 
@@ -87,7 +76,6 @@ Beispiele:
 │   ├── http/                   # HTTP-App
 │   └── cli/                    # CLI-Tools
 ├── .local/
-│   ├── content.ini             # Inhaltliche Einstellungen
 │   └── lebenslauf/             # YAML-Daten
 ├── config/                     # Config-Manifest
 ├── tests/

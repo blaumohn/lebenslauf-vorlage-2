@@ -2,7 +2,6 @@
 
 namespace App\Cli\Cv;
 
-use App\Content\ContentConfig;
 use ConfigPipelineSpec\Config\Config;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -12,7 +11,6 @@ final class CvBuildService
 {
     private string $rootPath;
     private Config $env;
-    private ContentConfig $content;
     private ContentSourceResolver $resolver;
     private CvUploadService $uploader;
 
@@ -20,7 +18,6 @@ final class CvBuildService
     {
         $this->env = $env;
         $this->rootPath = $env->rootPath();
-        $this->content = new ContentConfig($this->rootPath);
         $this->resolver = new ContentSourceResolver($env);
         $this->uploader = new CvUploadService($env);
     }
@@ -85,7 +82,8 @@ final class CvBuildService
 
     private function publicProfile(): string
     {
-        return $this->content->publicProfile();
+        $value = trim((string) $this->env->get('LEBENSLAUF_PUBLIC_PROFILE', 'default'));
+        return $value === '' ? 'default' : $value;
     }
 
 

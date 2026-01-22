@@ -123,7 +123,6 @@ def run_checked(cmd, process_env, root_path):
 
 def demo_env(root_path):
     return {
-        "CONTENT_INI_PATH": os.path.join(root_path, "tests", "fixtures", "content.ini"),
         "LEBENSLAUF_YAML_PFAD": os.path.join(
             root_path, "tests", "fixtures", "lebenslauf", "daten-gueltig.yaml"
         ),
