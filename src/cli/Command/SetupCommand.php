@@ -2,7 +2,9 @@
 
 namespace App\Cli\Command;
 
-use App\Cli\PythonRunner;
+use App\Cli\PythonResolver;
+use ConfigPipelineSpec\Config\ConfigCompiler;
+use ConfigPipelineSpec\Config\Context;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,16 +25,17 @@ final class SetupCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->requirePipeline($input, $output) === null) {
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
             return Command::FAILURE;
         }
-
+        $configValues = $this->resolveSetupConfigValues($pipeline, $input, $output);
         if ($input->getOption('create-demo-content')) {
-            $this->createDemoContent();
+            $profile = $this->resolveDefaultProfile($configValues);
+            $this->createDemoContent($profile);
         }
-
-        $runner = new PythonRunner($this->rootPath());
-        if (!$this->ensureVenv($runner, $input, $output)) {
+        $resolver = new PythonResolver($this->rootPath(), $configValues);
+        if (!$this->ensureVenv($resolver, $input, $output)) {
             return Command::FAILURE;
         }
         if (!$this->installPythonDeps($input, $output)) {
@@ -45,9 +48,8 @@ final class SetupCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function createDemoContent(): void
+    private function createDemoContent(string $profile): void
     {
-        $profile = $this->resolveDefaultProfile();
         $target = $this->demoTargetPath($profile);
         if (is_file($target)) {
             return;
@@ -56,9 +58,9 @@ final class SetupCommand extends BaseCommand
         $this->copyFile($source, $target);
     }
 
-    private function resolveDefaultProfile(): string
+    private function resolveDefaultProfile(array $configValues): string
     {
-        $value = trim((string) getenv('LEBENSLAUF_PUBLIC_PROFILE'));
+        $value = trim((string) ($configValues['LEBENSLAUF_PUBLIC_PROFILE'] ?? ''));
         return $value !== '' ? $value : 'default';
     }
 
@@ -89,13 +91,41 @@ final class SetupCommand extends BaseCommand
         return implode(DIRECTORY_SEPARATOR, array_merge([$this->rootPath()], $parts));
     }
 
-    private function ensureVenv(PythonRunner $runner, InputInterface $input, OutputInterface $output): bool
+    private function ensureVenv(PythonResolver $resolver, InputInterface $input, OutputInterface $output): bool
     {
-        if ($runner->createVenv('.venv', $input->isInteractive())) {
+        if ($resolver->createVenv('.venv', $input->isInteractive())) {
             return true;
         }
         $output->writeln('<error>Python 3 fehlt. Bitte installieren.</error>');
         return false;
+    }
+
+    private function resolveSetupConfigValues(
+        string $pipeline,
+        InputInterface $input,
+        OutputInterface $output
+    ): array {
+        $compiler = new ConfigCompiler($this->rootPath());
+        $context = $compiler->resolveContext([
+            'pipeline' => $pipeline,
+            'phase' => 'setup',
+        ]);
+        return $this->loadConfigValues($compiler, $context, $input, $output);
+    }
+
+    private function loadConfigValues(
+        ConfigCompiler $compiler,
+        Context $context,
+        InputInterface $input,
+        OutputInterface $output
+    ): array {
+        try {
+            $snapshot = $compiler->validate($context, $input->isInteractive());
+            return $snapshot->values();
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
+            return [];
+        }
     }
 
     private function installPythonDeps(InputInterface $input, OutputInterface $output): bool

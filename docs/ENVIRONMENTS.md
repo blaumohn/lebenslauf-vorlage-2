@@ -9,19 +9,18 @@ Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase.
 
 ## Referenzen
 
-- Beispielwerte: `.env.template`
+- Beispielwerte: `config/dev-build.yaml` und `config/dev-runtime.yaml`
 - Struktur/Regeln: `config/env.manifest.yaml` (variables + pipelines)
 
-## Dotenv-Ladereihenfolge
+## Config-Ladereihenfolge
 
-1) `.env`
-2) `.env.local`
-3) `.env.<PIPELINE>`
-4) `.env.<PIPELINE>.local`
-5) `.env.<PIPELINE>.<PHASE>`
-6) `.env.<PIPELINE>.<PHASE>.local`
+1) `config/common.yaml` (optional)
+2) `config/<PIPELINE>.yaml`
+3) `.local/<PIPELINE>.yaml`
+4) `config/<PIPELINE>-<PHASE>.yaml`
+5) `.local/<PIPELINE>-<PHASE>.yaml`
 
-Beispiel: `.env.dev.build`, `.env.dev.runtime`.
+Beispiel: `config/dev-build.yaml`, `.local/dev-runtime.yaml`.
 
 ## Regeln
 
@@ -50,8 +49,9 @@ Beispiele:
 
 ## Hinweise
 
-- Fuer lokale Entwicklung kann `setup` eine `.env.local` aus `.env.template` ableiten.
-- CI/CD setzt Variablen über Workflow-Umgebungen.
+- `.local/` ist nicht versioniert und ueberschreibt jeweils `config/`.
+- CI/CD kann Werte per `.local/<PIPELINE>-<PHASE>.yaml` bereitstellen oder ueberschreiben.
+- Required-Keys sollten in `config/` liegen; `.local/` ist nur fuer Overrides/Secrets gedacht.
 
 ## Smoke-Test-Parameter
 

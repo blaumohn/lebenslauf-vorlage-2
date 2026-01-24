@@ -158,7 +158,7 @@ final class ContentSourceResolver
 
     private function fixtureTargetsIfEnabled(string $defaultProfile): array
     {
-        if (getenv('AUTO_ENV_USE_FIXTURE') !== '1') {
+        if (!$this->env->getBool('AUTO_ENV_USE_FIXTURE', false)) {
             return [];
         }
         $fixturePath = $this->demoFixturePath();

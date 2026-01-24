@@ -30,7 +30,7 @@ php bin/cli run dev
 
 `run` kompiliert die Runtime-Config nach `var/config/env.php`.
 
-Vor dem ersten Start `.env.local` anlegen (siehe `.env.template`).
+Vor dem ersten Start `.local/dev-runtime.yaml` anlegen (siehe `config/dev-runtime.yaml`).
 
 ## Daten bearbeiten
 
@@ -77,7 +77,7 @@ Beispiele:
 │   └── cli/                    # CLI-Tools
 ├── .local/
 │   └── lebenslauf/             # YAML-Daten
-├── config/                     # Config-Manifest
+├── config/                     # Config-Dateien + Manifest
 ├── tests/
 └── docs/
 ```
@@ -85,5 +85,5 @@ Beispiele:
 ## Umgebungsvariablen
 
 Die Config-Policy (Pipeline/Phase) ist in `docs/ENVIRONMENTS.md` beschrieben.
-Beispielwerte stehen in `.env.template`, Regeln in `config/env.manifest.yaml`.
+Beispielwerte stehen in `config/dev-runtime.yaml`, Regeln in `config/env.manifest.yaml`.
 Fuer Deployments wird die Runtime-Config als `var/config/env.php` erzeugt (siehe `php bin/cli config compile <pipeline>`).

@@ -112,15 +112,6 @@ def start_dev_server(clone_path, env, demo=False):
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **popen_kwargs)
 
 
-def ensure_env_local(clone_path):
-    env_path = os.path.join(clone_path, ".env.local")
-    if os.path.isfile(env_path):
-        return
-    fixture = os.path.join(clone_path, "tests", "fixtures", "env.local")
-    if not os.path.isfile(fixture):
-        raise RuntimeError("Missing env.local fixture.")
-    shutil.copyfile(fixture, env_path)
-
 
 def stop_dev_server(proc):
     if os.name == "nt":
@@ -166,10 +157,6 @@ class SmokeTests(unittest.TestCase):
     def test_smoke_create_templates(self):
         """setup --create-demo-content -> tests -> dev-server -> /cv check."""
         self.run_setup(create_templates=True)
-        ensure_env_local(self.clone_path)
-
-        env_path = os.path.join(self.clone_path, ".env.local")
-        self.assertTrue(os.path.isfile(env_path), "Expected .env.local to exist")
 
         run(["php", "bin/cli", "build", "dev", "cv"], cwd=self.clone_path, env=self.env)
 
@@ -186,7 +173,6 @@ class SmokeTests(unittest.TestCase):
     def test_smoke_demo(self):
         """setup -> dev-server --demo -> /cv check."""
         self.run_setup()
-        ensure_env_local(self.clone_path)
 
         proc = start_dev_server(self.clone_path, self.env, demo=True)
         try:

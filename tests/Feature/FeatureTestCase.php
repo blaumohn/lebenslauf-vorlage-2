@@ -29,7 +29,6 @@ abstract class FeatureTestCase extends TestCase
             $this->root . '/var/state/tokens',
             $this->root . '/var/config',
         ]);
-        $this->writeEnv($this->root . '/.env.local');
         $this->compileEnv();
     }
 
@@ -56,33 +55,6 @@ abstract class FeatureTestCase extends TestCase
                 mkdir($dir, 0775, true);
             }
         }
-    }
-
-    private function writeEnv(string $path): void
-    {
-        $dir = dirname($path);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-        $content = [
-            'PIPELINE=dev',
-            'PHASE=runtime',
-            'APP_BASE_PATH=',
-            'LEBENSLAUF_PUBLIC_PROFILE=default',
-            'LEBENSLAUF_LANG_DEFAULT=de',
-            'LEBENSLAUF_LANGS=de,en',
-            'IP_SALT=test-salt',
-            'TRUST_PROXY=0',
-            'CAPTCHA_TTL_SECONDS=600',
-            'CAPTCHA_MAX_GET=5',
-            'CONTACT_MAX_POST=3',
-            'CONTACT_TO_EMAIL=test@example.com',
-            'CONTACT_FROM_EMAIL=web@example.com',
-            'RATE_LIMIT_WINDOW_SECONDS=600',
-            'SMTP_FROM_NAME=Test',
-            'MAIL_STDOUT=1',
-        ];
-        file_put_contents($path, implode("\n", $content) . "\n");
     }
 
     private function compileEnv(): void

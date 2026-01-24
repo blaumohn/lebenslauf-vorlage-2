@@ -35,10 +35,12 @@ final class RunCommand extends BaseCommand
         }
         $compiler = new ConfigCompiler($this->rootPath());
         $runtimeContext = $this->resolveContext($compiler, $pipeline, 'runtime');
-        if (!$this->compileConfig($compiler, $runtimeContext, $input, $output)) {
+        $snapshot = $this->resolveRuntimeSnapshot($compiler, $runtimeContext, $input, $output);
+        if ($snapshot === null) {
             return Command::FAILURE;
         }
-        $runner = new PythonRunner($this->rootPath());
+        $setupValues = $this->resolveSetupConfigValues($compiler, $pipeline, $input, $output);
+        $runner = new PythonRunner($this->rootPath(), $setupValues);
         $args = $this->devArgs($input, $pipeline);
         return $runner->run('src/cli/tools/dev.py', $args, $input->isInteractive());
     }
@@ -58,19 +60,39 @@ final class RunCommand extends BaseCommand
         return $args;
     }
 
-    private function compileConfig(
+    private function resolveRuntimeSnapshot(
         ConfigCompiler $compiler,
         Context $context,
         InputInterface $input,
         OutputInterface $output
-    ): bool
+    ): ?\ConfigPipelineSpec\Config\ConfigSnapshot
     {
         try {
+            $snapshot = $compiler->validate($context, $input->isInteractive());
             $compiler->compile($context, $input->isInteractive());
+            return $snapshot;
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
-            return false;
+            return null;
         }
-        return true;
+    }
+
+    private function resolveSetupConfigValues(
+        ConfigCompiler $compiler,
+        string $pipeline,
+        InputInterface $input,
+        OutputInterface $output
+    ): array {
+        $context = $compiler->resolveContext([
+            'pipeline' => $pipeline,
+            'phase' => 'setup',
+        ]);
+        try {
+            $snapshot = $compiler->validate($context, $input->isInteractive());
+            return $snapshot->values();
+        } catch (\RuntimeException $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</error>');
+            return [];
+        }
     }
 }

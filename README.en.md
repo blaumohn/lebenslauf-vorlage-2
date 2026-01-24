@@ -14,13 +14,13 @@ php bin/cli run dev
 
 `run` compiles the runtime config to `var/config/env.php`.
 
-Create `.env.local` before the first run (see `.env.template`).
+Create `.local/dev-runtime.yaml` before the first run (see `config/dev-runtime.yaml`).
 
 The same commands are also available as `composer` scripts.
 
 Requirements: PHP >= 8.1, Node.js, Python 3.
-Defaults come from `.env` files (see `.env.template`).
-If no `.env.local` exists, `php bin/cli setup` asks whether to use `tests/fixtures/env.local` as a demo.
+Defaults come from YAML config files (see `config/`).
+If no `.local/dev-runtime.yaml` exists, copy the fixture from `tests/fixtures/dev-runtime.yaml`.
 `php bin/cli setup` runs `npm install`.
 `php bin/cli run` starts the Python dev runner (options: `--build`, `--demo`, `--mail-stdout`).
 Note: `setup` creates `.venv` using system Python; other commands prefer `.venv`.
@@ -68,8 +68,8 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
 
 ## Configuration
 
-- Use `.env`/`.env.local` and `.env.<PIPELINE>` variants (see `docs/ENVIRONMENTS.md`).
-- Example env values live in `.env.template`.
+- Use `config/<PIPELINE>-<PHASE>.yaml` and `.local/<PIPELINE>-<PHASE>.yaml` (see `docs/ENVIRONMENTS.md`).
+- Example values live in `config/dev-runtime.yaml`.
 - Important folders:
   - `var/tmp/` short-lived (CAPTCHA + rate limits)
   - `var/cache/` derived (rendered HTML)
