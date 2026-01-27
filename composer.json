@@ -10,7 +10,7 @@
   ],
   "require": {
     "php": ">=8.1",
-    "blaumohn/config-pipeline-spec-php": "dev-main",
+    "blaumohn/config-pipeline-spec-php": "dev-refactor/no-dotenv-config",
     "opis/json-schema": "^2.4",
     "slim/slim": "^4.12",
     "slim/psr7": "^1.6",
@@ -29,7 +29,7 @@
     "psr-4": {
       "App\\Content\\": "src/content/",
       "App\\Http\\": "src/http/",
-      "App\\Cli\\": "src/cli/"
+      "App\\Cli\\": "src/cli/php/"
     }
   },
   "scripts": {
@@ -55,7 +55,7 @@
     "setup:preview": "php bin/cli setup preview",
     "tests:smoke": [
       "Composer\\Config::disableProcessTimeout",
-      "python3 tests/smoke.py || python tests/smoke.py"
+      "php bin/cli python dev --add-path . tests/py/smoke.py"
     ],
     "deploy:preview": [
       "php bin/cli build preview"

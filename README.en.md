@@ -12,7 +12,7 @@ php bin/cli setup dev
 php bin/cli run dev
 ```
 
-`run` compiles the runtime config to `var/config/env.php`.
+`run` compiles the runtime config to `var/config/config.php`.
 
 Create `.local/dev-runtime.yaml` before the first run (see `config/dev-runtime.yaml`).
 
@@ -22,8 +22,8 @@ Requirements: PHP >= 8.1, Node.js, Python 3.
 Defaults come from YAML config files (see `config/`).
 If no `.local/dev-runtime.yaml` exists, copy the fixture from `tests/fixtures/dev-runtime.yaml`.
 `php bin/cli setup` runs `npm install`.
-`php bin/cli run` starts the Python dev runner (options: `--build`, `--demo`, `--mail-stdout`).
-Note: `setup` creates `.venv` using system Python; other commands prefer `.venv`.
+`php bin/cli run` starts the Python dev runner (option: `--build`).
+Note: `setup` creates `.venv` unless `--skip-python` is used.
 
 ## CLI syntax
 
@@ -31,7 +31,8 @@ Note: `setup` creates `.venv` using system Python; other commands prefer `.venv`
 # Lifecycle
 php bin/cli setup <pipeline>
 php bin/cli build <pipeline> [cv|css|upload]
-php bin/cli run <pipeline> [--build] [--demo] [--mail-stdout]
+php bin/cli run <pipeline> [--build]
+php bin/cli python <pipeline> [--add-path <path>] <script> [args...]
 
 # Content
 php bin/cli build <pipeline> cv
@@ -55,6 +56,14 @@ Examples:
 - `php bin/cli setup dev`
 - `php bin/cli build dev cv`
 - `php bin/cli run dev`
+- `php bin/cli python dev --add-path . tests/py/smoke.py`
+
+## Python runner
+
+- Phase: `python`
+- Defaults: `config/dev-python.yaml`
+- Keys: `PYTHON_CMD`, `PYTHON_PATHS` (e.g. `src`)
+- Extra import paths via CLI: `--add-path <path>`
 
 ## Build + dev (YAML -> JSON -> HTML)
 
@@ -76,7 +85,7 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
   - `var/state/` important (token whitelist)
 - Labels for section titles: `src/resources/labels.json`.
 - Page texts (title/contact) live in Twig templates.
-- Config rules live in `config/env.manifest.yaml`.
+- Config rules live in `config/config.manifest.yaml`.
 
 Relevant config keys:
 - `LEBENSLAUF_PUBLIC_PROFILE` (build)
@@ -84,7 +93,7 @@ Relevant config keys:
 - `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` (runtime)
 
 Details on environments and variables: `docs/ENVIRONMENTS.md`.
-Deployments use `var/config/env.php` as the compiled runtime config (`php bin/cli config compile <pipeline>`).
+Deployments use `var/config/config.php` as the compiled runtime config (`php bin/cli config compile <pipeline>`).
 
 Preview build in CI: `composer install --no-dev --optimize-autoloader --no-interaction` + `php bin/cli setup preview` + `php bin/cli build preview` (deploy dir via `bin/ci/preview-copy.sh`).
 FTP target path for preview: environment variable `FTP_SERVER_DIR`.

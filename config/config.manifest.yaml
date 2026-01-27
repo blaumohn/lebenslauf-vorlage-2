@@ -1,0 +1,94 @@
+variables:
+  context:
+    PIPELINE: {}
+    PHASE: {}
+
+  app:
+    APP_BASE_PATH: {}
+    APP_URL: {}
+    TRUST_PROXY: {}
+
+  lebenslauf:
+    LEBENSLAUF_DATEN_PFAD: {}
+    LEBENSLAUF_YAML_PFAD: {}
+    LEBENSLAUF_JSON_PFAD: {}
+    LEBENSLAUF_PUBLIC_PROFILE: {}
+    LEBENSLAUF_LANG_DEFAULT: {}
+    LEBENSLAUF_LANGS: {}
+
+  captcha:
+    CAPTCHA_TTL_SECONDS: {}
+    CAPTCHA_MAX_GET: {}
+
+  contact:
+    CONTACT_MAX_POST: {}
+    CONTACT_TO_EMAIL: {}
+    CONTACT_FROM_EMAIL: {}
+
+  rate_limit:
+    RATE_LIMIT_WINDOW_SECONDS: {}
+
+  mail:
+    MAIL_STDOUT: {}
+    SMTP_HOST: {}
+    SMTP_PORT: {}
+    SMTP_USER: {}
+    SMTP_PASS:
+      sources: [system, local]
+    SMTP_ENCRYPTION: {}
+    SMTP_FROM_EMAIL: {}
+    SMTP_FROM_NAME: {}
+
+  security:
+    IP_SALT:
+      sources: [system, local, file]
+
+  deploy:
+    FTP_SERVER_DIR: {}
+    FTP_PORT: {}
+    FTP_HOST:
+      sources: [system, local]
+    FTP_USER:
+      sources: [system, local]
+    FTP_PASS:
+      sources: [system, local]
+
+  tooling:
+    PYTHON_CMD: {}
+    PYTHON_PATHS: {}
+
+  tests:
+    CLONE_SOURCE: {}
+    KEEP_SMOKE_CLONE: {}
+
+pipelines:
+  common:
+    setup:
+      required: [PIPELINE, PHASE]
+      allowed: [context, app, lebenslauf, tooling, tests]
+    python:
+      required: [PIPELINE, PHASE]
+      allowed: [context, tooling]
+    build:
+      required: [PIPELINE, PHASE]
+      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail, security, tooling, tests]
+    runtime:
+      required: [PIPELINE, PHASE]
+      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail, security]
+    deploy:
+      required: [PIPELINE, PHASE]
+      allowed: [context, deploy]
+
+  dev:
+    setup:
+      required: []
+      allowed: []
+    runtime:
+      required:
+        - IP_SALT
+        - CAPTCHA_MAX_GET
+        - CONTACT_MAX_POST
+        - RATE_LIMIT_WINDOW_SECONDS
+        - MAIL_STDOUT
+        - SMTP_FROM_NAME
+      allowed: []

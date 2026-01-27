@@ -12,7 +12,7 @@ final class ConfigCompiled
     public function __construct(string $rootPath)
     {
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
-        $path = Path::join($this->rootPath, 'var', 'config', 'env.php');
+        $path = Path::join($this->rootPath, 'var', 'config', 'config.php');
         if (!is_file($path)) {
             throw new \RuntimeException("Compiled config fehlt: {$path}");
         }

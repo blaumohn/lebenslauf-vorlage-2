@@ -5,12 +5,12 @@ Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase.
 ## Kontext
 
 - `PIPELINE`: Projekt-Pipeline (z. B. `dev`, `smoketest`, `delivery`)
-- `PHASE`: Pipeline-Phase (z. B. `setup`, `build`, `runtime`, `deploy`)
+- `PHASE`: Pipeline-Phase (z. B. `setup`, `build`, `runtime`, `deploy`, `python`)
 
 ## Referenzen
 
-- Beispielwerte: `config/dev-build.yaml` und `config/dev-runtime.yaml`
-- Struktur/Regeln: `config/env.manifest.yaml` (variables + pipelines)
+- Beispielwerte: `config/dev-build.yaml`, `config/dev-runtime.yaml`, `config/dev-python.yaml`
+- Struktur/Regeln: `config/config.manifest.yaml` (variables + pipelines)
 
 ## Config-Ladereihenfolge
 
@@ -24,14 +24,15 @@ Beispiel: `config/dev-build.yaml`, `.local/dev-runtime.yaml`.
 
 ## Regeln
 
-- `config/env.manifest.yaml` definiert `variables` (Bereiche + Quellen) und `pipelines`.
+- `config/config.manifest.yaml` definiert `variables` (Bereiche + Quellen) und `pipelines`.
 - `allowed` kann Gruppen aus `variables` oder einzelne Keys enthalten.
 - `sources` im Manifest erzwingt, aus welchen Quellen Variablen kommen duerfen (z. B. nur `system` oder `local`).
-- Build erzeugt `var/config/env.php` als aufgeloeste Runtime-Konfiguration.
-- Runtime liest nur `var/config/env.php` (kein `getenv()/putenv()`).
+- Build erzeugt `var/config/config.php` als aufgeloeste Runtime-Konfiguration.
+- Runtime liest nur `var/config/config.php` (kein `getenv()/putenv()`).
 - Kompilieren via `php bin/cli config compile <pipeline> --phase runtime`.
 - Inhaltliche Defaults (z. B. Lebenslauf-Sprachen) liegen in Config-Keys.
 - Labels sind Teil des UI und liegen unter `src/resources/labels.json`.
+- Die Phase `python` ist fuer den Python-Runner und nutzt `PYTHON_CMD`/`PYTHON_PATHS`.
 
 ## CLI-Modell
 
@@ -46,6 +47,7 @@ Beispiele:
 - `php bin/cli setup dev`
 - `php bin/cli build dev cv`
 - `php bin/cli run dev`
+- `php bin/cli python dev --add-path . tests/py/smoke.py`
 
 ## Hinweise
 
