@@ -38,8 +38,9 @@ Vor dem ersten Start `.local/dev-runtime.yaml` anlegen (siehe `config/dev-runtim
 
 - YAML-Daten liegen standardmäßig in `.local/lebenslauf` (`LEBENSLAUF_DATEN_PFAD`).
 - Nur Dateien `daten-<profil>.yaml` werden berücksichtigt (z. B. `daten-entwickler.yaml`).
-- UI-Labels/Übersetzungen liegen in `src/resources/labels.json` (Repo-Beitrag möglich).
+- UI-Labels/Übersetzungen liegen in `src/resources/build/labels.json` (Repo-Beitrag möglich).
 - Seitentexte (z. B. Seitentitel/Kontakt) liegen direkt in Twig-Templates.
+- Build-Ressourcen (Schemas/Labels/Assets) liegen unter `src/resources/build/`.
 
 Relevante Config-Werte (Runtime/Build):
 - `LEBENSLAUF_PUBLIC_PROFILE` (Build)
@@ -82,7 +83,10 @@ Beispiele:
 ├── src/
 │   ├── resources/
 │   │   ├── templates/          # Twig-Templates
-│   │   └── labels.json          # UI-Labels (Repo-Inhalt)
+│   │   └── build/              # Build-Ressourcen
+│   │       ├── labels.json      # UI-Labels (Repo-Inhalt)
+│   │       ├── assets/          # Build-Assets (CSS)
+│   │       └── schemas/         # JSON-Schemas
 │   ├── http/                   # HTTP-App
 │   └── cli/                    # CLI-Tools
 ├── .local/

@@ -2,8 +2,7 @@
 
 namespace App\Cli\Command;
 
-use ConfigPipelineSpec\Config\ConfigCompiler;
-use ConfigPipelineSpec\Config\Context;
+use PipelineConfigSpec\PipelineConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,45 +50,50 @@ final class ConfigCommand extends BaseCommand
             return Command::FAILURE;
         }
 
-        $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
-        if ($context === null) {
+        $pipelineSpec = $this->configService();
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
             return Command::FAILURE;
         }
+        $phase = $this->resolvePhase($input, 'runtime');
         try {
-            $snapshot = $compiler->validate($context);
+            $values = $pipelineSpec->values($pipeline, $phase);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
         }
 
-        $value = (string) ($snapshot->values()[$key] ?? '');
+        $value = (string) ($values[$key] ?? '');
         $output->write($value);
         return Command::SUCCESS;
     }
 
     private function handleShow(InputInterface $input, OutputInterface $output): int
     {
-        $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
-        if ($context === null) {
+        $pipelineSpec = $this->configService();
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
             return Command::FAILURE;
         }
+        $phase = $this->resolvePhase($input, 'runtime');
         try {
-            $snapshot = $compiler->validate($context);
+            $report = $pipelineSpec->describe($pipeline, $phase);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
         }
 
-        $output->writeln("Pipeline: {$context->pipeline()}");
-        $output->writeln("Phase: {$context->phase()}");
+        $contextData = $report['context'] ?? [];
+        $pipelineName = (string) ($contextData['pipeline'] ?? '');
+        $phaseName = (string) ($contextData['phase'] ?? '');
+        $output->writeln("Pipeline: {$pipelineName}");
+        $output->writeln("Phase: {$phaseName}");
         $output->writeln('Config-Dateien:');
-        foreach ($snapshot->loadedFiles() as $file) {
+        foreach (($report['files'] ?? []) as $file) {
             $output->writeln('- ' . $file);
         }
         $output->writeln('Werte:');
-        foreach ($snapshot->values() as $key => $value) {
+        foreach (($report['values'] ?? []) as $key => $value) {
             $output->writeln($key . '=' . $value);
         }
         return Command::SUCCESS;
@@ -97,13 +101,14 @@ final class ConfigCommand extends BaseCommand
 
     private function handleLint(InputInterface $input, OutputInterface $output): int
     {
-        $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
-        if ($context === null) {
+        $pipelineSpec = $this->configService();
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
             return Command::FAILURE;
         }
+        $phase = $this->resolvePhase($input, 'runtime');
         try {
-            $compiler->validate($context);
+            $pipelineSpec->validate($pipeline, $phase);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
@@ -117,13 +122,14 @@ final class ConfigCommand extends BaseCommand
         $target = trim((string) $input->getArgument('arg2'));
         $targetPath = $target === '' ? null : $this->resolvePath($target);
 
-        $compiler = new ConfigCompiler($this->rootPath());
+        $pipelineSpec = $this->configService();
+        $pipeline = $this->requirePipeline($input, $output);
+        if ($pipeline === null) {
+            return Command::FAILURE;
+        }
+        $phase = $this->resolvePhase($input, 'runtime');
         try {
-            $context = $this->resolveContextForCommand($compiler, $input, $output, 'runtime');
-            if ($context === null) {
-                return Command::FAILURE;
-            }
-            $path = $compiler->compile($context, $targetPath);
+            $path = $pipelineSpec->compile($pipeline, $phase, $targetPath);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
@@ -131,23 +137,6 @@ final class ConfigCommand extends BaseCommand
 
         $output->writeln("Compiled config written: {$path}");
         return Command::SUCCESS;
-    }
-
-    private function resolveContextForCommand(
-        ConfigCompiler $compiler,
-        InputInterface $input,
-        OutputInterface $output,
-        string $phase
-    ): ?Context
-    {
-        $pipeline = $this->requirePipeline($input, $output);
-        if ($pipeline === null) {
-            return null;
-        }
-        $requestedPhase = $this->resolveOptionString($input, 'phase');
-        $contextPhase = $requestedPhase ?? $phase;
-
-        return parent::resolveContext($compiler, $pipeline, $contextPhase);
     }
 
     private function resolveOptionString(InputInterface $input, string $name): ?string
@@ -158,6 +147,12 @@ final class ConfigCommand extends BaseCommand
         }
         $value = trim($value);
         return $value === '' ? null : $value;
+    }
+
+    private function resolvePhase(InputInterface $input, string $fallback): string
+    {
+        $requested = $this->resolveOptionString($input, 'phase');
+        return $requested ?? $fallback;
     }
 
     private function resolvePath(string $path): string

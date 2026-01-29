@@ -2,7 +2,7 @@
 
 namespace App\Cli;
 
-use ConfigPipelineSpec\Config\ConfigCompiler;
+use PipelineConfigSpec\PipelineConfigService;
 use Symfony\Component\Process\Process;
 
 final class PythonRunner
@@ -48,14 +48,9 @@ final class PythonRunner
 
     private function loadConfigValues(string $pipeline): ?array
     {
-        $compiler = new ConfigCompiler($this->rootPath);
-        $context = $compiler->resolveContext([
-            'pipeline' => $pipeline,
-            'phase' => 'python',
-        ]);
+        $pipelineSpec = new PipelineConfigService($this->rootPath);
         try {
-            $snapshot = $compiler->validate($context);
-            return $snapshot->values();
+            return $pipelineSpec->values($pipeline, 'python');
         } catch (\RuntimeException $exception) {
             fwrite(STDERR, $exception->getMessage() . "\n");
             return null;

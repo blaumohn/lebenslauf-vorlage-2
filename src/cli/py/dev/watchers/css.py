@@ -16,14 +16,14 @@ POSTCSS_CMD = resolve_postcss_cmd()
 COMMANDS = [
     POSTCSS_CMD
     + [
-        "src/resources/assets/css/cv/index.css",
+        "src/resources/build/assets/css/cv/index.css",
         "-o",
         "public/css/cv.css",
         "--watch",
     ],
     POSTCSS_CMD
     + [
-        "src/resources/assets/css/site.css",
+        "src/resources/build/assets/css/site.css",
         "-o",
         "public/css/site.css",
         "--watch",
@@ -41,7 +41,7 @@ def start():
 
 def files_fn():
     def _files():
-        css_root = os.path.join(os.getcwd(), "src", "resources", "assets", "css")
+        css_root = os.path.join(os.getcwd(), "src", "resources", "build", "assets", "css")
         files = []
         for root, _dirs, filenames in os.walk(css_root):
             for name in filenames:

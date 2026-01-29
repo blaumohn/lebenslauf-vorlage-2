@@ -83,7 +83,7 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
   - `var/tmp/` short-lived (CAPTCHA + rate limits)
   - `var/cache/` derived (rendered HTML)
   - `var/state/` important (token whitelist)
-- Labels for section titles: `src/resources/labels.json`.
+- Labels for section titles: `src/resources/build/labels.json`.
 - Page texts (title/contact) live in Twig templates.
 - Config rules live in `config/config.manifest.yaml`.
 
@@ -109,7 +109,7 @@ php bin/cli build <PIPELINE> upload <CV_PROFILE> <JSON_PATH>
 
 Creates `var/cache/html/cv-private-<profile>.<lang>.html` per language. If `<CV_PROFILE>` equals `LEBENSLAUF_PUBLIC_PROFILE`, it also creates `cv-public.<lang>.html`.
 The default language (from `LEBENSLAUF_LANG_DEFAULT`) also writes legacy files `cv-private-<profile>.html` and `cv-public.html`.
-JSON is validated against `schemas/lebenslauf.schema.json`.
+JSON is validated against `src/resources/build/schemas/lebenslauf.schema.json`.
 
 ### Rotate tokens
 

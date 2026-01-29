@@ -3,8 +3,7 @@
 namespace App\Cli\Command;
 
 use App\Cli\PythonResolver;
-use ConfigPipelineSpec\Config\ConfigCompiler;
-use ConfigPipelineSpec\Config\Context;
+use PipelineConfigSpec\PipelineConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,7 +31,7 @@ final class SetupCommand extends BaseCommand
         if ($pipeline === null) {
             return Command::FAILURE;
         }
-        $configValues = $this->resolveSetupConfigValues($pipeline, $input, $output);
+        $configValues = $this->resolveSetupConfigValues($pipeline, $output);
         if ($input->getOption('create-demo-content')) {
             $profile = $this->resolveDefaultProfile($configValues);
             if (!$this->createDemoContent($profile, $output)) {
@@ -112,26 +111,19 @@ final class SetupCommand extends BaseCommand
 
     private function resolveSetupConfigValues(
         string $pipeline,
-        InputInterface $input,
         OutputInterface $output
     ): array {
-        $compiler = new ConfigCompiler($this->rootPath());
-        $context = $compiler->resolveContext([
-            'pipeline' => $pipeline,
-            'phase' => 'setup',
-        ]);
-        return $this->loadConfigValues($compiler, $context, $input, $output);
+        $pipelineSpec = $this->configService();
+        return $this->loadConfigValues($pipelineSpec, $pipeline, $output);
     }
 
     private function loadConfigValues(
-        ConfigCompiler $compiler,
-        Context $context,
-        InputInterface $input,
+        PipelineConfigService $pipelineSpec,
+        string $pipeline,
         OutputInterface $output
     ): array {
         try {
-            $snapshot = $compiler->validate($context);
-            return $snapshot->values();
+            return $pipelineSpec->values($pipeline, 'setup');
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return [];

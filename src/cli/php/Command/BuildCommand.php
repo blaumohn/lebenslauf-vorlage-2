@@ -4,9 +4,7 @@ namespace App\Cli\Command;
 
 use App\Cli\Cv\CvBuildService;
 use App\Cli\Cv\CvUploadService;
-use ConfigPipelineSpec\Config\Config;
-use ConfigPipelineSpec\Config\ConfigCompiler;
-use ConfigPipelineSpec\Config\ConfigSnapshot;
+use PipelineConfigSpec\PipelineConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,7 +38,7 @@ final class BuildCommand extends BaseCommand
             return $this->runCssOnly($output);
         }
         if ($task === 'cv') {
-            return $this->runCvOnly($pipeline, $input, $output);
+            return $this->runCvOnly($pipeline, $output);
         }
         if ($task === 'upload') {
             return $this->runCvUpload($pipeline, $input, $output);
@@ -56,7 +54,7 @@ final class BuildCommand extends BaseCommand
         if ($exitCode !== 0) {
             return $exitCode;
         }
-        return $this->runCvOnly($pipeline, $input, $output);
+        return $this->runCvOnly($pipeline, $output);
     }
 
     private function runCssOnly(OutputInterface $output): int
@@ -64,17 +62,17 @@ final class BuildCommand extends BaseCommand
         return $this->runCssBuild($output);
     }
 
-    private function runCvOnly(string $pipeline, InputInterface $input, OutputInterface $output): int
+    private function runCvOnly(string $pipeline, OutputInterface $output): int
     {
-        $compiler = new ConfigCompiler($this->rootPath());
-        $buildSnapshot = $this->resolveBuildSnapshot($compiler, $pipeline, $input, $output);
-        if ($buildSnapshot === null) {
+        $pipelineSpec = $this->configService();
+        $buildValues = $this->resolveBuildValues($pipelineSpec, $pipeline, $output);
+        if ($buildValues === null) {
             return Command::FAILURE;
         }
-        if (!$this->compileRuntimeConfig($compiler, $pipeline, $input, $output)) {
+        if (!$this->compileRuntimeConfig($pipelineSpec, $pipeline, $output)) {
             return Command::FAILURE;
         }
-        if (!$this->runCvBuild($buildSnapshot, $input, $output)) {
+        if (!$this->runCvBuild($pipelineSpec, $buildValues, $output)) {
             return Command::FAILURE;
         }
         return Command::SUCCESS;
@@ -89,12 +87,12 @@ final class BuildCommand extends BaseCommand
             return Command::FAILURE;
         }
 
-        $compiler = new ConfigCompiler($this->rootPath());
-        $buildSnapshot = $this->resolveBuildSnapshot($compiler, $pipeline, $input, $output);
-        if ($buildSnapshot === null) {
+        $pipelineSpec = $this->configService();
+        $buildValues = $this->resolveBuildValues($pipelineSpec, $pipeline, $output);
+        if ($buildValues === null) {
             return Command::FAILURE;
         }
-        $config = new Config($this->rootPath(), $this->buildValues($buildSnapshot, $input));
+        $config = $this->configValues($buildValues);
         $service = new CvUploadService($config);
 
         try {
@@ -107,9 +105,13 @@ final class BuildCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function runCvBuild(ConfigSnapshot $snapshot, InputInterface $input, OutputInterface $output): bool
+    private function runCvBuild(
+        PipelineConfigService $pipelineSpec,
+        array $values,
+        OutputInterface $output
+    ): bool
     {
-        $config = new Config($this->rootPath(), $this->buildValues($snapshot));
+        $config = $this->configValues($values);
         $builder = new CvBuildService($config);
 
         try {
@@ -121,15 +123,13 @@ final class BuildCommand extends BaseCommand
         return true;
     }
 
-    private function resolveBuildSnapshot(
-        ConfigCompiler $compiler,
+    private function resolveBuildValues(
+        PipelineConfigService $pipelineSpec,
         string $pipeline,
-        InputInterface $input,
         OutputInterface $output
-    ): ?ConfigSnapshot {
-        $context = $this->resolveContext($compiler, $pipeline, 'build');
+    ): ?array {
         try {
-            return $compiler->resolve($context);
+            return $pipelineSpec->values($pipeline, 'build');
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return null;
@@ -137,24 +137,17 @@ final class BuildCommand extends BaseCommand
     }
 
     private function compileRuntimeConfig(
-        ConfigCompiler $compiler,
+        PipelineConfigService $pipelineSpec,
         string $pipeline,
-        InputInterface $input,
         OutputInterface $output
     ): bool {
-        $context = $this->resolveContext($compiler, $pipeline, 'runtime');
         try {
-            $compiler->compile($context);
+            $pipelineSpec->compile($pipeline, 'runtime');
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return false;
         }
         return true;
-    }
-
-    private function buildValues(ConfigSnapshot $snapshot): array
-    {
-        return $snapshot->values();
     }
 
     private function runCssBuild(OutputInterface $output): int

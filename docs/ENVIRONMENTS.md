@@ -31,7 +31,7 @@ Beispiel: `config/dev-build.yaml`, `.local/dev-runtime.yaml`.
 - Runtime liest nur `var/config/config.php` (kein `getenv()/putenv()`).
 - Kompilieren via `php bin/cli config compile <pipeline> --phase runtime`.
 - Inhaltliche Defaults (z. B. Lebenslauf-Sprachen) liegen in Config-Keys.
-- Labels sind Teil des UI und liegen unter `src/resources/labels.json`.
+- Labels sind Teil des UI und liegen unter `src/resources/build/labels.json`.
 - Die Phase `python` ist fuer den Python-Runner und nutzt `PYTHON_CMD`/`PYTHON_PATHS`.
 
 ## CLI-Modell

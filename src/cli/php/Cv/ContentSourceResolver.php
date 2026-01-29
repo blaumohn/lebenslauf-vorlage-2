@@ -2,14 +2,14 @@
 
 namespace App\Cli\Cv;
 
-use ConfigPipelineSpec\Config\Config;
+use App\Cli\ConfigValues;
 use Symfony\Component\Filesystem\Path;
 
 final class ContentSourceResolver
 {
-    private Config $config;
+    private ConfigValues $config;
 
-    public function __construct(Config $config)
+    public function __construct(ConfigValues $config)
     {
         $this->config = $config;
     }

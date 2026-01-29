@@ -2,7 +2,7 @@
 
 namespace App\Cli\Cv;
 
-use ConfigPipelineSpec\Config\Config;
+use App\Cli\ConfigValues;
 use App\Http\Cv\CvDataNormalizer;
 use App\Http\Cv\CvRenderer;
 use App\Http\Cv\CvStorage;
@@ -17,7 +17,7 @@ use Symfony\Component\Filesystem\Path;
 
 final class CvUploadService
 {
-    private Config $config;
+    private ConfigValues $config;
     private string $rootPath;
     private CvStorage $cvStorage;
     private CvValidator $validator;
@@ -27,7 +27,7 @@ final class CvUploadService
     private string $labelsPath;
     private string $defaultLang;
 
-    public function __construct(Config $config)
+    public function __construct(ConfigValues $config)
     {
         $this->config = $config;
         $this->rootPath = $config->rootPath();
@@ -137,7 +137,7 @@ final class CvUploadService
 
     private function resolveLabelsPath(): string
     {
-        return Path::join($this->rootPath, 'src', 'resources', 'labels.json');
+        return Path::join($this->rootPath, 'src', 'resources', 'build', 'labels.json');
     }
 
     private function isDefaultProfile(string $profile): bool
@@ -199,7 +199,14 @@ final class CvUploadService
 
     private function buildValidator(): CvValidator
     {
-        $schemaPath = Path::join($this->rootPath, 'schemas', 'lebenslauf.schema.json');
+        $schemaPath = Path::join(
+            $this->rootPath,
+            'src',
+            'resources',
+            'build',
+            'schemas',
+            'lebenslauf.schema.json'
+        );
         return new CvValidator($schemaPath);
     }
 

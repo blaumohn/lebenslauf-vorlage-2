@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use ConfigPipelineSpec\Config\ConfigCompiler;
+use PipelineConfigSpec\PipelineConfigService;
 use App\Http\AppBuilder;
 use App\Http\ConfigCompiled;
 use PHPUnit\Framework\TestCase;
@@ -19,8 +19,8 @@ abstract class FeatureTestCase extends TestCase
         $this->copyDir($this->projectRoot() . '/config', $this->root . '/config');
         $this->copyDir($this->projectRoot() . '/src/resources/templates', $this->root . '/src/resources/templates');
         $this->copyFile(
-            $this->projectRoot() . '/src/resources/labels.json',
-            $this->root . '/src/resources/labels.json'
+            $this->projectRoot() . '/src/resources/build/labels.json',
+            $this->root . '/src/resources/build/labels.json'
         );
         $this->ensureDirs([
             $this->root . '/var/tmp/captcha',
@@ -59,12 +59,8 @@ abstract class FeatureTestCase extends TestCase
 
     private function compileConfig(): void
     {
-        $compiler = new ConfigCompiler($this->root);
-        $context = $compiler->resolveContext([
-            'pipeline' => 'dev',
-            'phase' => 'runtime',
-        ]);
-        $compiler->compile($context, false);
+        $configService = new PipelineConfigService($this->root);
+        $configService->compile('dev', 'runtime');
     }
 
     private function copyDir(string $source, string $dest): void

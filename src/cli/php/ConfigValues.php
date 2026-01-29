@@ -1,27 +1,16 @@
 <?php
 
-namespace App\Http;
+namespace App\Cli;
 
-use Symfony\Component\Filesystem\Path;
-
-final class ConfigCompiled
+final class ConfigValues
 {
     private string $rootPath;
-    private array $data;
+    private array $values;
 
-    public function __construct(string $rootPath)
+    public function __construct(string $rootPath, array $values = [])
     {
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
-        $path = Path::join($this->rootPath, 'var', 'config', 'config.php');
-        if (!is_file($path)) {
-            $hint = 'Bitte zuerst: php bin/cli build <pipeline>';
-            throw new \RuntimeException("Compiled config fehlt: {$path}. {$hint}");
-        }
-        $data = require $path;
-        if (!is_array($data)) {
-            throw new \RuntimeException("Compiled config ungueltig: {$path}");
-        }
-        $this->data = $data;
+        $this->values = $values;
     }
 
     public function rootPath(): string
@@ -31,10 +20,11 @@ final class ConfigCompiled
 
     public function get(string $key, mixed $default = null): mixed
     {
-        if (!array_key_exists($key, $this->data)) {
-            return $default;
+        if (array_key_exists($key, $this->values)) {
+            return $this->values[$key];
         }
-        return $this->data[$key];
+
+        return $default;
     }
 
     public function getBool(string $key, bool $default = false): bool

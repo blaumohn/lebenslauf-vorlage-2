@@ -2,7 +2,7 @@
 
 namespace App\Cli\Cv;
 
-use ConfigPipelineSpec\Config\Config;
+use App\Cli\ConfigValues;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -10,11 +10,11 @@ use Symfony\Component\Yaml\Yaml;
 final class CvBuildService
 {
     private string $rootPath;
-    private Config $config;
+    private ConfigValues $config;
     private ContentSourceResolver $resolver;
     private CvUploadService $uploader;
 
-    public function __construct(Config $config)
+    public function __construct(ConfigValues $config)
     {
         $this->config = $config;
         $this->rootPath = $config->rootPath();

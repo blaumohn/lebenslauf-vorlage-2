@@ -26,7 +26,7 @@ final class CvValidatorTest extends TestCase
 
     private function schemaPath(): string
     {
-        return dirname(__DIR__) . '/schemas/lebenslauf.schema.json';
+        return dirname(__DIR__, 2) . '/src/resources/build/schemas/lebenslauf.schema.json';
     }
 
     private function validData(): array

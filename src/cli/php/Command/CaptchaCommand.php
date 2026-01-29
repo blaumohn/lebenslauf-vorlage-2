@@ -2,10 +2,8 @@
 
 namespace App\Cli\Command;
 
-use ConfigPipelineSpec\Config\Config;
-use ConfigPipelineSpec\Config\ConfigCompiler;
-use ConfigPipelineSpec\Config\Context;
-use ConfigPipelineSpec\Config\ConfigSnapshot;
+use App\Cli\ConfigValues;
+use PipelineConfigSpec\PipelineConfigService;
 use App\Http\Captcha\CaptchaService;
 use App\Http\Storage\FileStorage;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -36,15 +34,14 @@ final class CaptchaCommand extends BaseCommand
         if ($pipeline === null) {
             return Command::FAILURE;
         }
-        $compiler = new ConfigCompiler($this->rootPath());
-        $context = $this->resolveContext($compiler, $pipeline, 'runtime');
-        $snapshot = $this->resolveSnapshot($compiler, $context, $input, $output);
-        if ($snapshot === null) {
+        $pipelineSpec = $this->configService();
+        $values = $this->resolveValues($pipelineSpec, $pipeline, $output);
+        if ($values === null) {
             return Command::FAILURE;
         }
 
         try {
-            $config = new Config($this->rootPath(), $snapshot->values());
+            $config = $this->configValues($values);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
@@ -56,21 +53,20 @@ final class CaptchaCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function resolveSnapshot(
-        ConfigCompiler $compiler,
-        Context $context,
-        InputInterface $input,
+    private function resolveValues(
+        PipelineConfigService $pipelineSpec,
+        string $pipeline,
         OutputInterface $output
-    ): ?ConfigSnapshot {
+    ): ?array {
         try {
-            return $compiler->resolve($context);
+            return $pipelineSpec->values($pipeline, 'runtime');
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return null;
         }
     }
 
-    private function buildCaptchaService(Config $config): CaptchaService
+    private function buildCaptchaService(ConfigValues $config): CaptchaService
     {
         $storage = new FileStorage();
         $path = Path::join($this->rootPath(), 'var', 'tmp', 'captcha');

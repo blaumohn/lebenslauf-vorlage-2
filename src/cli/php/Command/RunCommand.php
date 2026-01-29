@@ -3,8 +3,6 @@
 namespace App\Cli\Command;
 
 use App\Cli\PythonRunner;
-use ConfigPipelineSpec\Config\ConfigCompiler;
-use ConfigPipelineSpec\Config\Context;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,17 +29,6 @@ final class RunCommand extends BaseCommand
             $output->writeln('<error>run ist nur fuer die Pipeline dev erlaubt.</error>');
             return Command::FAILURE;
         }
-        $compiler = new ConfigCompiler($this->rootPath());
-        $runtimeContext = $this->resolveContext($compiler, $pipeline, 'runtime');
-        $snapshot = $this->resolveRuntimeSnapshot(
-            $compiler,
-            $runtimeContext,
-            $input,
-            $output
-        );
-        if ($snapshot === null) {
-            return Command::FAILURE;
-        }
         $runner = new PythonRunner($this->rootPath());
         $args = $this->devArgs($input, $pipeline);
         return $runner->runWithContext(
@@ -59,23 +46,6 @@ final class RunCommand extends BaseCommand
             $args[] = '--build';
         }
         return $args;
-    }
-
-    private function resolveRuntimeSnapshot(
-        ConfigCompiler $compiler,
-        Context $context,
-        InputInterface $input,
-        OutputInterface $output
-    ): ?\ConfigPipelineSpec\Config\ConfigSnapshot
-    {
-        try {
-            $snapshot = $compiler->validate($context);
-            $compiler->compile($context);
-            return $snapshot;
-        } catch (\RuntimeException $exception) {
-            $output->writeln('<error>' . $exception->getMessage() . '</error>');
-            return null;
-        }
     }
 
 }
