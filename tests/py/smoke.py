@@ -22,9 +22,13 @@ class SmokeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temp_dir = tempfile.mkdtemp(prefix="lebenslauf-smoke-")
-        cls.worktree = cls.prepare_worktree()
-        cls.clone_path = cls.prepare_clone()
-        cls.install_composer_dependencies()
+        try:
+            cls.worktree = cls.prepare_worktree()
+            cls.clone_path = cls.prepare_clone()
+            cls.install_composer_dependencies()
+        except Exception:
+            cls.cleanup_worktree()
+            raise
 
     @classmethod
     def tearDownClass(cls):
