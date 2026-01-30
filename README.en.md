@@ -14,12 +14,12 @@ php bin/cli run dev
 
 `run` compiles the runtime config to `var/config/config.php`.
 
-Create `.local/dev-runtime.yaml` before the first run (see `config/dev-runtime.yaml`).
+Create `.local/dev-runtime.yaml` before the first run (see `src/resources/config/dev-runtime.yaml`).
 
 The same commands are also available as `composer` scripts.
 
 Requirements: PHP >= 8.1, Node.js, Python 3.
-Defaults come from YAML config files (see `config/`).
+Defaults come from YAML config files (see `src/resources/config/`).
 If no `.local/dev-runtime.yaml` exists, copy the fixture from `tests/fixtures/dev-runtime.yaml`.
 `php bin/cli setup` runs `npm install`.
 `php bin/cli run` starts the Python dev runner (option: `--build`).
@@ -61,7 +61,7 @@ Examples:
 ## Python runner
 
 - Phase: `python`
-- Defaults: `config/dev-python.yaml`
+- Defaults: `src/resources/config/dev-python.yaml`
 - Keys: `PYTHON_CMD`, `PYTHON_PATHS` (e.g. `src`)
 - Extra import paths via CLI: `--add-path <path>`
 
@@ -77,15 +77,15 @@ If `LEBENSLAUF_DATEN_PFAD` is a directory, all `daten-<profile>.yaml` files are 
 
 ## Configuration
 
-- Use `config/<PIPELINE>-<PHASE>.yaml` and `.local/<PIPELINE>-<PHASE>.yaml` (see `docs/ENVIRONMENTS.md`).
-- Example values live in `config/dev-runtime.yaml`.
+- Use `src/resources/config/<PIPELINE>-<PHASE>.yaml` and `.local/<PIPELINE>-<PHASE>.yaml` (see `docs/ENVIRONMENTS.md`).
+- Example values live in `src/resources/config/dev-runtime.yaml`.
 - Important folders:
   - `var/tmp/` short-lived (CAPTCHA + rate limits)
   - `var/cache/` derived (rendered HTML)
   - `var/state/` important (token whitelist)
 - Labels for section titles: `src/resources/build/labels.json`.
 - Page texts (title/contact) live in Twig templates.
-- Config rules live in `config/config.manifest.yaml`.
+- Config rules live in `src/resources/config/config.manifest.yaml`.
 
 Relevant config keys:
 - `LEBENSLAUF_PUBLIC_PROFILE` (build)

@@ -17,7 +17,7 @@ abstract class BaseCommand extends Command
 
     protected function configDir(): string
     {
-        return 'config';
+        return 'src/resources/config';
     }
 
     protected function configService(): PipelineConfigService

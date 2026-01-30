@@ -32,7 +32,7 @@ php bin/cli run dev
 
 `run` kompiliert die Runtime-Config nach `var/config/config.php`.
 
-Vor dem ersten Start `.local/dev-runtime.yaml` anlegen (siehe `config/dev-runtime.yaml`).
+Vor dem ersten Start `.local/dev-runtime.yaml` anlegen (siehe `src/resources/config/dev-runtime.yaml`).
 
 ## Daten bearbeiten
 
@@ -72,7 +72,7 @@ Beispiele:
 ## Python-Runner
 
 - Config-Phase: `python`
-- Defaults: `config/dev-python.yaml`
+- Defaults: `src/resources/config/dev-python.yaml`
 - Wichtige Keys: `PYTHON_CMD`, `PYTHON_PATHS` (z. B. `src`)
 - Zusatzelemente per CLI: `--add-path <pfad>`
 
@@ -91,7 +91,7 @@ Beispiele:
 │   └── cli/                    # CLI-Tools
 ├── .local/
 │   └── lebenslauf/             # YAML-Daten
-├── config/                     # Config-Dateien + Manifest
+├── src/resources/config/       # Config-Dateien + Manifest
 ├── tests/
 └── docs/
 ```
@@ -99,5 +99,5 @@ Beispiele:
 ## Umgebungsvariablen
 
 Die Config-Policy (Pipeline/Phase) ist in `docs/ENVIRONMENTS.md` beschrieben.
-Beispielwerte stehen in `config/dev-runtime.yaml`, Regeln in `config/config.manifest.yaml`.
+Beispielwerte stehen in `src/resources/config/dev-runtime.yaml`, Regeln in `src/resources/config/config.manifest.yaml`.
 Fuer Deployments wird die Runtime-Config als `var/config/config.php` erzeugt (siehe `php bin/cli config compile <pipeline>`).

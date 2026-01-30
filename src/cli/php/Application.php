@@ -5,7 +5,7 @@ namespace App\Cli;
 use App\Cli\Command\BuildCommand;
 use App\Cli\Command\CaptchaCommand;
 use App\Cli\Command\ConfigCommand;
-use App\Cli\Command\PythonCommand;
+use App\Cli\Shared\PythonCommand;
 use App\Cli\Command\RunCommand;
 use App\Cli\Command\SetupCommand;
 use App\Cli\Command\TokenCommand;

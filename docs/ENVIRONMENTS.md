@@ -9,22 +9,22 @@ Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase.
 
 ## Referenzen
 
-- Beispielwerte: `config/dev-build.yaml`, `config/dev-runtime.yaml`, `config/dev-python.yaml`
-- Struktur/Regeln: `config/config.manifest.yaml` (variables + pipelines)
+- Beispielwerte: `src/resources/config/dev-build.yaml`, `src/resources/config/dev-runtime.yaml`, `src/resources/config/dev-python.yaml`
+- Struktur/Regeln: `src/resources/config/config.manifest.yaml` (variables + pipelines)
 
 ## Config-Ladereihenfolge
 
-1) `config/common.yaml` (optional)
-2) `config/<PIPELINE>.yaml`
+1) `src/resources/config/common.yaml` (optional)
+2) `src/resources/config/<PIPELINE>.yaml`
 3) `.local/<PIPELINE>.yaml`
-4) `config/<PIPELINE>-<PHASE>.yaml`
+4) `src/resources/config/<PIPELINE>-<PHASE>.yaml`
 5) `.local/<PIPELINE>-<PHASE>.yaml`
 
-Beispiel: `config/dev-build.yaml`, `.local/dev-runtime.yaml`.
+Beispiel: `src/resources/config/dev-build.yaml`, `.local/dev-runtime.yaml`.
 
 ## Regeln
 
-- `config/config.manifest.yaml` definiert `variables` (Bereiche + Quellen) und `pipelines`.
+- `src/resources/config/config.manifest.yaml` definiert `variables` (Bereiche + Quellen) und `pipelines`.
 - `allowed` kann Gruppen aus `variables` oder einzelne Keys enthalten.
 - `sources` im Manifest erzwingt, aus welchen Quellen Variablen kommen duerfen (z. B. nur `system` oder `local`).
 - Build erzeugt `var/config/config.php` als aufgeloeste Runtime-Konfiguration.
@@ -51,9 +51,9 @@ Beispiele:
 
 ## Hinweise
 
-- `.local/` ist nicht versioniert und ueberschreibt jeweils `config/`.
+- `.local/` ist nicht versioniert und ueberschreibt jeweils `src/resources/config/`.
 - CI/CD kann Werte per `.local/<PIPELINE>-<PHASE>.yaml` bereitstellen oder ueberschreiben.
-- Required-Keys sollten in `config/` liegen; `.local/` ist nur fuer Overrides/Secrets gedacht.
+- Required-Keys sollten in `src/resources/config/` liegen; `.local/` ist nur fuer Overrides/Secrets gedacht.
 
 ## Smoke-Test-Parameter
 

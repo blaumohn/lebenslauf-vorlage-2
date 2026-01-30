@@ -29,7 +29,10 @@ class WorktreeSession:
         run(["git", "-C", self.source_repo, "branch", "-D", self.branch])
 
     def apply_patch(self):
-        diff = run_capture(["git", "-C", self.source_repo, "diff", "--binary"], cwd=self.source_repo)
+        diff = run_capture(
+            ["git", "-C", self.source_repo, "diff", "--binary", "HEAD"],
+            cwd=self.source_repo,
+        )
         if diff.strip() == "":
             return
         result = subprocess.run(

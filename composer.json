@@ -37,7 +37,8 @@
     "psr-4": {
       "App\\Content\\": "src/content/",
       "App\\Http\\": "src/http/",
-      "App\\Cli\\": "src/cli/php/"
+      "App\\Cli\\": "src/cli/php/",
+      "App\\Cli\\Shared\\": "src/cli/php/shared/"
     }
   },
   "scripts": {

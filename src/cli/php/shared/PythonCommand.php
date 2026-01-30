@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Cli\Command;
+namespace App\Cli\Shared;
 
-use App\Cli\PythonRunner;
+use App\Cli\Command\BaseCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,7 +36,7 @@ final class PythonCommand extends BaseCommand
         if ($script === null) {
             return Command::FAILURE;
         }
-        $runner = new PythonRunner($this->rootPath());
+        $runner = new PythonRunner($this->rootPath(), $this->configDir());
         return $runner->runWithContext(
             $pipeline,
             $script,

@@ -2,7 +2,7 @@
 
 namespace App\Cli\Command;
 
-use App\Cli\PythonRunner;
+use App\Cli\Shared\PythonRunner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -29,7 +29,7 @@ final class RunCommand extends BaseCommand
             $output->writeln('<error>run ist nur fuer die Pipeline dev erlaubt.</error>');
             return Command::FAILURE;
         }
-        $runner = new PythonRunner($this->rootPath());
+        $runner = new PythonRunner($this->rootPath(), $this->configDir());
         $args = $this->devArgs($input, $pipeline);
         return $runner->runWithContext(
             $pipeline,

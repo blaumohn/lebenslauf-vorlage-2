@@ -16,7 +16,10 @@ abstract class FeatureTestCase extends TestCase
     {
         $this->root = sys_get_temp_dir() . '/php-mvp-app-' . bin2hex(random_bytes(6));
         mkdir($this->root, 0775, true);
-        $this->copyDir($this->projectRoot() . '/config', $this->root . '/config');
+        $this->copyDir(
+            $this->configSourceDir(),
+            $this->root . '/src/resources/config'
+        );
         $this->copyDir($this->projectRoot() . '/src/resources/templates', $this->root . '/src/resources/templates');
         $this->copyFile(
             $this->projectRoot() . '/src/resources/build/labels.json',
@@ -45,7 +48,12 @@ abstract class FeatureTestCase extends TestCase
 
     protected function projectRoot(): string
     {
-        return dirname(__DIR__, 2);
+        return dirname(__DIR__, 3);
+    }
+
+    private function configSourceDir(): string
+    {
+        return $this->projectRoot() . '/src/resources/config';
     }
 
     private function ensureDirs(array $dirs): void
@@ -59,7 +67,7 @@ abstract class FeatureTestCase extends TestCase
 
     private function compileConfig(): void
     {
-        $configService = new PipelineConfigService($this->root);
+        $configService = new PipelineConfigService($this->root, 'src/resources/config');
         $configService->compile('dev', 'runtime');
     }
 

@@ -1,17 +1,20 @@
 <?php
 
-namespace App\Cli;
+namespace App\Cli\Shared;
 
+use App\Cli\PythonResolver;
 use PipelineConfigSpec\PipelineConfigService;
 use Symfony\Component\Process\Process;
 
 final class PythonRunner
 {
     private string $rootPath;
+    private string $configDir;
 
-    public function __construct(string $rootPath)
+    public function __construct(string $rootPath, string $configDir)
     {
         $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
+        $this->configDir = $this->normalizeConfigDir($configDir);
     }
 
     public function runWithContext(
@@ -48,7 +51,7 @@ final class PythonRunner
 
     private function loadConfigValues(string $pipeline): ?array
     {
-        $pipelineSpec = new PipelineConfigService($this->rootPath);
+        $pipelineSpec = new PipelineConfigService($this->rootPath, $this->configDir);
         try {
             return $pipelineSpec->values($pipeline, 'python');
         } catch (\RuntimeException $exception) {
@@ -137,5 +140,14 @@ final class PythonRunner
             $unique[] = $path;
         }
         return $unique;
+    }
+
+    private function normalizeConfigDir(string $configDir): string
+    {
+        $trimmed = trim($configDir, DIRECTORY_SEPARATOR);
+        if ($trimmed === '') {
+            return 'src/resources/config';
+        }
+        return $trimmed;
     }
 }
