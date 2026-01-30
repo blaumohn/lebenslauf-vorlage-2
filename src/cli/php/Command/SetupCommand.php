@@ -152,7 +152,7 @@ final class SetupCommand extends BaseCommand
 
     private function requirementsPath(): string
     {
-        return $this->joinPath('tools', 'requirements.txt');
+        return $this->joinPath('requirements.txt');
     }
 
     private function venvPythonPath(): ?string

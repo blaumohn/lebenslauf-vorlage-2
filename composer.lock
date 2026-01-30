@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6d95ecaca6db9f80c33c011af9db6666",
+    "content-hash": "c0f3dbaca3bb0a1c64cc65943c48c13a",
     "packages": [
         {
             "name": "fig/http-message-util",
@@ -389,9 +389,40 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/blaumohn/pipeline-config-spec-php.git",
-                "reference": "refactor/no-dotenv-config"
+                "reference": "ffd84d82385bdb5485a5eb37db33d99f684d3729"
             },
-            "type": "library"
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/blaumohn/pipeline-config-spec-php/zipball/ffd84d82385bdb5485a5eb37db33d99f684d3729",
+                "reference": "ffd84d82385bdb5485a5eb37db33d99f684d3729",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/config": "^7.0",
+                "symfony/filesystem": "^7.0",
+                "symfony/yaml": "^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PipelineConfigSpec\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "PipelineConfigSpec\\Tests\\": "tests/"
+                }
+            },
+            "description": "Pipeline/phase based config manifest with YAML loading and policy validation.",
+            "support": {
+                "source": "https://github.com/blaumohn/pipeline-config-spec-php/tree/refactor/no-dotenv-config",
+                "issues": "https://github.com/blaumohn/pipeline-config-spec-php/issues"
+            },
+            "time": "2026-01-29T12:59:25+00:00"
         },
         {
             "name": "psr/container",

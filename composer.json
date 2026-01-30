@@ -4,21 +4,13 @@
   "type": "project",
   "repositories": [
     {
-      "type": "package",
-      "package": {
-        "name": "pipeline-config-spec/lib",
-        "version": "dev-refactor/no-dotenv-config",
-        "source": {
-          "url": "https://github.com/blaumohn/pipeline-config-spec-php.git",
-          "type": "git",
-          "reference": "refactor/no-dotenv-config"
-        }
-      }
+      "type": "vcs",
+      "url": "https://github.com/blaumohn/pipeline-config-spec-php"
     }
   ],
   "require": {
     "php": ">=8.1",
-    "pipeline-config-spec/lib": "dev-refactor/no-dotenv-config",
+    "pipeline-config-spec/lib": "dev-refactor/no-dotenv-config@dev",
     "opis/json-schema": "^2.4",
     "slim/slim": "^4.12",
     "slim/psr7": "^1.6",
