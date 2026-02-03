@@ -3,19 +3,20 @@
 ## Typ
 - Issue (Delivery)
 
-## Problem
-- Preview-Deployment soll CI-ausloesen und stabil pruefbar sein.
-- Die Config-Lib verarbeitet `system`-Sources derzeit nicht konsistent mit dem Manifest-Modell.
-- Dadurch ist die Preview-Pipeline fehleranfaellig bei Secrets/Systemwerten.
+## Status-Update (2026-02-03)
+- Kernziel in der Config-Lib ist weitgehend erreicht.
+- Preview-Workflow wurde bewusst vorerst entfernt (keine halbfertige CI-Stufe).
+- Restarbeit wird in Folge-Issues aufgeteilt.
 
-## Zusammenhang
-- Ziel ist eine verlaessliche Preview-Leistung vor spaeterem Merge/Promotion.
-- Wenn `system`-Werte nicht korrekt verarbeitet werden, ist Preview keine belastbare Integrationsstufe.
+## Erreicht
+- `system`-Werte werden im zentralen Resolve-Pfad geladen und gemerged.
+- `values()`, `validate()` und `compile()` laufen ueber denselben Resolve-Kern.
+- Source-Policy (`allowed`/`required`/`sources`) greift zentral.
 
-## Ziel
-- Systemwerte aus Prozessumgebung in den zentralen Resolve-Pfad integrieren.
-- Einheitliches Verhalten fuer `values()`, `validate()` und `compile()`.
-- Preview-Workflow auf CLI-Config-Pfad ausrichten (kein veralteter Mischbetrieb).
+## Noch offen
+- Repo-Hygiene: lokale Composer-`path`-Abhaengigkeit darf nicht in Delivery-Flow bleiben.
+- Architektur-Lesbarkeit: `resolvePhaseConfig(): ?array` ist semantisch/typisch zu schwach.
+- Preview-Flow wird erst nach Stabilisierung aus `dev` heraus wieder aufgebaut.
 
 ## Scope
 - Config-Lib:
@@ -23,23 +24,30 @@
   - Resolve-Pfad merged Quellen in definierter Reihenfolge.
   - Policy validiert `allowed`/`required`/`sources` fuer alle API-Wege.
 - App-Repo:
-  - Preview-Workflow nutzt `config lint` und CLI-Befehle konsistent.
-  - Trigger bleibt auf Branch `preview`, bis Abschluss der Umstellung.
+  - Basis fuer spaeteren Preview-Flow ist gelegt.
+  - Direkte Preview-Workflow-Details sind in Folge-Issues verschoben.
 
 ## Nicht im Scope
 - Backlog-Items `BLC-001` und `BLC-002` (Typensystem, zentrales Fehlerkonzept).
 - Generisches Composer-Tooling (`ISS-001`).
 
-## Akzeptanzkriterien
-- `values()`, `validate()` und `compile()` liefern konsistente Ergebnisse fuer gleiche Inputs.
-- Ein Wert aus `system` ist nur gueltig, wenn `sources` dies fuer den Key erlaubt.
-- Preview-Deploy auf `preview` funktioniert ohne lokale Composer-Path-Abhaengigkeit.
-- CI-Fehler sind eindeutig (fehlend, unerlaubte Quelle, unerwarteter Key).
+## Abgrenzung fuer Abschluss dieses Issues
+- [x] `system` in zentralem Resolve-Pfad integriert.
+- [x] Einheitliches Verhalten fuer `values()`, `validate()` und `compile()`.
+- [x] Source-Policy validiert systematisch fuer den zentralen Pfad.
+- [ ] Preview-Deploy inkl. CI/Branch-Flow (verschoben nach [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)).
+- [ ] Repo-Hygiene bzgl. Composer-Quelle (verschoben nach [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)).
 
 ## Abhaengigkeiten
 - Config-Lib-Branch: `refactor/no-dotenv-config`
 - App-Branch: `refactor/no-dotenv-config-app`
+- Story:
+  - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
+- Folge-Issues:
+  - [ISS-003](ISS-003-phase-rules-typing-and-clarity.md)
+  - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)
+  - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 
 ## Workflow-Phase
-- Aktuell: In Progress
-- Naechster Gate: Ready for Preview Merge
+- Aktuell: In Progress (mit Split in Folge-Issues)
+- Naechster Gate: Ready for Close (nach Ticket-Split bestaetigt)
