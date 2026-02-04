@@ -21,16 +21,15 @@
 
 ## Geplanter Branch-Flow
 
-- Naechster Schritt: `refactor/no-dotenv-config` zuerst auf den neuen `dev`-Branch ueberfuehren (bei Bedarf per Rebase auf `main` vorbereiten)
-- `main` -> PR `refactor/no-dotenv-config` -> `dev`
-- Refactors auf `dev` (zuerst Grundlagen/Lesbarkeit/Stabilitaet)
+- `refactor/no-dotenv-config-app` ist inhaltlich fertig.
+- Naechster Schritt: PR `refactor/no-dotenv-config-app` -> `dev`.
+- Optional vor dem PR: Rebase auf `main` nur zur technischen Bereinigung (nicht fuer `docs/agile`).
+- Refactors auf `dev` (zuerst Grundlagen/Lesbarkeit/Stabilitaet).
 - Danach `feature/preview` -> PR nach `dev`
 - Danach PR `dev` -> `preview`
 
-## Naechster Repo-Betrieb (Vorschlag)
+## Repo-Betrieb (Erledigt)
 
-- Ziel: `docs/agile` soll in `dev` landen und nicht im `refactor/no-dotenv-config-app`-Branch verbleiben.
-- Vorgehen:
-  - Agile-Doku als eigener Commit abtrennen.
-  - `dev` von `main` anlegen und den Doku-Commit uebernehmen (z. B. per Cherry-pick).
-  - `refactor/no-dotenv-config-app` per Rebase bereinigen, sodass `docs/agile` dort nicht mehr enthalten ist.
+- Entscheidung am 2026-02-04: Kein Rebase nur fuer die Umstellung von `docs/agile`.
+- `docs/agile` wird ab jetzt in `dev` gepflegt.
+- Die bestehende Historie im Branch `refactor/no-dotenv-config-app` bleibt unveraendert.
