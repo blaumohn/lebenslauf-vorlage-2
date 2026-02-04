@@ -43,12 +43,10 @@
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 
 ## Workflow-Phase
-- Aktuell: Todo
-- Naechster Gate: Ready for Dev Stabilization
+- Aktuell: Done (2026-02-04)
+- Naechster Gate: Handover an [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 
-## Naechste Aufgabe
-- `refactor/no-dotenv-config` aus dem aktuellen Stand zuerst auf den neuen `dev`-Branch ueberfuehren.
-- Falls noetig: vorab Rebase auf `main`, damit der PR nach `dev` sauber und fokussiert bleibt.
-- Operativer Vorschlag fuer den ersten Repo-Schritt:
-  - `docs/agile` als separaten Commit behandeln und nach `dev` ueberfuehren.
-  - Danach `refactor/no-dotenv-config-app` per Rebase bereinigen, damit `docs/agile` nicht im Refactor-Branch liegt.
+## Abschlussnotiz
+- PR `refactor/no-dotenv-config-app` -> `dev` ist gemergt.
+- Entscheidung: Kein Rebase nur fuer die Umstellung von `docs/agile`.
+- `docs/agile` wird ab jetzt in `dev` gepflegt.

@@ -1,11 +1,11 @@
-# Issue-Plan (Stand 2026-02-03)
+# Issue-Plan (Stand 2026-02-04)
 
 ## Ueberblick
 
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md): Qualitaetsrahmen fuer App und Config-Lib
 - [ISS-002](ISS-002-preview-system-source-readiness.md): System-Source-Readiness (Basis gelegt, Split aktiv)
 - [ISS-003](ISS-003-phase-rules-typing-and-clarity.md): Risikomuster repo-weit feststellen und Befundliste erstellen
-- [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md): `dev`-Baseline und Repo-Hygiene
+- [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md): `dev`-Baseline und Repo-Hygiene (erledigt am 2026-02-04)
 - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md): Preview-Workflow aus `dev` wieder aktivieren
 
 ## Abhaengigkeiten
@@ -21,9 +21,7 @@
 
 ## Geplanter Branch-Flow
 
-- `refactor/no-dotenv-config-app` ist inhaltlich fertig.
-- Naechster Schritt: PR `refactor/no-dotenv-config-app` -> `dev`.
-- Optional vor dem PR: Rebase auf `main` nur zur technischen Bereinigung (nicht fuer `docs/agile`).
+- PR `refactor/no-dotenv-config-app` -> `dev` ist erledigt (2026-02-04).
 - Refactors auf `dev` (zuerst Grundlagen/Lesbarkeit/Stabilitaet).
 - Danach `feature/preview` -> PR nach `dev`
 - Danach PR `dev` -> `preview`
