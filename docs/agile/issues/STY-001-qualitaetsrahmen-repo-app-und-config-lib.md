@@ -14,11 +14,11 @@
 
 ## Teil-Issues
 - [ISS-003](ISS-003-phase-rules-typing-and-clarity.md): Befundliste von Risikomustern und Qualitaetsdefiziten fuer App + Config-Lib erstellen.
-- [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md): `dev`-Baseline und Repo-Hygiene stabilisieren.
+- [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md): `dev`-Baseline und Repo-Hygiene stabilisieren (Done: 2026-02-04).
 - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md): Preview-Workflow nach Stabilisierung wieder aktivieren.
 
 ## Abhaengigkeiten
-- Eingang:
+- Voraussetzungen:
   - [ISS-002](ISS-002-preview-system-source-readiness.md)
 
 ## Workflow-Phase

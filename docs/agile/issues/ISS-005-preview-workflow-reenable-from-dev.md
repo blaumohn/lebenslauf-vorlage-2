@@ -20,6 +20,7 @@
 - Deploy:
   - Preview-Deploy ohne lokale Sonderpfade
   - erwartete Env-Secrets und Fehlerfaelle dokumentieren
+  - vor Promotion `dev` -> `preview`: Testluecken pruefen und Ablaufpfad einmal komplett gegenlesen
 
 ## Nicht im Scope
 - Grundlegende Refactor-Arbeit an Config-Modellen (siehe [ISS-003](ISS-003-phase-rules-typing-and-clarity.md)).
@@ -32,10 +33,10 @@
 - Flow ist dokumentiert: `feature/*` -> `dev` -> `preview`.
 
 ## Abhaengigkeiten
-- Story:
+- Story-Kontext (parallel/nachgelagert):
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
-- Eingang:
-  - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)
+- Voraussetzungen:
+  - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
 
 ## Workflow-Phase
 - Aktuell: Todo

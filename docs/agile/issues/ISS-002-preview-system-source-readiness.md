@@ -14,7 +14,9 @@
 - Source-Policy (`allowed`/`required`/`sources`) greift zentral.
 
 ## Noch offen
-- Repo-Hygiene: lokale Composer-`path`-Abhaengigkeit darf nicht in Delivery-Flow bleiben.
+- Repo-Hygiene: lokale Composer-`path`-Abhaengigkeit darf im lokalen Dev-Flow genutzt werden, aber nicht versioniert in den Delivery-Stand gelangen.
+- Guard-Strategie ist offen: Nur PR-Review-Regel oder zusaetzlicher CI-Check gegen lokale Abhaengigkeiten.
+- Vergleich mit Produktions-Patterns ist offen: Beispiele aus realen Repos fuer Composer/npm/Gradle nachsehen und Entscheidung begruenden.
 - Architektur-Lesbarkeit: `resolvePhaseConfig(): ?array` ist semantisch/typisch zu schwach.
 - Preview-Flow wird erst nach Stabilisierung aus `dev` heraus wieder aufgebaut.
 
@@ -35,8 +37,8 @@
 - [x] `system` in zentralem Resolve-Pfad integriert.
 - [x] Einheitliches Verhalten fuer `values()`, `validate()` und `compile()`.
 - [x] Source-Policy validiert systematisch fuer den zentralen Pfad.
-- [ ] Preview-Deploy inkl. CI/Branch-Flow (verschoben nach [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)).
-- [ ] Repo-Hygiene bzgl. Composer-Quelle (verschoben nach [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)).
+- [x] Preview-Deploy inkl. CI/Branch-Flow ist nach [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md) ausgelagert.
+- [x] Repo-Hygiene bzgl. Composer-Quelle ist nach [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) ausgelagert (Done: 2026-02-04).
 
 ## Abhaengigkeiten
 - Config-Lib-Branch: `refactor/no-dotenv-config`
@@ -45,7 +47,7 @@
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
 - Folge-Issues:
   - [ISS-003](ISS-003-phase-rules-typing-and-clarity.md)
-  - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)
+  - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 
 ## Workflow-Phase

@@ -36,8 +36,8 @@
 
 ## Abhaengigkeiten
 - Story: [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
-- Eingang: [ISS-002](ISS-002-preview-system-source-readiness.md)
-- Wirkt auf: [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)
+- Voraussetzungen: [ISS-002](ISS-002-preview-system-source-readiness.md)
+- Wirkt auf: [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
 
 ## Workflow-Phase
 - Aktuell: Todo
