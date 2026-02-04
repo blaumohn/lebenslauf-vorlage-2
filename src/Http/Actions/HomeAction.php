@@ -4,7 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
-use App\View\PageViewBuilder;
+use App\Http\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -21,9 +21,9 @@ final class HomeAction
     {
         $hasPublic = $this->context->cvStorage->hasPublic();
         $publicMessage = $hasPublic
-            ? 'Der oeffentliche Lebenslauf ist verfuegbar.'
-            : 'Noch kein oeffentlicher Lebenslauf vorhanden.';
-        $base = PageViewBuilder::base($this->context->config);
+            ? 'Der öffentliche Lebenslauf ist verfügbar.'
+            : 'Noch kein öffentlicher Lebenslauf vorhanden.';
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('home.html.twig', [
             'title' => 'Home',
             'public_cv_message' => $publicMessage,

@@ -1,0 +1,151 @@
+kopfdaten:
+  name:
+    voll: Alex Beispiel
+    kurz: Alex B.
+  bereich:
+    de: Webentwicklung
+    es: Desarrollo web
+  ort: Berlin
+  email: alex@example.com
+  telefon: +49 151 12345678
+  linkedin: https://linkedin.com/in/alexbeispiel
+
+fussbereich:
+  text:
+    de: "Erstellt mit der React/Next.js Vorlage von Dani Y.:"
+    es: "Creado con la plantilla React/Next.js de Dani Y.:"
+  link: github.com/blaumohn/lebenslauf-vorlage
+
+motivation:
+  de: Ich bin ein leidenschaftlicher Entwickler mit Fokus auf moderne Webtechnologien.
+  es: Soy un desarrollador apasionado centrado en tecnologias web modernas.
+
+faehigkeiten:
+  - stufe:
+      de: Fortgeschritten
+      es: Avanzado
+    wert: 5
+    technologien:
+      - JavaScript
+      - TypeScript
+      - de: Reaktive Komponenten
+        es: Componentes reactivos
+  - stufe:
+      de: Grundlegend
+      es: Básico
+    wert: 4
+    technologien:
+      - Docker
+      - Git
+      - CI/CD
+
+berufserfahrung:
+  - titel: Frontend Developer
+    unternehmen: Tech Solutions GmbH
+    ort: Berlin
+    zeitraum: 2021 ‒ 2023
+    stelleGruppe:
+      letzteStelle: true
+    punkte:
+      - tags:
+          - React
+          - Tailwind
+        text: UI-Komponenten für ein Kundenportal entwickelt.
+      - tags:
+          - Agil
+          - Scrum
+        text:
+          de: Tägliche Arbeit in einem cross-funktionalen Team.
+          es: Trabajo diario en un equipo multifuncional.
+
+  - titel: Junior Frontend Developer
+    unternehmen: Tech Solutions GmbH
+    ort: Berlin
+    zeitraum: 2020 ‒ 2021
+    stelleGruppe:
+      letzteStelle: false
+    punkte:
+      - tags:
+          - HTML
+          - CSS
+        text: Unterstützung bei der Entwicklung von Benutzeroberflächen für verschiedene Projekte.
+      - tags:
+          - JavaScript
+          - React
+        text:
+          de: Entwicklung von interaktiven UI-Komponenten.
+          es: Desarrollé componentes de interfaz interactivos.
+
+  - titel: Backend Developer
+    unternehmen: WebTech Innovations
+    ort: Hamburg
+    zeitraum: 2019 ‒ 2020
+    punkte:
+      - tags:
+          - Node.js
+          - Express
+        text: Entwicklung von RESTful APIs zur Integration mit Frontend-Systemen.
+      - tags:
+          - MongoDB
+          - Docker
+        text:
+          de: Aufbau und Verwaltung von Datenbanken sowie Containerisierung der Anwendung.
+          es: Creé y administré bases de datos y contenedoricé la aplicación con Docker.
+
+  - titel: Praktikant Frontend Developer
+    unternehmen: Creative Web GmbH
+    ort: München
+    zeitraum: 2018 ‒ 2019
+    punkte:
+      - tags:
+          - HTML
+          - CSS
+        text: Unterstützung im Design und der Implementierung von Weblayouts.
+      - tags:
+          - JavaScript
+          - React
+        text:
+          de: Entwicklung von interaktiven Webkomponenten im Team.
+          es: Desarrollé componentes web interactivos dentro del equipo.
+
+opensource:
+  - titel: react-visualizer
+    projekt: react-visualizer
+    zeitraum: "2022"
+    punkte:
+      - tags:
+          - Open Source
+          - React
+        text: Ein Tool zur Visualisierung von React-Komponenten-Hierarchien.
+      - tags:
+          - Open Source
+          - Testing
+        text: Implementierung von Unit-Tests zur Sicherstellung der Funktionalität und Robustheit der Anwendung.
+
+sprachen:
+  - sprache: Deutsch
+    stufe: Muttersprache
+  - sprache: Englisch
+    stufe: C1
+
+ausbildung:
+  - uni: TU Berlin
+    grad: B.Sc. Informatik
+    beschreibung:
+      de: Studium mit Schwerpunkt auf Web- und Softwareentwicklung.
+      es: Estudios con enfoque en desarrollo web y de software.
+
+interessen:
+  - de: Open Source
+    es: Código abierto
+  - de: Technologieblogs
+    es: Blogs de tecnologia
+  - de: Barrierefreiheit
+    es: Accesibilidad
+
+vortraege:
+  - titel: "Proxies: Ereignismanagement in Node.js"
+    datum: "2024"
+    beschreibung:
+      de: ABC Aventura Vortragsreihe
+      es: Serie de conferencias ABC Aventura

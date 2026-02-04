@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title|default('Lebenslauf') }}</title>
+  <link rel="stylesheet" href="{{ path('/css/site.css') }}">
+</head>
+<body>
+  {% import 'components/site/layout.html.twig' as layout %}
+  <div class="page">
+    {{ layout.header(site_name|default('Lebenslauf'), nav_items|default([])) }}
+
+    <main class="card">
+      {% block content %}{% endblock %}
+    </main>
+
+    {{ layout.footer() }}
+  </div>
+</body>
+</html>

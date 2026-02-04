@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+  {% import 'components/site/lib.html.twig' as ui %}
+
+  {{ ui.page_title('Willkommen') }}
+  {{ ui.muted('Kurzprofil und Kontakt in reduzierter Form.') }}
+
+  <section>
+    <p>{{ ui.link(path('/cv'), 'Zum Lebenslauf') }}</p>
+    <p>{{ ui.link(path('/contact'), 'Kontakt aufnehmen') }}</p>
+    {{ ui.muted(public_cv_message) }}
+  </section>
+{% endblock %}

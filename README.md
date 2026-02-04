@@ -1,103 +1,103 @@
 # Lebenslauf Vorlage (PHP)
 
-Shared-hosting-taugliches PHP-MVP mit Twig, dateibasierter Persistenz und ohne Cookies.
+Deutsch | [English](README.en.md)
 
-## Lokal starten
+Modulare Lebenslauf-Vorlage für Shared Hosting (PHP + Twig). Inhalt und UI sind getrennt: Lebenslauf-Daten liegen außerhalb von `src/`, Labels/Übersetzungen liegen im Repo.
+
+Funktionen:
+
+- Schnelle Anpassung der Lebenslauf-Daten ohne Code-Änderungen
+- Mehrsprachigkeit mit statischen HTML-Ausgaben pro Sprache
+- Statischer Build für Public/Private-Varianten
+
+## Verwendung
+
+1) **Installieren**
 
 ```bash
 composer install
-composer run setup
-composer run dev
 ```
 
-Aufruf: http://127.0.0.1:8080
-
-Voraussetzungen: PHP >= 8.1, Node.js, Python 3.
-Wenn keine `.local/env-*.ini` vorhanden ist, fragt `composer run setup`, ob `tests/fixtures/env-gueltig.ini` als Demo verwendet werden soll.
-
-## Build + Dev (YAML -> JSON -> HTML)
-
-Wenn die Daten als YAML vorliegen, kannst du den kompletten Build-Ablauf nutzen:
+2) **Setup**
 
 ```bash
-composer run cv:build
-composer run cv:dev
+php bin/cli setup dev
 ```
 
-`cv:build` wandelt YAML zu JSON und rendert die statischen HTML-Dateien via `cv:upload`.
-`cv:dev` fuehrt erst den Build aus und startet danach den Dev-Server.
-Wenn `LEBENSLAUF_DATEN_PFAD` ein Verzeichnis ist, werden alle Dateien `daten-<profil>.yaml` gebaut.
-
-## Konfiguration
-
-- `.local/env-common.ini` und `.local/env-<profil>.ini` verwenden (`APP_ENV` steuert das Profil).
-- Wichtige Ordner:
-  - `var/tmp/` kurzlebig (CAPTCHA + Rate-Limits)
-  - `var/cache/` ableitbar (gerendertes HTML)
-  - `var/state/` wichtig (Token-Whitelist)
-- Labels fuer Abschnittstitel: `labels/etiketten.json` (Sprache via `APP_LANG` oder `APP_LANGS`).
-- Mehrsprachigkeit: `APP_LANGS=de,en` aktiviert pro Sprache statische HTML-Dateien.
-- Optional: einzelne INI-Datei ueber `APP_ENV_FILE` setzen.
-
-## Admin-Workflows (CLI)
-
-### CV hochladen
+3) **Starten**
 
 ```bash
-composer run cv:upload -- <PROFILE> <JSON_PATH>
+php bin/cli run dev
 ```
 
-Erzeugt `var/cache/html/cv-private-<profile>.<lang>.html` pro Sprache. Wenn `<PROFILE>` dem `DEFAULT_CV_PROFILE` entspricht, wird zusaetzlich `cv-public.<lang>.html` erzeugt.
-Die Default-Sprache (erstes Element aus `APP_LANGS`, sonst `APP_LANG`) schreibt zusaetzlich die Legacy-Dateien `cv-private-<profile>.html` und `cv-public.html`.
-Beim Upload wird gegen `schemas/lebenslauf.schema.json` validiert.
+`run` kompiliert die Runtime-Config nach `var/config/config.php`.
 
-### Tokens rotieren
+Vor dem ersten Start `.local/dev-runtime.yaml` anlegen (siehe `src/resources/config/dev-runtime.yaml`).
+
+## Daten bearbeiten
+
+- YAML-Daten liegen standardmäßig in `.local/lebenslauf` (`LEBENSLAUF_DATEN_PFAD`).
+- Nur Dateien `daten-<profil>.yaml` werden berücksichtigt (z. B. `daten-entwickler.yaml`).
+- UI-Labels/Übersetzungen liegen in `src/resources/build/labels.json` (Repo-Beitrag möglich).
+- Seitentexte (z. B. Seitentitel/Kontakt) liegen direkt in Twig-Templates.
+- Build-Ressourcen (Schemas/Labels/Assets) liegen unter `src/resources/build/`.
+
+Relevante Config-Werte (Runtime/Build):
+- `LEBENSLAUF_PUBLIC_PROFILE` (Build)
+- `LEBENSLAUF_LANG_DEFAULT`, `LEBENSLAUF_LANGS` (Runtime)
+- `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL` (Runtime)
+
+## Build (YAML -> JSON -> HTML)
 
 ```bash
-composer run token:rotate -- <PROFILE> [COUNT]
+php bin/cli build dev cv
+php bin/cli build dev
 ```
 
-Gibt neue Tokens einmalig im Terminal aus und schreibt nur Hashes nach `var/state/tokens/<profile>.txt`.
+## CLI-Modell
 
-### CAPTCHA Cleanup
+Phasen werden direkt ausgefuehrt:
 
-```bash
-composer run captcha:cleanup
+```
+cli <phase> <pipeline> [args]
 ```
 
-Loescht abgelaufene CAPTCHA-Dateien.
+Beispiele:
 
-## Tests
+- `php bin/cli setup dev`
+- `php bin/cli build dev cv`
+- `php bin/cli run dev`
+- `php bin/cli python dev --add-path . tests/py/smoke.py`
 
-```bash
-composer run test
+## Python-Runner
+
+- Config-Phase: `python`
+- Defaults: `src/resources/config/dev-python.yaml`
+- Wichtige Keys: `PYTHON_CMD`, `PYTHON_PATHS` (z. B. `src`)
+- Zusatzelemente per CLI: `--add-path <pfad>`
+
+## Projektstruktur
+
+```
+/lebenslauf-vorlage-2
+├── src/
+│   ├── resources/
+│   │   ├── templates/          # Twig-Templates
+│   │   └── build/              # Build-Ressourcen
+│   │       ├── labels.json      # UI-Labels (Repo-Inhalt)
+│   │       ├── assets/          # Build-Assets (CSS)
+│   │       └── schemas/         # JSON-Schemas
+│   ├── http/                   # HTTP-App
+│   └── cli/                    # CLI-Tools
+├── .local/
+│   └── lebenslauf/             # YAML-Daten
+├── src/resources/config/       # Config-Dateien + Manifest
+├── tests/
+└── docs/
 ```
 
-## Smoke-Tests
+## Umgebungsvariablen
 
-```bash
-composer run tests:smoke
-```
-
-Der Smoke-Test klont das Repo in einen temporaeren Ordner, installiert Abhaengigkeiten, fuehrt `setup` und `test` aus
-und prueft den Dev-Server via `curl`. Mock-Daten kommen aus `tests/fixtures/daten-default.yaml`.
-
-Optionale Umgebungsvariablen:
-- `EXPECTED_GITHUB_USER` prueft den GitHub-Owner der Quelle (via `origin`).
-- `CLONE_SOURCE` setzt eine lokale Quelle oder Git-URL (Default: lokales Repo).
-- `KEEP_SMOKE_CLONE=1` behaelt die temporaere Clone-Umgebung.
-
-## Templates
-
-- Templates verwenden Twig-Makros statt Includes.
-- Basis-UI-Bausteine: `templates/components/site/lib.html.twig`
-- Layout/Navigation: `templates/components/site/layout.html.twig`
-- Form-Elemente: `templates/components/site/form.html.twig`
-- CV: `templates/components/cv/lib.html.twig`, `templates/components/cv/sections.html.twig`, `templates/components/cv/entry.html.twig`
-- CV-Layout-Makros: `templates/components/cv/view.html.twig`, `templates/components/cv/page.html.twig`
-
-## Staging/Pre-Release
-
-- Dummy-Daten verwenden.
-- Dateirechte fuer `var/` pruefen.
-- PHP-GD und Mail testen.
+Die Config-Policy (Pipeline/Phase) ist in `docs/ENVIRONMENTS.md` beschrieben.
+Beispielwerte stehen in `src/resources/config/dev-runtime.yaml`, Regeln in `src/resources/config/config.manifest.yaml`.
+Fuer Deployments wird die Runtime-Config als `var/config/config.php` erzeugt (siehe `php bin/cli config compile <pipeline>`).

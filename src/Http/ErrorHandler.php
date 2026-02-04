@@ -2,8 +2,8 @@
 
 namespace App\Http;
 
-use App\Storage\StorageException;
-use App\View\PageViewBuilder;
+use App\Http\Storage\StorageException;
+use App\Http\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Psr7\Response;
@@ -28,14 +28,14 @@ final class ErrorHandler
         $message = 'Ein unerwarteter Fehler ist aufgetreten.';
 
         if ($exception instanceof StorageException) {
-            $message = 'Datei konnte nicht gespeichert werden. Bitte Dateirechte pruefen.';
+            $message = 'Datei konnte nicht gespeichert werden. Bitte Dateirechte prüfen.';
         }
 
         if ($displayErrorDetails) {
             $message .= ' ' . $exception->getMessage();
         }
 
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('error.html.twig', [
             'title' => 'Serverfehler',
             'message' => $message,

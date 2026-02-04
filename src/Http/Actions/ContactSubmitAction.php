@@ -4,7 +4,7 @@ namespace App\Http\Actions;
 
 use App\Http\AppContext;
 use App\Http\ResponseHelper;
-use App\View\PageViewBuilder;
+use App\Http\View\PageViewBuilder;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -21,10 +21,11 @@ final class ContactSubmitAction
     {
         $trustProxy = $this->context->config->getBool('TRUST_PROXY', false);
         $ip = $this->context->ipResolver->resolve($request, $trustProxy);
-        $ipHash = hash_hmac('sha256', $ip, (string) $this->context->config->get('IP_SALT', 'salt'));
+        $salt = $this->context->config->requireString('IP_SALT');
+        $ipHash = hash_hmac('sha256', $ip, $salt);
 
-        $window = $this->context->config->getInt('RATE_LIMIT_WINDOW_SECONDS', 600);
-        $maxPost = $this->context->config->getInt('CONTACT_MAX_POST', 3);
+        $window = $this->context->config->requireInt('RATE_LIMIT_WINDOW_SECONDS');
+        $maxPost = $this->context->config->requireInt('CONTACT_MAX_POST');
 
         if (!$this->context->rateLimiter->allow('contact_post_' . $ipHash, $maxPost, $window)) {
             return $this->renderRateLimit($response);
@@ -42,24 +43,23 @@ final class ContactSubmitAction
                 $response,
                 $ipHash,
                 $this->formValues($form),
-                'Bitte Eingaben und CAPTCHA pruefen.',
+                'Bitte Eingaben und CAPTCHA prüfen.',
                 403
             );
         }
 
-        $body = "Name: {$form['name']}\nE-Mail: {$form['email']}\n\nNachricht:\n{$form['message']}\n";
-        $sent = $this->context->mailService->send($form['name'], $form['email'], $body);
+        $sent = $this->context->mailService->send($form['name'], $form['email'], $form['message']);
         if (!$sent) {
             return $this->renderContactForm(
                 $response,
                 $ipHash,
                 $this->formValues($form),
-                'Versand fehlgeschlagen. Bitte spaeter erneut versuchen.',
+                'Versand fehlgeschlagen. Bitte später erneut versuchen.',
                 500
             );
         }
 
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('contact_ok.html.twig', [
             'title' => 'Kontakt',
         ] + $base);
@@ -69,10 +69,10 @@ final class ContactSubmitAction
 
     private function renderRateLimit(ResponseInterface $response): ResponseInterface
     {
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base();
         $html = $this->context->twig->render('error.html.twig', [
             'title' => 'Zu viele Anfragen',
-            'message' => 'Bitte spaeter erneut versuchen.',
+            'message' => 'Bitte später erneut versuchen.',
         ] + $base);
         return ResponseHelper::html($response, $html, 429);
     }
@@ -127,7 +127,7 @@ final class ContactSubmitAction
         string $error,
         int $status
     ): ResponseInterface {
-        $base = PageViewBuilder::base($this->context->config);
+        $base = PageViewBuilder::base();
         $challenge = $this->context->captchaService->createChallenge($ipHash);
         $captchaId = $challenge['captcha_id'];
         $captchaUrl = '/captcha.png?id=' . urlencode($captchaId);

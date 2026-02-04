@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+  {% import 'components/site/lib.html.twig' as ui %}
+
+  {{ ui.page_title('Danke') }}
+  <p>Ihre Nachricht wurde versendet.</p>
+  <p>{{ ui.link(path('/'), 'Zurück zur Startseite') }}</p>
+{% endblock %}

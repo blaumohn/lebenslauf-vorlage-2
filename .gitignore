@@ -1,12 +1,9 @@
 AGENTS.md
 /vendor/
 /public/css
-/.env
-/.env.local
-/.env.local.php
-/.env.*.local
 /.phpunit.result.cache
 /.venv/
+**/__pycache__/
 /.local/
 /var/*
 !/var/**/.gitkeep

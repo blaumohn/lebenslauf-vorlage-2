@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Cli\Command;
+
+use App\Cli\ConfigValues;
+use PipelineConfigSpec\PipelineConfigService;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+abstract class BaseCommand extends Command
+{
+    protected function rootPath(): string
+    {
+        return dirname(__DIR__, 4);
+    }
+
+    protected function configDir(): string
+    {
+        return 'src/resources/config';
+    }
+
+    protected function configService(): PipelineConfigService
+    {
+        $service = new PipelineConfigService($this->rootPath(), $this->configDir());
+        return $service;
+    }
+
+    protected function configValues(array $values): ConfigValues
+    {
+        $config = new ConfigValues($this->rootPath(), $values);
+        return $config;
+    }
+
+    protected function requirePipeline(InputInterface $input, OutputInterface $output): ?string
+    {
+        $pipeline = $this->resolveStringArgument($input, 'pipeline');
+        if ($pipeline !== null) {
+            return $pipeline;
+        }
+        $output->writeln('<error>Pipeline fehlt. Beispiel: dev</error>');
+        return null;
+    }
+
+    private function resolveStringArgument(InputInterface $input, string $name): ?string
+    {
+        $value = $input->getArgument($name);
+        if (!is_string($value)) {
+            return null;
+        }
+        $value = trim($value);
+        return $value === '' ? null : $value;
+    }
+}

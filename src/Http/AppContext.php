@@ -2,19 +2,18 @@
 
 namespace App\Http;
 
-use App\Captcha\CaptchaService;
-use App\Config;
-use App\Contact\MailService;
-use App\Cv\CvStorage;
-use App\Security\RateLimiter;
-use App\Security\TokenService;
-use App\Storage\FileStorage;
-use App\Templating\TwigFactory;
+use App\Http\Captcha\CaptchaService;
+use App\Http\Contact\MailService;
+use App\Http\Cv\CvStorage;
+use App\Http\Security\RateLimiter;
+use App\Http\Security\TokenService;
+use App\Http\Storage\FileStorage;
+use App\Http\Templating\TwigFactory;
 use Twig\Environment;
 
 final class AppContext
 {
-    public Config $config;
+    public ConfigCompiled $config;
     public Environment $twig;
     public CvStorage $cvStorage;
     public TokenService $tokenService;
@@ -23,14 +22,15 @@ final class AppContext
     public MailService $mailService;
     public IpResolver $ipResolver;
 
-    public static function fromConfig(Config $config): self
+    public static function fromConfig(ConfigCompiled $config): self
     {
         $rootPath = $config->rootPath();
         $storage = new FileStorage();
 
         $context = new self();
         $context->config = $config;
-        $context->twig = TwigFactory::create($rootPath . '/templates');
+        $context->twig = TwigFactory::create($rootPath . '/src/resources/templates');
+        TwigFactory::configure($context->twig, $config->basePath());
         $context->cvStorage = new CvStorage($storage, $rootPath . '/var/cache/html');
         $context->tokenService = new TokenService($storage, $rootPath . '/var/state/tokens');
         $context->captchaService = new CaptchaService(
