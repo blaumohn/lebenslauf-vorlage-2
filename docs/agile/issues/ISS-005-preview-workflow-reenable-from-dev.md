@@ -66,9 +66,9 @@
 - Workflow prueft zusaetzlich Artefakt + Smoke-HTTP-Checks vor FTP-Deploy.
 - `dev-deploy`-Datei wurde entfernt (kein operativer Deploy-Pfad in `dev`).
 - CLI/Doku-Terminologie fuer `pipeline + phase` wurde auf `Pipeline-Phase` umgestellt (separater Commit-Block).
+- `cli config lint <pipeline>` prueft standardmaessig alle Phasen und wird im Preview-Workflow genutzt.
+- CI-Logik fuer Preview ist in `bin/ci` gebuendelt (`ci config-check preview`, `ci smoke preview`).
 
 ## Naechste Schritte (P0/P1)
-- P0: `cli config lint <pipeline>` fuer alle Phasen bereitstellen und im Workflow nutzen.
-- P1: CI-Schritte aus Workflow nach `bin/ci/*` auslagern, damit lokal und in GitHub gleich getestet wird.
 - P1: Config-Werte fuer Preview auf produktionsnahe Defaults pruefen; reine Beispielwerte in Doku/Schema auslagern.
 - P1: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
