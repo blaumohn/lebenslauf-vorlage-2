@@ -56,5 +56,19 @@
   - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
 
 ## Workflow-Phase
-- Aktuell: Todo
-- Naechster Gate: Ready for Preview Trial
+- Aktuell: In Progress (Config-Matrix + Workflow-Checks umgesetzt)
+- Naechster Gate: Ready for Preview Trial (nach erstem Deployment-Durchlauf)
+
+## Umsetzungsstand (2026-02-05)
+- Preview-Configdateien sind angelegt (`preview-setup`, `preview-build`, `preview-runtime`).
+- Preview-Build nutzt Fixtures aus `tests/fixtures/lebenslauf` mit Profil `gueltig`.
+- Manifest-Regeln fuer `preview` sind geschaerft (Pflichtwerte fuer `build`/`runtime`/`deploy`).
+- Workflow prueft zusaetzlich Artefakt + Smoke-HTTP-Checks vor FTP-Deploy.
+- `dev-deploy`-Datei wurde entfernt (kein operativer Deploy-Pfad in `dev`).
+
+## Naechste Schritte (P0/P1)
+- P0: `cli config lint <pipeline>` fuer alle Phasen bereitstellen und im Workflow nutzen.
+- P0: Begriff `Pipeline-Kontext` fuer `pipeline + phase` in CLI-Hilfe und Doku vereinheitlichen.
+- P1: CI-Schritte aus Workflow nach `bin/ci/*` auslagern, damit lokal und in GitHub gleich getestet wird.
+- P1: Config-Werte fuer Preview auf produktionsnahe Defaults pruefen; reine Beispielwerte in Doku/Schema auslagern.
+- P1: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
