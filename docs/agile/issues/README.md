@@ -47,7 +47,7 @@
 
 ## Naechste Umsetzungswelle (fuer neue Codex-Sitzung)
 
-- P0: CLI-Begriff fuer `pipeline + phase` festziehen (Arbeitsname: `Pipeline-Kontext`) und konsistent in Doku/CLI verwenden.
+- P0: CLI-Begriff fuer `pipeline + phase` auf `Pipeline-Phase` festziehen (in CLI/Doku umgesetzt, Folgeabgleich offen).
 - P0: `cli config lint <pipeline>` so erweitern, dass alle relevanten Phasen geprueft werden.
 - P1: GitHub-Workflow-Logik in `bin/ci/*` auslagern (z. B. config-verify, smoke, copy), Workflow-Datei nur als Orchestrierung.
 - P1: Config-Policy schaerfen: keine pseudo-zufaelligen produktiven Werte in versionierten Preview-Configs; Beispiele in Doku/Schema-Metadaten.
