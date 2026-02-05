@@ -19,7 +19,7 @@ final class ConfigCommand extends BaseCommand
             ->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
             ->addArgument('arg1', InputArgument::OPTIONAL, 'KEY')
             ->addArgument('arg2', InputArgument::OPTIONAL, 'TARGET (bei compile)')
-            ->addOption('phase', null, InputOption::VALUE_REQUIRED, 'Phase-Name');
+            ->addOption('phase', null, InputOption::VALUE_REQUIRED, 'Phase in der Pipeline-Phase');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -86,6 +86,8 @@ final class ConfigCommand extends BaseCommand
         $contextData = $report['context'] ?? [];
         $pipelineName = (string) ($contextData['pipeline'] ?? '');
         $phaseName = (string) ($contextData['phase'] ?? '');
+        $context = $this->contextLabel($pipelineName, $phaseName);
+        $output->writeln("Pipeline-Phase: {$context}");
         $output->writeln("Pipeline: {$pipelineName}");
         $output->writeln("Phase: {$phaseName}");
         $output->writeln('Config-Dateien:');
@@ -107,13 +109,14 @@ final class ConfigCommand extends BaseCommand
             return Command::FAILURE;
         }
         $phase = $this->resolvePhase($input, 'runtime');
+        $context = $this->contextLabel($pipeline, $phase);
         try {
             $pipelineSpec->validate($pipeline, $phase);
         } catch (\RuntimeException $exception) {
             $output->writeln('<error>' . $exception->getMessage() . '</error>');
             return Command::FAILURE;
         }
-        $output->writeln('Config OK.');
+        $output->writeln("Config OK. Pipeline-Phase: {$context}");
         return Command::SUCCESS;
     }
 
@@ -128,6 +131,7 @@ final class ConfigCommand extends BaseCommand
             return Command::FAILURE;
         }
         $phase = $this->resolvePhase($input, 'runtime');
+        $context = $this->contextLabel($pipeline, $phase);
         try {
             $path = $pipelineSpec->compile($pipeline, $phase, $targetPath);
         } catch (\RuntimeException $exception) {
@@ -135,6 +139,7 @@ final class ConfigCommand extends BaseCommand
             return Command::FAILURE;
         }
 
+        $output->writeln("Pipeline-Phase: {$context}");
         $output->writeln("Compiled config written: {$path}");
         return Command::SUCCESS;
     }
@@ -153,6 +158,12 @@ final class ConfigCommand extends BaseCommand
     {
         $requested = $this->resolveOptionString($input, 'phase');
         return $requested ?? $fallback;
+    }
+
+    private function contextLabel(string $pipeline, string $phase): string
+    {
+        $context = $pipeline . '/' . $phase;
+        return $context;
     }
 
     private function resolvePath(string $path): string

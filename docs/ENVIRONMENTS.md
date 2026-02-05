@@ -1,11 +1,12 @@
 # Environments
 
-Dieses Dokument beschreibt die Config-Architektur mit Pipeline/Phase.
+Dieses Dokument beschreibt die Config-Architektur mit Pipeline-Phase.
 
 ## Kontext
 
 - `PIPELINE`: Projekt-Pipeline (z. B. `dev`, `smoketest`, `delivery`)
 - `PHASE`: Pipeline-Phase (z. B. `setup`, `build`, `runtime`, `deploy`, `python`)
+- `Pipeline-Phase`: Kombination aus `PIPELINE` und `PHASE` (z. B. `preview/runtime`; kartesisches Produkt)
 
 ## Referenzen
 
@@ -29,7 +30,7 @@ Beispiel: `src/resources/config/dev-build.yaml`, `.local/dev-runtime.yaml`.
 - `sources` im Manifest erzwingt, aus welchen Quellen Variablen kommen duerfen (z. B. nur `system` oder `local`).
 - Build erzeugt `var/config/config.php` als aufgeloeste Runtime-Konfiguration.
 - Runtime liest nur `var/config/config.php` (kein `getenv()/putenv()`).
-- Kompilieren via `php bin/cli config compile <pipeline> --phase runtime`.
+- Kompilieren via `php bin/cli config compile <pipeline> --phase runtime` (Pipeline-Phase: `<pipeline>/runtime`).
 - Inhaltliche Defaults (z. B. Lebenslauf-Sprachen) liegen in Config-Keys.
 - Labels sind Teil des UI und liegen unter `src/resources/build/labels.json`.
 - Die Phase `python` ist fuer den Python-Runner und nutzt `PYTHON_CMD`/`PYTHON_PATHS`.
