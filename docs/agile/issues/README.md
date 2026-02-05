@@ -1,4 +1,4 @@
-# Issue-Plan (Stand 2026-02-04)
+# Issue-Plan (Stand 2026-02-05)
 
 ## Ueberblick
 
@@ -25,6 +25,13 @@
 - Danach `feature/preview` -> PR nach `dev`
 - Danach PR `dev` -> `preview`
 - Danach Refactors auf `dev` (zuerst Grundlagen/Lesbarkeit/Stabilitaet, inkl. Testluecken-Check und Ablaufpfad-Review).
+
+## Fokus in ISS-005 (2026-02-05)
+
+- Preview nutzt Fixtures direkt ueber Config (`tests/fixtures/lebenslauf`), kein Pflicht-`--create-demo-content`.
+- Standardprofil fuer Preview: `gueltig`.
+- `dev` hat keinen operativen Deploy-Pfad; `dev`-Deploy wird entfernt oder klar deaktiviert.
+- Deployment-Checks werden ueber Linting hinaus ergaenzt (Artefakt-Check + Smoke-Checks).
 
 ## Repo-Betrieb (Erledigt)
 
