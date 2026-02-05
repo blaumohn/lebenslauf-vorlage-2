@@ -39,19 +39,8 @@ jobs:
         run: |
           : "${FTP_SERVER_DIR:?FTP_SERVER_DIR missing}"
 
-      - name: Verify preview config intent
-        run: |
-          profile=$(php bin/cli config get preview LEBENSLAUF_PUBLIC_PROFILE --phase build)
-          [ "$profile" = "gueltig" ]
-          mail_stdout=$(php bin/cli config get preview MAIL_STDOUT --phase runtime)
-          [ "$mail_stdout" = "1" ]
-
-      - name: Validate preview config
-        run: |
-          php bin/cli config lint preview --phase setup
-          php bin/cli config lint preview --phase build
-          php bin/cli config lint preview --phase runtime
-          php bin/cli config lint preview --phase deploy
+      - name: Config check preview
+        run: bin/ci config-check preview
 
       - name: Install dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
@@ -62,23 +51,8 @@ jobs:
       - name: Build preview
         run: php bin/cli build preview
 
-      - name: Prepare deploy directory
-        run: bin/ci/preview-copy.sh
-
-      - name: Verify deploy artifact
-        run: |
-          test -f deploy/public/index.php
-          test -f deploy/var/cache/html/cv-public.html
-
-      - name: Smoke test built preview app
-        run: |
-          php -S 127.0.0.1:8081 -t public > /tmp/preview-http.log 2>&1 &
-          server_pid=$!
-          trap 'kill $server_pid' EXIT
-          sleep 1
-          curl --fail --silent --show-error http://127.0.0.1:8081/ > /tmp/preview-home.html
-          curl --fail --silent --show-error http://127.0.0.1:8081/cv > /tmp/preview-cv.html
-          curl --fail --silent --show-error http://127.0.0.1:8081/contact > /tmp/preview-contact.html
+      - name: Smoke test preview deploy artifact
+        run: bin/ci smoke preview
 
       - name: FTP deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

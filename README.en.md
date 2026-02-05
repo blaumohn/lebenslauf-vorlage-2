@@ -95,7 +95,7 @@ Relevant config keys:
 Details on environments and variables: `docs/ENVIRONMENTS.md`.
 Deployments use `var/config/config.php` as the compiled runtime config (`php bin/cli config compile <pipeline>`).
 
-Preview build in CI: `composer install --no-dev --optimize-autoloader --no-interaction` + `php bin/cli setup preview` + `php bin/cli build preview` (deploy dir via `bin/ci/preview-copy.sh`).
+Preview build in CI: `composer install --no-dev --optimize-autoloader --no-interaction` + `php bin/cli setup preview` + `php bin/cli build preview` (deploy dir + smoke via `bin/ci smoke preview`).
 FTP target path for preview: environment variable `FTP_SERVER_DIR`.
 Base path for preview without rewrite: `APP_BASE_PATH` (e.g. `/public`).
 

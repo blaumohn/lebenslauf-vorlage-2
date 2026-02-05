@@ -108,7 +108,38 @@ final class ConfigCommand extends BaseCommand
         if ($pipeline === null) {
             return Command::FAILURE;
         }
-        $phase = $this->resolvePhase($input, 'runtime');
+
+        $requestedPhase = $this->resolveOptionString($input, 'phase');
+        if ($requestedPhase !== null) {
+            $result = $this->lintPhase($pipelineSpec, $pipeline, $requestedPhase, $output);
+            return $result;
+        }
+
+        $result = $this->lintAllPhases($pipelineSpec, $pipeline, $output);
+        return $result;
+    }
+
+    private function lintAllPhases(
+        PipelineConfigService $pipelineSpec,
+        string $pipeline,
+        OutputInterface $output
+    ): int {
+        $phases = $this->defaultLintPhases();
+        foreach ($phases as $phase) {
+            $result = $this->lintPhase($pipelineSpec, $pipeline, $phase, $output);
+            if ($result !== Command::SUCCESS) {
+                return $result;
+            }
+        }
+        return Command::SUCCESS;
+    }
+
+    private function lintPhase(
+        PipelineConfigService $pipelineSpec,
+        string $pipeline,
+        string $phase,
+        OutputInterface $output
+    ): int {
         $context = $this->contextLabel($pipeline, $phase);
         try {
             $pipelineSpec->validate($pipeline, $phase);
@@ -118,6 +149,11 @@ final class ConfigCommand extends BaseCommand
         }
         $output->writeln("Config OK. Pipeline-Phase: {$context}");
         return Command::SUCCESS;
+    }
+
+    private function defaultLintPhases(): array
+    {
+        return ['setup', 'build', 'runtime', 'deploy'];
     }
 
     private function handleCompile(InputInterface $input, OutputInterface $output): int
