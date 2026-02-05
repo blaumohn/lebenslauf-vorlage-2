@@ -71,7 +71,7 @@ pipelines:
       allowed: [context, tooling]
     build:
       required: [PIPELINE, PHASE]
-      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail, security, tooling, tests]
+      allowed: [context, app, lebenslauf]
     runtime:
       required: [PIPELINE, PHASE]
       allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail, security]
@@ -91,4 +91,32 @@ pipelines:
         - RATE_LIMIT_WINDOW_SECONDS
         - MAIL_STDOUT
         - SMTP_FROM_NAME
+      allowed: []
+
+  preview:
+    build:
+      required:
+        - LEBENSLAUF_DATEN_PFAD
+        - LEBENSLAUF_PUBLIC_PROFILE
+        - LEBENSLAUF_LANG_DEFAULT
+        - LEBENSLAUF_LANGS
+      allowed: []
+    runtime:
+      required:
+        - IP_SALT
+        - CAPTCHA_MAX_GET
+        - CONTACT_MAX_POST
+        - RATE_LIMIT_WINDOW_SECONDS
+        - MAIL_STDOUT
+        - SMTP_FROM_NAME
+        - LEBENSLAUF_PUBLIC_PROFILE
+        - LEBENSLAUF_LANG_DEFAULT
+        - LEBENSLAUF_LANGS
+      allowed: []
+    deploy:
+      required:
+        - FTP_SERVER_DIR
+        - FTP_HOST
+        - FTP_USER
+        - FTP_PASS
       allowed: []
