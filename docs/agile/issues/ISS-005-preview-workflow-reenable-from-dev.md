@@ -19,8 +19,8 @@
 - `--create-demo-content` ist kein Pflichtschritt fuer Preview-Deploy.
 - `act` wird wegen Komplexitaet vorerst nicht genutzt (spaeter optional).
 - `dev` nutzt keinen operativen Deploy-Pfad; ungenutzte `dev`-Deploy-Phase soll entfernt oder klar deaktiviert werden.
-- Beispielwerte gehoeren nicht in Preview-Configs; sie werden als Metadaten je Variable im Manifest gepflegt (`meta.desc`, `meta.example`).
-- Aktive Config-Dateien enthalten nur betriebliche Werte; reine Beispielwerte werden entfernt (fehlende echte Werte bleiben bewusst leer).
+- Beispielwerte gehoeren nicht in Preview-Configs; sie werden als Metadaten je Variable im Manifest gepflegt (`meta.desc`, `meta.example`, `meta.notes`).
+- Aktive Config-Dateien enthalten nur betriebliche Werte; reine Beispielwerte sind entfernt (fehlende echte Werte bleiben bewusst leer).
 
 ## Scope
 - CI/Workflow:
@@ -55,6 +55,12 @@
 - Preview-Runtime nutzt keinen echten SMTP-Versand.
 - Deploy-Qualitaet ist zusaetzlich zu Linting abgesichert (Artefakt + Smoke).
 
+## Notizen (Repo)
+- Manifest: `APP_BASE_PATH`-Meta um `notes` ergaenzt und Beschreibung praezisiert (URL-Pfad vs Dateisystem).
+- Twig: Global `base_path` entfernt, nur `path()` bleibt.
+- Config: Beispielwerte aus `dev`/`preview` entfernt; Metadaten ins Manifest verschoben.
+- Doku: `ENVIRONMENTS.md` verweist auf `meta.example`/`meta.notes`.
+
 ## Abhaengigkeiten
 - Story-Kontext (parallel/nachgelagert):
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
@@ -74,9 +80,10 @@
 - CLI/Doku-Terminologie fuer `pipeline + phase` wurde auf `Pipeline-Phase` umgestellt (separater Commit-Block).
 - `cli config lint <pipeline>` prueft standardmaessig alle Phasen und wird im Preview-Workflow genutzt.
 - CI-Logik fuer Preview ist in `bin/ci` gebuendelt (`ci config-check preview`, `ci smoke preview`).
+- Manifest-Metadaten wurden ergaenzt; `meta.notes` ist eingefuehrt.
 
 ## Naechste Schritte (P0/P1)
-- P1-A: Beispielwerte aus Preview/Dev-Configs entfernen; nur betriebliche Werte behalten.
-- P1-B: Manifest-Metadaten (`meta.desc`, `meta.example`) fuer betroffene Variablen ergaenzen.
-- P1-C: Doku auf Manifest-Metadaten als Beispielquelle umstellen (keine aktiven Config-Dateien als Referenz).
+- P1-A (erledigt): Beispielwerte aus Preview/Dev-Configs entfernen; nur betriebliche Werte behalten.
+- P1-B (erledigt): Manifest-Metadaten (`meta.desc`, `meta.example`, `meta.notes`) fuer betroffene Variablen ergaenzen.
+- P1-C (erledigt): Doku auf Manifest-Metadaten als Beispielquelle umstellen (keine aktiven Config-Dateien als Referenz).
 - P1-D: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
