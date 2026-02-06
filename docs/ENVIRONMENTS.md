@@ -10,7 +10,8 @@ Dieses Dokument beschreibt die Config-Architektur mit Pipeline-Phase.
 
 ## Referenzen
 
-- Beispielwerte: `src/resources/config/dev-build.yaml`, `src/resources/config/dev-runtime.yaml`, `src/resources/config/dev-python.yaml`, `src/resources/config/preview-build.yaml`, `src/resources/config/preview-runtime.yaml`
+- Beispielwerte: im Manifest unter `meta.example` (keine aktiven Config-Dateien)
+- Zusatzhinweise: im Manifest unter `meta.notes`
 - Struktur/Regeln: `src/resources/config/config.manifest.yaml` (variables + pipelines)
 
 ## Config-Ladereihenfolge
