@@ -19,6 +19,8 @@
 - `--create-demo-content` ist kein Pflichtschritt fuer Preview-Deploy.
 - `act` wird wegen Komplexitaet vorerst nicht genutzt (spaeter optional).
 - `dev` nutzt keinen operativen Deploy-Pfad; ungenutzte `dev`-Deploy-Phase soll entfernt oder klar deaktiviert werden.
+- Beispielwerte gehoeren nicht in Preview-Configs; sie werden als Metadaten je Variable im Manifest gepflegt (`meta.desc`, `meta.example`).
+- Aktive Config-Dateien enthalten nur betriebliche Werte; reine Beispielwerte werden entfernt (fehlende echte Werte bleiben bewusst leer).
 
 ## Scope
 - CI/Workflow:
@@ -35,6 +37,10 @@
   - Preview-Phasenwerte explizit pflegen (`setup`, `build`, `runtime`, `deploy`)
   - Runtime-Pflichtwerte fuer Preview explizit erzwingen
   - `build`-Allowed-Liste auf tatsaechlich benoetigte Gruppen/Keys reduzieren
+  - Metadaten je Variable im Manifest ergaenzen (`meta.desc`, `meta.example`)
+- Dokumentation:
+  - Doku zu Preview-Defaults aktualisieren (z. B. `docs/ENVIRONMENTS.md`)
+  - Beispiel: `docs/ENVIRONMENTS.md` darf keine aktive Config als Quelle fuer Beispielwerte referenzieren (z. B. `dev-build.yaml`); Beispielwerte gehoeren in Manifest-Metadaten.
 
 ## Nicht im Scope
 - Grundlegende Refactor-Arbeit an Config-Modellen (siehe [ISS-003](ISS-003-phase-rules-typing-and-clarity.md)).
@@ -70,5 +76,7 @@
 - CI-Logik fuer Preview ist in `bin/ci` gebuendelt (`ci config-check preview`, `ci smoke preview`).
 
 ## Naechste Schritte (P0/P1)
-- P1: Config-Werte fuer Preview auf produktionsnahe Defaults pruefen; reine Beispielwerte in Doku/Schema auslagern.
-- P1: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
+- P1-A: Beispielwerte aus Preview/Dev-Configs entfernen; nur betriebliche Werte behalten.
+- P1-B: Manifest-Metadaten (`meta.desc`, `meta.example`) fuer betroffene Variablen ergaenzen.
+- P1-C: Doku auf Manifest-Metadaten als Beispielquelle umstellen (keine aktiven Config-Dateien als Referenz).
+- P1-D: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
