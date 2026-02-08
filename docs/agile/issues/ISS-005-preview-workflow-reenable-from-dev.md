@@ -59,6 +59,7 @@
 - Deploy-Qualitaet ist zusaetzlich zu Linting abgesichert (Artefakt + Smoke).
 
 ## Notizen (Repo)
+- Frage fuer naechste Sitzung: Ist es ueblich, Mocks/Fixtures ausserhalb von `tests/` zu halten, um Duplizierung und Wartung zu reduzieren?
 - Manifest: `APP_BASE_PATH`-Meta um `notes` ergaenzt und Beschreibung praezisiert (URL-Pfad vs Dateisystem).
 - Twig: Global `base_path` entfernt, nur `path()` bleibt.
 - Config: Beispielwerte aus `dev`/`preview` entfernt; Metadaten ins Manifest verschoben.
@@ -74,7 +75,10 @@
 - Aktuell: In Progress (Config-Matrix + Workflow-Checks umgesetzt)
 - Naechster Gate: Ready for Preview Trial (nach erstem Deployment-Durchlauf)
 
-## Umsetzungsstand (2026-02-05)
+## Umsetzungsstand (2026-02-08)
+- P1-A (erledigt): Beispielwerte aus Preview/Dev-Configs entfernen; nur betriebliche Werte behalten.
+- P1-B (erledigt): Manifest-Metadaten (`meta.desc`, `meta.example`, `meta.notes`) fuer betroffene Variablen ergaenzen.
+- P1-C (erledigt): Doku auf Manifest-Metadaten als Beispielquelle umstellen (keine aktiven Config-Dateien als Referenz).
 - Preview-Configdateien sind angelegt (`preview-setup`, `preview-build`, `preview-runtime`).
 - Preview-Build nutzt Fixtures aus `tests/fixtures/lebenslauf` mit Profil `gueltig`.
 - Manifest-Regeln fuer `preview` sind geschaerft (Pflichtwerte fuer `build`/`runtime`/`deploy`).
@@ -86,7 +90,8 @@
 - Manifest-Metadaten wurden ergaenzt; `meta.notes` ist eingefuehrt.
 
 ## Naechste Schritte (P0/P1)
-- P1-A (erledigt): Beispielwerte aus Preview/Dev-Configs entfernen; nur betriebliche Werte behalten.
-- P1-B (erledigt): Manifest-Metadaten (`meta.desc`, `meta.example`, `meta.notes`) fuer betroffene Variablen ergaenzen.
-- P1-C (erledigt): Doku auf Manifest-Metadaten als Beispielquelle umstellen (keine aktiven Config-Dateien als Referenz).
+- P0: Kurzfristige Runtime-Validierung fuer dev/preview glaetten:
+  - `SMTP_FROM_NAME` aus `required` fuer `dev`/`preview` entfernen (bei `MAIL_STDOUT=1` ungenutzt).
+  - `MAIL_STDOUT` mit `meta.notes` ergaenzen: SMTP_* nur bei `MAIL_STDOUT=0` notwendig.
+  - `IP_SALT` lokal generieren (nicht versionieren), z. B. via Helper in `src/cli/php/shared`.
 - P1-D: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
