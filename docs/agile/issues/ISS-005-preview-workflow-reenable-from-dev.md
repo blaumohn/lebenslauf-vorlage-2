@@ -3,6 +3,9 @@
 ## Typ
 - Issue (Delivery)
 
+## Status
+- Aktiv
+
 ## Problem
 - Preview-Workflow wurde bewusst entfernt, um keinen instabilen Zwischenstand zu betreiben.
 - Ohne geregelten Wiedereinstieg fehlen Trigger, Checks und reproduzierbarer Deploy-Pfad.

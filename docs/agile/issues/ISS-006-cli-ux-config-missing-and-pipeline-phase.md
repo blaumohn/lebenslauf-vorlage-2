@@ -3,6 +3,9 @@
 ## Typ
 - Issue (UX/Delivery)
 
+## Status
+- Backlog
+
 ## Problem
 - Aktions-spezifische Hilfe ist unvollstaendig (z. B. `cli config lint --help` zeigt nur die Oberflaeche).
 - Pipeline-Phase-Parameterisierung ist nicht konsistent, historisch gab es Varianten (Commit `d4c5355` als Kontext).

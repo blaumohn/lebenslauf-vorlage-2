@@ -3,6 +3,9 @@
 ## Typ
 - Issue (Delivery)
 
+## Status
+- Erledigt
+
 ## Problem
 - Lokale Composer-`path`-Verknuepfung ist fuer den lokalen Dev-Flow ok, gefaehrdet aber reproduzierbare CI, wenn sie versioniert wird.
 - Branch-Zielbild (`dev` als Stabilisierungsebene) ist noch nicht formalisiert.

@@ -3,6 +3,9 @@
 ## Typ
 - Story (uebergeordnet)
 
+## Status
+- Aktiv
+
 ## Problem
 - Im Repo treten wiederholt Risikomuster und Inkonsistenzen auf.
 - `PhaseConfig` ist ein Beispiel, aber nicht das einzige.
