@@ -3,6 +3,7 @@
 namespace App\Cli\Command;
 
 use App\Cli\PythonResolver;
+use App\Cli\Util\LocalConfigWriter;
 use PipelineConfigSpec\PipelineConfigService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,7 +20,8 @@ final class SetupCommand extends BaseCommand
     protected function configure(): void
     {
         $this->addArgument('pipeline', InputArgument::REQUIRED, 'Pipeline-Name')
-            ->addOption('create-demo-content', null, InputOption::VALUE_NONE, 'Demo-Inhalte nach .local kopieren')
+            ->addOption('reset-sample-content', null, InputOption::VALUE_NONE, 'Sample-Inhalte nach .local kopieren')
+            ->addOption('rotate-ip-salt', null, InputOption::VALUE_NONE, 'IP_SALT neu setzen')
             ->addOption('skip-python', null, InputOption::VALUE_NONE, 'Python-Setup ueberspringen')
             ->addOption('python-cache-dir', null, InputOption::VALUE_REQUIRED, 'Cache-Verzeichnis fuer Pip')
             ->addOption('npm-cache-dir', null, InputOption::VALUE_REQUIRED, 'Cache-Verzeichnis fuer NPM');
@@ -32,9 +34,14 @@ final class SetupCommand extends BaseCommand
             return Command::FAILURE;
         }
         $configValues = $this->resolveSetupConfigValues($pipeline, $output);
-        if ($input->getOption('create-demo-content')) {
+        if ($input->getOption('rotate-ip-salt')) {
+            if (!$this->rotateLocalIpSalt($pipeline, $output)) {
+                return Command::FAILURE;
+            }
+        }
+        if ($input->getOption('reset-sample-content')) {
             $profile = $this->resolveDefaultProfile($configValues);
-            if (!$this->createDemoContent($profile, $output)) {
+            if (!$this->resetSampleContent($profile)) {
                 return Command::FAILURE;
             }
         }
@@ -54,14 +61,27 @@ final class SetupCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function createDemoContent(string $profile, OutputInterface $output): bool
+    private function rotateLocalIpSalt(string $pipeline, OutputInterface $output): bool
+    {
+        if (!$this->shouldRotateIpSalt($pipeline)) {
+            return true;
+        }
+        $writer = new LocalConfigWriter($this->rootPath());
+        if ($writer->rotateIpSalt($pipeline)) {
+            return true;
+        }
+        $output->writeln('<error>IP_SALT konnte nicht lokal geschrieben werden.</error>');
+        return false;
+    }
+
+    private function shouldRotateIpSalt(string $pipeline): bool
+    {
+        return in_array($pipeline, ['dev', 'preview'], true);
+    }
+
+    private function resetSampleContent(string $profile): bool
     {
         $target = $this->demoTargetPath($profile);
-        if (is_file($target)) {
-            $output->writeln('<error>Demo-Datei existiert bereits: ' . $target . '</error>');
-            $output->writeln('<error>Bitte Datei verschieben oder loeschen und erneut ausfuehren.</error>');
-            return false;
-        }
         $source = $this->demoSourcePath();
         $this->copyFile($source, $target);
         return true;
@@ -75,12 +95,20 @@ final class SetupCommand extends BaseCommand
 
     private function demoSourcePath(): string
     {
-        return $this->joinPath('tests', 'fixtures', 'lebenslauf', 'daten-gueltig.yaml');
+        return Path::join(
+            $this->rootPath(),
+            'src',
+            'resources',
+            'fixtures',
+            'lebenslauf',
+            'daten-gueltig.yaml'
+        );
     }
 
     private function demoTargetPath(string $profile): string
     {
-        return $this->joinPath('.local', 'lebenslauf', 'daten-' . $profile . '.yaml');
+        $filename = 'daten-' . $profile . '.yaml';
+        return Path::join($this->rootPath(), '.local', 'lebenslauf', $filename);
     }
 
     private function copyFile(string $source, string $target): void
@@ -93,11 +121,6 @@ final class SetupCommand extends BaseCommand
             mkdir($dir, 0775, true);
         }
         copy($source, $target);
-    }
-
-    private function joinPath(string ...$parts): string
-    {
-        return implode(DIRECTORY_SEPARATOR, array_merge([$this->rootPath()], $parts));
     }
 
     private function ensureVenv(PythonResolver $resolver, InputInterface $input, OutputInterface $output): bool
@@ -152,7 +175,7 @@ final class SetupCommand extends BaseCommand
 
     private function requirementsPath(): string
     {
-        return $this->joinPath('requirements.txt');
+        return Path::join($this->rootPath(), 'requirements.txt');
     }
 
     private function venvPythonPath(): ?string

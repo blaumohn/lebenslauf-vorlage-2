@@ -44,7 +44,9 @@ variables:
     RATE_LIMIT_WINDOW_SECONDS: {}
 
   mail:
-    MAIL_STDOUT: {}
+    MAIL_STDOUT:
+      meta:
+        notes: "SMTP_* nur notwendig, wenn MAIL_STDOUT=0."
     SMTP_HOST:
       meta:
         desc: "SMTP-Host"
@@ -120,7 +122,6 @@ pipelines:
         - CONTACT_MAX_POST
         - RATE_LIMIT_WINDOW_SECONDS
         - MAIL_STDOUT
-        - SMTP_FROM_NAME
       allowed: []
 
   preview:
@@ -138,7 +139,6 @@ pipelines:
         - CONTACT_MAX_POST
         - RATE_LIMIT_WINDOW_SECONDS
         - MAIL_STDOUT
-        - SMTP_FROM_NAME
         - LEBENSLAUF_PUBLIC_PROFILE
         - LEBENSLAUF_LANG_DEFAULT
         - LEBENSLAUF_LANGS

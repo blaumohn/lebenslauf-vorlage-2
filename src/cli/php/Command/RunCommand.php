@@ -2,7 +2,7 @@
 
 namespace App\Cli\Command;
 
-use App\Cli\Shared\PythonRunner;
+use App\Cli\Util\PythonRunner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,7 +33,7 @@ final class RunCommand extends BaseCommand
         $args = $this->devArgs($input, $pipeline);
         return $runner->runWithContext(
             $pipeline,
-            'src/cli/py/shared/dev/dev.py',
+            'src/cli/py/dev/dev.py',
             $args,
             $input->isInteractive()
         );

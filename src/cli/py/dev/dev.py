@@ -6,7 +6,7 @@ import sys
 ROOT_PATH = os.getcwd()
 
 from cli.py.dev.process_supervisor import ProcessSupervisor
-from cli.py.shared.run_helpers import run
+from cli.py.util.run_helpers import run
 from cli.py.dev.watchers import css
 from cli.py.dev.watchers.file_watcher import FileWatcher
 from cli.py.dev.watchers.schedule import schedule_twig, schedule_yaml

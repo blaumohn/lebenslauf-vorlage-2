@@ -140,7 +140,7 @@ composer run tests:smoke
 ```
 
 The smoke test clones the repo into a temporary directory, installs dependencies, runs `setup` and `test`, and checks the dev server via `curl`.
-Mock data comes from `tests/fixtures/lebenslauf/daten-gueltig.yaml`.
+Mock data comes from `src/resources/fixtures/lebenslauf/daten-gueltig.yaml`.
 
 Optional environment variables:
 - `CLONE_SOURCE` sets a local source or Git URL (default: local repo).

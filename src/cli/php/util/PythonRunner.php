@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cli\Shared;
+namespace App\Cli\Util;
 
 use App\Cli\PythonResolver;
 use PipelineConfigSpec\PipelineConfigService;
