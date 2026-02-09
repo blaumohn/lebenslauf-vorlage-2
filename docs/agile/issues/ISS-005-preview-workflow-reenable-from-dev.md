@@ -16,13 +16,13 @@
 - Branch-Trigger und Promotion-Fluss klar dokumentieren.
 
 ## Entscheidungen (2026-02-05)
-- Preview-Daten sollen direkt aus versionierten Fixtures kommen.
-- `LEBENSLAUF_DATEN_PFAD` zeigt fuer Preview auf `tests/fixtures/lebenslauf`.
-- Standardprofil fuer Preview soll `gueltig` sein (statt `default`).
-- `--create-demo-content` ist kein Pflichtschritt fuer Preview-Deploy.
-- `act` wird wegen Komplexitaet vorerst nicht genutzt (spaeter optional).
-- `dev` nutzt keinen operativen Deploy-Pfad; ungenutzte `dev`-Deploy-Phase soll entfernt oder klar deaktiviert werden.
-- Beispielwerte gehoeren nicht in Preview-Configs; sie werden als Metadaten je Variable im Manifest gepflegt (`meta.desc`, `meta.example`, `meta.notes`).
+- Preview-Daten kommen direkt aus versionierten Fixtures unter `src/resources/fixtures/lebenslauf`.
+- `LEBENSLAUF_DATEN_PFAD` zeigt fuer Preview auf `src/resources/fixtures/lebenslauf`.
+- Standardprofil fuer Preview bleibt `gueltig` (statt `default`).
+- `cli setup <pipeline> --reset-sample-content --rotate-ip-salt` ersetzt `--create-demo-content` (bewusstes Ueberschreiben/Rotieren fuer lokale Daten).
+- `act` (lokaler GitHub-Actions-Runner) wird wegen Komplexitaet vorerst nicht genutzt; spaeter optional pruefen.
+- `dev` nutzt keinen operativen Deploy-Pfad; ungenutzte `dev`-Deploy-Phase wird entfernt oder klar deaktiviert.
+- Beispielwerte gehoeren nicht in Preview-Configs; sie stehen als Metadaten je Variable im Manifest (`meta.desc`, `meta.example`, `meta.notes`).
 - Aktive Config-Dateien enthalten nur betriebliche Werte; reine Beispielwerte sind entfernt (fehlende echte Werte bleiben bewusst leer).
 
 ## Scope
@@ -54,12 +54,12 @@
 - `config lint` ist vor Build/Deploy verbindlich.
 - Fehler sind klar unterscheidbar (fehlend, unerlaubte Quelle, unerwarteter Key).
 - Flow ist dokumentiert: `feature/*` -> `dev` -> `preview`.
-- Preview-Build laeuft mit Fixtures (`tests/fixtures/lebenslauf`) ohne manuelles Demo-Kopieren.
+- Preview-Build laeuft mit Fixtures (`src/resources/fixtures/lebenslauf`) ohne manuelles Demo-Kopieren; lokale Daten via `--reset-sample-content`.
 - Preview-Runtime nutzt keinen echten SMTP-Versand.
 - Deploy-Qualitaet ist zusaetzlich zu Linting abgesichert (Artefakt + Smoke).
 
 ## Notizen (Repo)
-- Frage fuer naechste Sitzung: Ist es ueblich, Mocks/Fixtures ausserhalb von `tests/` zu halten, um Duplizierung und Wartung zu reduzieren?
+- Mocks/Fixtures liegen ausserhalb von `tests/` unter `src/resources/fixtures/lebenslauf`.
 - Manifest: `APP_BASE_PATH`-Meta um `notes` ergaenzt und Beschreibung praezisiert (URL-Pfad vs Dateisystem).
 - Twig: Global `base_path` entfernt, nur `path()` bleibt.
 - Config: Beispielwerte aus `dev`/`preview` entfernt; Metadaten ins Manifest verschoben.
@@ -70,6 +70,7 @@
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
 - Voraussetzungen:
   - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
+  - [ISS-009](ISS-009-json-local-automation-layer.md) (lokale Automationswerte)
 
 ## Workflow-Phase
 - Aktuell: In Progress (Config-Matrix + Workflow-Checks umgesetzt)
@@ -80,7 +81,7 @@
 - P1-B (erledigt): Manifest-Metadaten (`meta.desc`, `meta.example`, `meta.notes`) fuer betroffene Variablen ergaenzen.
 - P1-C (erledigt): Doku auf Manifest-Metadaten als Beispielquelle umstellen (keine aktiven Config-Dateien als Referenz).
 - Preview-Configdateien sind angelegt (`preview-setup`, `preview-build`, `preview-runtime`).
-- Preview-Build nutzt Fixtures aus `tests/fixtures/lebenslauf` mit Profil `gueltig`.
+- Preview-Build nutzt Fixtures aus `src/resources/fixtures/lebenslauf` mit Profil `gueltig`.
 - Manifest-Regeln fuer `preview` sind geschaerft (Pflichtwerte fuer `build`/`runtime`/`deploy`).
 - Workflow prueft zusaetzlich Artefakt + Smoke-HTTP-Checks vor FTP-Deploy.
 - `dev-deploy`-Datei wurde entfernt (kein operativer Deploy-Pfad in `dev`).
@@ -93,5 +94,6 @@
 - P0: Kurzfristige Runtime-Validierung fuer dev/preview glaetten:
   - `SMTP_FROM_NAME` aus `required` fuer `dev`/`preview` entfernen (bei `MAIL_STDOUT=1` ungenutzt).
   - `MAIL_STDOUT` mit `meta.notes` ergaenzen: SMTP_* nur bei `MAIL_STDOUT=0` notwendig.
-  - `IP_SALT` lokal generieren (nicht versionieren), z. B. via Helper in `src/cli/php/shared`.
+  - `IP_SALT` lokal via `cli setup <pipeline> --rotate-ip-salt` setzen (nicht versionieren).
+- Hinweis: `--rotate-ip-salt` bleibt bewusst simpel (Regex-Update in lokaler YAML). Langfristig: Automation ueber lokale JSON-Schicht in [ISS-009](ISS-009-json-local-automation-layer.md).
 - P1-D: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.

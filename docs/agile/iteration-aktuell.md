@@ -9,3 +9,4 @@
 
 ## Planung naechste Iteration
 - Prod bauen und fertig machen
+- Direkt nach Produktion: [ISS-009](issues/ISS-009-json-local-automation-layer.md) (lokale JSON-Automation statt Regex)
