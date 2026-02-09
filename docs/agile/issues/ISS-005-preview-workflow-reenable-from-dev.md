@@ -89,11 +89,12 @@
 - `cli config lint <pipeline>` prueft standardmaessig alle Phasen und wird im Preview-Workflow genutzt.
 - CI-Logik fuer Preview ist in `bin/ci` gebuendelt (`ci config-check preview`, `ci smoke preview`).
 - Manifest-Metadaten wurden ergaenzt; `meta.notes` ist eingefuehrt.
+- CLI-Tooling: `shared`-Ordner in `util` umbenannt, um den Zweck zu klaeren.
+- P0 (erledigt): `MAIL_STDOUT` mit `meta.notes` ergaenzt.
+- P0 (erledigt): `IP_SALT` lokal via `cli setup <pipeline> --rotate-ip-salt` (nicht versioniert).
+- P0 (erledigt): `SMTP_FROM_NAME` aus `required` fuer `dev`/`preview` entfernt.
 
 ## Naechste Schritte (P0/P1)
 - P0: Kurzfristige Runtime-Validierung fuer dev/preview glaetten:
-  - `SMTP_FROM_NAME` aus `required` fuer `dev`/`preview` entfernen (bei `MAIL_STDOUT=1` ungenutzt).
-  - `MAIL_STDOUT` mit `meta.notes` ergaenzen: SMTP_* nur bei `MAIL_STDOUT=0` notwendig.
-  - `IP_SALT` lokal via `cli setup <pipeline> --rotate-ip-salt` setzen (nicht versionieren).
 - Hinweis: `--rotate-ip-salt` bleibt bewusst simpel (Regex-Update in lokaler YAML). Langfristig: Automation ueber lokale JSON-Schicht in [ISS-009](ISS-009-json-local-automation-layer.md).
 - P1-D: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
