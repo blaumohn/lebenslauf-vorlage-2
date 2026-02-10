@@ -56,3 +56,5 @@
   - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md)
 - Wirkt auf:
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
+- Folge-Issue:
+  - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) (flächige Runtime-Concurrency-Haertung)

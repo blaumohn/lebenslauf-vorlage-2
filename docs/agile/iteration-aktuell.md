@@ -10,4 +10,4 @@
 
 ## Planung naechste Iteration
 - Prod bauen und fertig machen
-- Direkt nach Produktion: [ISS-009](issues/ISS-009-json-local-automation-layer.md) (lokale JSON-Automation statt Regex)
+- Direkt nach `feature/preview`: [ISS-013](issues/ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) (SFTP-Verwaltungs-Skripte)

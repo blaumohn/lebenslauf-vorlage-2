@@ -19,7 +19,7 @@
 - Preview-Daten kommen direkt aus versionierten Fixtures unter `src/resources/fixtures/lebenslauf`.
 - `LEBENSLAUF_DATEN_PFAD` zeigt fuer Preview auf `src/resources/fixtures/lebenslauf`.
 - Standardprofil fuer Preview bleibt `gueltig` (statt `default`).
-- `cli setup <pipeline> --reset-sample-content --rotate-ip-salt` ersetzt `--create-demo-content` (bewusstes Ueberschreiben/Rotieren fuer lokale Daten).
+- `cli setup <pipeline> --reset-sample-content` ersetzt `--create-demo-content` (bewusstes Ueberschreiben fuer lokale Daten).
 - `act` (lokaler GitHub-Actions-Runner) wird wegen Komplexitaet vorerst nicht genutzt; spaeter optional pruefen.
 - `dev` nutzt keinen operativen Deploy-Pfad; ungenutzte `dev`-Deploy-Phase wird entfernt oder klar deaktiviert.
 - Beispielwerte gehoeren nicht in Preview-Configs; sie stehen als Metadaten je Variable im Manifest (`meta.desc`, `meta.example`, `meta.notes`).
@@ -71,8 +71,10 @@
 - Voraussetzungen:
   - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) (P1-D Testmatrix + Entscheidungen)
   - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) (`IP_SALT` Runtime-Guardrails + Rückbau externer Rotation)
+  - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) (Concurrency-Haertung der Runtime-Dateizugriffe)
   - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
-  - [ISS-009](ISS-009-json-local-automation-layer.md) (lokale Automationswerte)
+- Nachgelagert (nicht blockierend fuer ISS-005):
+  - [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) (SFTP-Verwaltungsablauf nach `feature/preview`)
 
 ## Workflow-Phase
 - Aktuell: In Progress (Config-Matrix + Workflow-Checks umgesetzt)
@@ -93,7 +95,7 @@
 - Manifest-Metadaten wurden ergaenzt; `meta.notes` ist eingefuehrt.
 - CLI-Tooling: `shared`-Ordner in `util` umbenannt, um den Zweck zu klaeren.
 - P0 (erledigt): `MAIL_STDOUT` mit `meta.notes` ergaenzt.
-- P0 (erledigt): `IP_SALT` lokal via `cli setup <pipeline> --rotate-ip-salt` (nicht versioniert).
+- P0 (erledigt): `IP_SALT` wird runtime-intern in `var/state` verwaltet.
 - P0 (erledigt): `SMTP_FROM_NAME` aus `required` fuer `dev`/`preview` entfernt.
 
 ## Naechste Schritte (Tracking)
@@ -103,4 +105,5 @@
 | P1-D | P1 | open | tbd | tbd | Feature-Tests fuer Build/Runtime/Deploy-Smoke sind vorhanden und als Restluecken dokumentiert; Entscheidungsmatrix aus ISS-010 ist abgearbeitet. |
 
 - [ ] P1-D ueber [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) strukturieren und Nachweise (Testlauf + Doku-Update) verlinken.
-- Hinweis: Rückbau von `--rotate-ip-salt` und Runtime-Guardrails für `IP_SALT` laufen über [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md); [ISS-009](ISS-009-json-local-automation-layer.md) bleibt davon getrennt für sonstige lokale Automationswerte.
+- Hinweis: Runtime-Guardrails fuer `IP_SALT` laufen ueber [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md); Concurrency-Haertung der Runtime-Dateizugriffe ueber [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md).
+- Hinweis: SFTP-Verwaltungs-Skripte sind absichtlich in [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) ausgelagert und folgen direkt nach `feature/preview`.

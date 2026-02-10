@@ -4,12 +4,18 @@
 - Issue (Design/Tech)
 
 ## Status
-- Offen (direkt nach Produktion)
+- Aus App-Planning entfernt (nicht geplant, Stand 2026-02-10)
 
 ## Problem
 - YAML ist fuer Menschen lesbar, aber fuer automatisierte Inplace-Aenderungen fragil.
 - Regex-Updates sind fehleranfaellig (Einrueckung, quoted keys, YAML-Varianten) und damit ein echter Bug-Risiko-Pfad.
 - Parser-Updates zerstoeren Format/Kommentare.
+
+## Planungsentscheid (2026-02-10)
+- Der bisherige Haupttreiber (`IP_SALT`-Automation) ist mit [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) fachlich anders geloest:
+  - `IP_SALT` ist runtime-intern und bewusst ausserhalb regulaerer Config geplant.
+- Damit fehlt aktuell ein priorisierter Anwendungsfall fuer die lokale JSON-Automationsschicht.
+- Die Idee bleibt dokumentiert, ist aber derzeit nicht Teil des aktiven App-Plans.
 
 ## Ziel
 - Automationswerte lokal stabil schreiben/rotieren (z. B. `IP_SALT`).
