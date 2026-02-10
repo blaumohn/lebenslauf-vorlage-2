@@ -69,6 +69,7 @@
 - Story-Kontext (parallel/nachgelagert):
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
 - Voraussetzungen:
+  - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) (P1-D Testmatrix + Entscheidungen)
   - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
   - [ISS-009](ISS-009-json-local-automation-layer.md) (lokale Automationswerte)
 
@@ -94,7 +95,11 @@
 - P0 (erledigt): `IP_SALT` lokal via `cli setup <pipeline> --rotate-ip-salt` (nicht versioniert).
 - P0 (erledigt): `SMTP_FROM_NAME` aus `required` fuer `dev`/`preview` entfernt.
 
-## Naechste Schritte (P0/P1)
-- P0: Kurzfristige Runtime-Validierung fuer dev/preview glaetten:
-- Hinweis: `--rotate-ip-salt` bleibt bewusst simpel (Regex-Update in lokaler YAML). Langfristig: Automation ueber lokale JSON-Schicht in [ISS-009](ISS-009-json-local-automation-layer.md).
-- P1-D: Feature-bezogene Tests explizit nachziehen (Build/Runtime/Deploy-Smoke), fehlende Tests als offene Punkte dokumentieren.
+## Naechste Schritte (Tracking)
+| ID | Prio | Status | Owner | Zieltermin | Done-Definition |
+| --- | --- | --- | --- | --- | --- |
+| P0 | P0 | done | - | 2026-02-08 | Runtime-Validierung fuer dev/preview ist geglaettet. |
+| P1-D | P1 | open | tbd | tbd | Feature-Tests fuer Build/Runtime/Deploy-Smoke sind vorhanden und als Restluecken dokumentiert; Entscheidungsmatrix aus ISS-010 ist abgearbeitet. |
+
+- [ ] P1-D ueber [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) strukturieren und Nachweise (Testlauf + Doku-Update) verlinken.
+- Hinweis: `--rotate-ip-salt` bleibt bewusst simpel (Regex-Update in lokaler YAML). Langfristige Automation ist in [ISS-009](ISS-009-json-local-automation-layer.md) ausgelagert.
