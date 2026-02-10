@@ -3,6 +3,9 @@
 ## Typ
 - Issue (Analyse/Refactor-Vorbereitung)
 
+## Status
+- Backlog
+
 ## Problem
 - Es fehlen klare, durchgaengige Standards fuer Code- und Architekturqualitaet.
 - Unklare Benennungen, implizite Typen und inkonsistente API-Nutzung treten mehrfach auf.

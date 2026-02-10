@@ -3,6 +3,9 @@
 ## Typ
 - Issue (Delivery)
 
+## Status
+- Backlog
+
 ## Status-Update (2026-02-03)
 - Kernziel in der Config-Lib ist weitgehend erreicht.
 - Preview-Workflow wurde bewusst vorerst entfernt (keine halbfertige CI-Stufe).
