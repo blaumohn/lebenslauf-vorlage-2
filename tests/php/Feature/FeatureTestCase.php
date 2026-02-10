@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Cli\Util\LocalConfigWriter;
 use PipelineConfigSpec\PipelineConfigService;
 use App\Http\AppBuilder;
 use App\Http\ConfigCompiled;
@@ -14,8 +15,7 @@ abstract class FeatureTestCase extends TestCase
 
     protected function setUp(): void
     {
-        $this->root = sys_get_temp_dir() . '/php-mvp-app-' . bin2hex(random_bytes(6));
-        mkdir($this->root, 0775, true);
+        $this->root = $this->createTestRoot();
         $this->copyDir(
             $this->configSourceDir(),
             $this->root . '/src/resources/config'
@@ -32,6 +32,7 @@ abstract class FeatureTestCase extends TestCase
             $this->root . '/var/state/tokens',
             $this->root . '/var/config',
         ]);
+        $this->prepareLocalRuntimeConfig();
         $this->compileConfig();
     }
 
@@ -54,6 +55,33 @@ abstract class FeatureTestCase extends TestCase
     private function configSourceDir(): string
     {
         return $this->projectRoot() . '/src/resources/config';
+    }
+
+    private function createTestRoot(): string
+    {
+        $suffix = '/php-mvp-app-' . bin2hex(random_bytes(6));
+        $baseDir = sys_get_temp_dir();
+        $root = $baseDir . $suffix;
+        if (@mkdir($root, 0775, true)) {
+            return $root;
+        }
+
+        $fallback = $this->projectRoot() . '/var/tmp';
+        $root = $fallback . $suffix;
+        if (@mkdir($root, 0775, true)) {
+            return $root;
+        }
+
+        throw new RuntimeException('Konnte Test-Verzeichnis nicht anlegen: ' . $root);
+    }
+
+    private function prepareLocalRuntimeConfig(): void
+    {
+        $writer = new LocalConfigWriter($this->root);
+        $ok = $writer->rotateIpSalt('dev');
+        if (!$ok) {
+            throw new RuntimeException('Konnte IP_SALT fuer Test-Config nicht schreiben.');
+        }
     }
 
     private function ensureDirs(array $dirs): void
