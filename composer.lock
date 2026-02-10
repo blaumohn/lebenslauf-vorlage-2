@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c0f3dbaca3bb0a1c64cc65943c48c13a",
+    "content-hash": "2f4ee5b6cfcb2b022812063658aec1f4",
     "packages": [
         {
             "name": "fig/http-message-util",
@@ -385,16 +385,16 @@
         },
         {
             "name": "pipeline-config-spec/lib",
-            "version": "dev-refactor/no-dotenv-config",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/blaumohn/pipeline-config-spec-php.git",
-                "reference": "ffd84d82385bdb5485a5eb37db33d99f684d3729"
+                "reference": "3b5eb56fcea3f8313e3f920b6dd97d899a3a3775"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/blaumohn/pipeline-config-spec-php/zipball/ffd84d82385bdb5485a5eb37db33d99f684d3729",
-                "reference": "ffd84d82385bdb5485a5eb37db33d99f684d3729",
+                "url": "https://api.github.com/repos/blaumohn/pipeline-config-spec-php/zipball/3b5eb56fcea3f8313e3f920b6dd97d899a3a3775",
+                "reference": "3b5eb56fcea3f8313e3f920b6dd97d899a3a3775",
                 "shasum": ""
             },
             "require": {
@@ -406,6 +406,7 @@
             "require-dev": {
                 "phpunit/phpunit": "^10.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -419,10 +420,10 @@
             },
             "description": "Pipeline/phase based config manifest with YAML loading and policy validation.",
             "support": {
-                "source": "https://github.com/blaumohn/pipeline-config-spec-php/tree/refactor/no-dotenv-config",
+                "source": "https://github.com/blaumohn/pipeline-config-spec-php/tree/main",
                 "issues": "https://github.com/blaumohn/pipeline-config-spec-php/issues"
             },
-            "time": "2026-01-29T12:59:25+00:00"
+            "time": "2026-02-09T22:47:54+00:00"
         },
         {
             "name": "psr/container",
