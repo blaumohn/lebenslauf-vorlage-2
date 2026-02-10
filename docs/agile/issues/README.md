@@ -1,4 +1,4 @@
-# Issue-Plan (Stand 2026-02-05)
+# Issue-Plan (Stand 2026-02-10)
 
 ## Ueberblick
 
@@ -6,6 +6,7 @@
 
 - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md): Preview-Workflow aus `dev` wieder aktivieren
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen fuer Preview-Workflow
+- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails umsetzen
 
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md): Qualitaetsrahmen fuer App und Config-Lib
 - [ISS-002](ISS-002-preview-system-source-readiness.md): System-Source-Readiness (Basis gelegt, Split aktiv)
@@ -16,6 +17,7 @@
 - [ISS-007](ISS-007-conditional-config-validation.md): Konditionelle Config-Validierung (neu)
 - [ISS-008](ISS-008-i18n-cli-runtime-messages-app-und-config-lib.md): i18n fuer CLI- und Runtime-Nachrichten (neu)
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen (neu)
+- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails (neu)
 - [STY-002](STY-002-i18n-seitenvorlagen-und-templates.md): i18n fuer Seitenvorlagen und Template-Texte (neu)
 
 ## Abhaengigkeiten
@@ -29,6 +31,8 @@
 - [ISS-003](ISS-003-phase-rules-typing-and-clarity.md) -> [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md)
 - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
+- [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) -> [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md)
+- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-006](ISS-006-cli-ux-config-missing-and-pipeline-phase.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-007](ISS-007-conditional-config-validation.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-008](ISS-008-i18n-cli-runtime-messages-app-und-config-lib.md)

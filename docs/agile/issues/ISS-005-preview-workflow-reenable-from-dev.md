@@ -70,6 +70,7 @@
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
 - Voraussetzungen:
   - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) (P1-D Testmatrix + Entscheidungen)
+  - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) (`IP_SALT` Runtime-Guardrails + Rückbau externer Rotation)
   - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
   - [ISS-009](ISS-009-json-local-automation-layer.md) (lokale Automationswerte)
 
@@ -102,4 +103,4 @@
 | P1-D | P1 | open | tbd | tbd | Feature-Tests fuer Build/Runtime/Deploy-Smoke sind vorhanden und als Restluecken dokumentiert; Entscheidungsmatrix aus ISS-010 ist abgearbeitet. |
 
 - [ ] P1-D ueber [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) strukturieren und Nachweise (Testlauf + Doku-Update) verlinken.
-- Hinweis: `--rotate-ip-salt` bleibt bewusst simpel (Regex-Update in lokaler YAML). Langfristige Automation ist in [ISS-009](ISS-009-json-local-automation-layer.md) ausgelagert.
+- Hinweis: Rückbau von `--rotate-ip-salt` und Runtime-Guardrails für `IP_SALT` laufen über [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md); [ISS-009](ISS-009-json-local-automation-layer.md) bleibt davon getrennt für sonstige lokale Automationswerte.

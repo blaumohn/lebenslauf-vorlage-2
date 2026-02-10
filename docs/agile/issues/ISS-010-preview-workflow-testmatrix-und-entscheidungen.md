@@ -61,8 +61,8 @@
   - wird nicht uebergangsweise belassen, sondern mit Einfuehrung der Guardrails direkt entfernt.
   - Rotation erfolgt danach nur noch bewusst ueber einen expliziten Betriebsbefehl (z. B. `cli ip-hash reset`: rotiert Salt + leert IP-Tabellen).
 - `IP_SALT` als Config-Key:
-  - fuer `dev`/`preview` mittelfristig nicht mehr als Pflicht-Config vorgesehen, wenn Runtime-Verwaltung aktiv ist.
-  - fuer `prod` optionaler Override-/Migrationspfad bleibt zunaechst erlaubt, bis Runtime-Verwaltung vollstaendig eingefuehrt ist.
+  - wird als externer Config-Wert in allen Pipelines abgebaut; Quelle ist die Runtime in `var/state`.
+  - einmalige Migration alter externer Werte ist erlaubt, danach entfällt der Key aus regulären Betriebsconfigs.
 - Workflow-Folge:
   - Salt-Rotation nicht mehr implizit in `setup` jedes Deploys.
   - Rotation nur bewusst ueber Betriebsbefehl bzw. klaren Wartungsschritt.
@@ -81,16 +81,16 @@
 | Branch-Mapping | Aktuell `preview -> preview`; `main -> prod` ist als spaeterer Ausbau vorgesehen. | done | Produktions-Branchregel bei Prod-Einfuehrung verbindlich eintragen. |
 | GitHub Environments | `preview` jetzt verbindlich; `production` wird vorbereitet, aber noch nicht aktiv genutzt. | deferred | Aktivierung mit erstem Prod-Issue terminieren. |
 | Parameterisierung | Workflow bleibt generisch; pipeline-spezifisches Verhalten vorrangig ueber Config statt Spezialschritte. | done | Bei Runtime-Verwaltung pruefen, welche Setup-Flags entfallen koennen. |
-| Rolle von `bin/ci` | Zielbild: direkte Workflow-Schritte; `bin/ci` nur solange behalten, bis Paritaet nachgewiesen ist. | deferred | Abbauplan mit Exit-Kriterien dokumentieren. |
+| Rolle von `bin/ci` | `bin/ci` ist kein eigener Testmaßstab; maßgeblich ist ausschließlich die P1-D-Testmatrix. Abweichende Doppeltests gelten als Rückstand. | open | Die zwei unzutreffenden `bin/ci`-Tests entfernen oder auf Matrix-Nachweise umstellen. |
 | Testschichten | Pflicht vor Deploy: `config lint`, `composer run test`, Build, Artefakt-Checks. | done | Reihenfolge + Failure-Messages im Workflow vereinheitlichen. |
 | Pipeline-Abdeckung | Vertrags-Tests sollen pipelinespezifisch aus dem Manifest abgeleitet werden. | done | Umsetzung im Workflow/Script festziehen. |
 | Verhaltens-Tests | Zuschnitt je Pipeline: `dev`-Smoke getrennt, `preview`-Deploy-Smoke verpflichtend. | done | Produktiver Post-Deploy-Smoke fuer `prod` spaeter ergaenzen. |
 | Deploy-Artefakt | Runtime-vollstaendige Inhalte muessen explizit geprueft werden. | open | Endgueltige Artefaktliste und Checks festlegen. |
 | Smoke-Ort | Pre-Deploy-Smoke bleibt; Post-Deploy-Smoke gegen Ziel-URL ist gewuenscht. | deferred | Stabilen Post-Deploy-Checkpfad definieren. |
 | FTP-Preflight | Vor Deploy separater Preflight (inkl. dry-run) ist vorgesehen. | done | Konkrete Action-Parameter final eintragen. |
-| SMTP bei `MAIL_STDOUT=0` | Stufenmodell: Verbindungscheck; optional echter Versandtest je Umgebung. | deferred | Entscheidung pro Umgebung in eigener Task fixieren. |
+| SMTP bei `MAIL_STDOUT=0` | Bei `MAIL_STDOUT=0` sind Verbindungscheck und echter Versandtest verpflichtend (z. B. OpenSSL-Check + skriptgesteuerte Testmail). | open | Zielpostfach/-ordner pro Umgebung festlegen und Versandskript im Workflow verankern. |
 | Kosten/CI-Ressourcen | Service-Container (z. B. Mailpit) sind optional, nicht zwingend fuer P1-D. | deferred | Aufwand/Kosten bei Bedarf gesondert bewerten. |
-| `IP_SALT`-Strategie | Entwurf: runtime-nativ in `var/state`; bei Inkonsistenz Rotation + IP-Tabellen-Bereinigung. | deferred | Folge-Issue fuer Implementierung, Migration und Rueckbau von `--rotate-ip-salt`/Config-Pflicht anlegen; Entfernung erfolgt im gleichen Schritt wie Guardrails. |
+| `IP_SALT`-Strategie | `IP_SALT` ist runtime-intern (`var/state`): fehlt Salt oder passt der Fingerprint nicht, rotiert Runtime und bereinigt IP-State konsistent. | open | Umsetzung in [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) durchführen; `--rotate-ip-salt` und externe Config-Abhängigkeit dort zurückbauen. |
 | Doku & Tracking | Restluecken werden in ISS-010 gepflegt; ISS-005 referenziert diese Matrix. | done | Bei Statuswechseln konsistent nachziehen. |
 | DoD | P1-D ist erst abgeschlossen, wenn Entscheidungen umgesetzt/nachweisbar sind. | done | Konkrete Nachweislinks pro Testlauf sammeln. |
 
@@ -113,5 +113,7 @@
 ## Abhaengigkeiten
 - Story-Kontext:
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
+- Folge-Issue:
+  - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) (`IP_SALT` Runtime-Verwaltung)
 - Wirkt auf:
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
