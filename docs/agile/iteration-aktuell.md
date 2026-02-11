@@ -10,4 +10,9 @@
 
 ## Planung naechste Iteration
 - Prod bauen und fertig machen
-- Direkt nach `feature/preview`: [ISS-013](issues/ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) (SFTP-Verwaltungs-Skripte)
+- Direkt nach `feature/preview`: [ISS-013](issues/ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md) (FTP/FTPS-Verwaltungs-Skripte)
+
+## Ablauf-Merker
+- `ISS-005` ist Integrations-Branch fuer den Preview-Pfad.
+- Reihenfolge bis `dev`: zuerst `ISS-011`, dann `ISS-012`, danach gemeinsamer Merge ueber `feature/iss-005-preview`.
+- Detail-Referenz: [ISS-005](issues/ISS-005-preview-workflow-reenable-from-dev.md) (Abschnitt "Umsetzungsreihenfolge und Branch-Strategie").

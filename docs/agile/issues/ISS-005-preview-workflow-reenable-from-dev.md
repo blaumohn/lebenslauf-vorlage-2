@@ -74,7 +74,20 @@
   - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) (Concurrency-Haertung der Runtime-Dateizugriffe)
   - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md) (Done: 2026-02-04)
 - Nachgelagert (nicht blockierend fuer ISS-005):
-  - [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) (SFTP-Verwaltungsablauf nach `feature/preview`)
+  - [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md) (FTP/FTPS-Verwaltungsablauf nach `feature/preview`)
+
+## Umsetzungsreihenfolge und Branch-Strategie (Stand 2026-02-11)
+- `ISS-005` ist der Integrations-Branch fuer die Teilthemen im Preview-Pfad.
+- Reihenfolge:
+  - zuerst [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) (IP_SALT runtime-intern),
+  - danach [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) (Concurrency-/Locking-Haertung),
+  - danach Integrationsabgleich in `feature/iss-005-preview`,
+  - danach ein gemeinsamer Merge `feature/iss-005-preview -> dev`.
+- Merge-Form:
+  - flach ueber den Integrations-Branch,
+  - keine verschachtelten Merge-Ketten zwischen den Teil-Issues.
+- Nachgelagert:
+  - [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md) folgt erst nach dem Preview-Release und blockiert `ISS-005` nicht.
 
 ## Workflow-Phase
 - Aktuell: In Progress (Config-Matrix + Workflow-Checks umgesetzt)
@@ -106,4 +119,4 @@
 
 - [ ] P1-D ueber [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) strukturieren und Nachweise (Testlauf + Doku-Update) verlinken.
 - Hinweis: Runtime-Guardrails fuer `IP_SALT` laufen ueber [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md); Concurrency-Haertung der Runtime-Dateizugriffe ueber [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md).
-- Hinweis: SFTP-Verwaltungs-Skripte sind absichtlich in [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) ausgelagert und folgen direkt nach `feature/preview`.
+- Hinweis: FTP/FTPS-Verwaltungs-Skripte sind absichtlich in [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md) ausgelagert und folgen direkt nach `feature/preview`.

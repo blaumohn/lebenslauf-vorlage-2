@@ -75,38 +75,41 @@
 - Ohne diese Guardrails darf keine Entfernung erfolgen.
 
 ## Offene Punkte und Entscheidungen
-| Bereich | Entscheidung / Entwurf | Status | Restpunkt |
-| --- | --- | --- | --- |
-| Workflow-Design | Ein gemeinsamer Deploy-Workflow ohne `workflow_call` ist gesetzt. | done | Job-Guards fuer erlaubte Branches im YAML finalisieren. |
-| Branch-Mapping | Aktuell `preview -> preview`; `main -> prod` ist als spaeterer Ausbau vorgesehen. | done | Produktions-Branchregel bei Prod-Einfuehrung verbindlich eintragen. |
-| GitHub Environments | `preview` jetzt verbindlich; `production` wird vorbereitet, aber noch nicht aktiv genutzt. | deferred | Aktivierung mit erstem Prod-Issue terminieren. |
-| Parameterisierung | Workflow bleibt generisch; pipeline-spezifisches Verhalten vorrangig ueber Config statt Spezialschritte. | done | Bei Runtime-Verwaltung pruefen, welche Setup-Flags entfallen koennen. |
-| Rolle von `bin/ci` | `bin/ci` ist kein eigener Testmaßstab; maßgeblich ist ausschließlich die P1-D-Testmatrix. Abweichende Doppeltests gelten als Rückstand. | open | Die zwei unzutreffenden `bin/ci`-Tests entfernen oder auf Matrix-Nachweise umstellen. |
-| Testschichten | Pflicht vor Deploy: `config lint`, `composer run test`, Build, Artefakt-Checks. | done | Reihenfolge + Failure-Messages im Workflow vereinheitlichen. |
-| Pipeline-Abdeckung | Vertrags-Tests sollen pipelinespezifisch aus dem Manifest abgeleitet werden. | done | Umsetzung im Workflow/Script festziehen. |
-| Verhaltens-Tests | Zuschnitt je Pipeline: `dev`-Smoke getrennt, `preview`-Deploy-Smoke verpflichtend. | done | Produktiver Post-Deploy-Smoke fuer `prod` spaeter ergaenzen. |
-| Deploy-Artefakt | Runtime-vollstaendige Inhalte muessen explizit geprueft werden. | open | Endgueltige Artefaktliste und Checks festlegen. |
-| Smoke-Ort | Pre-Deploy-Smoke bleibt; Post-Deploy-Smoke gegen Ziel-URL ist gewuenscht. | deferred | Stabilen Post-Deploy-Checkpfad definieren. |
-| FTP-Preflight | Vor Deploy separater Preflight (inkl. dry-run) ist vorgesehen. | done | Konkrete Action-Parameter final eintragen. |
-| SMTP bei `MAIL_STDOUT=0` | Bei `MAIL_STDOUT=0` sind Verbindungscheck und echter Versandtest verpflichtend (z. B. OpenSSL-Check + skriptgesteuerte Testmail). | open | Zielpostfach/-ordner pro Umgebung festlegen und Versandskript im Workflow verankern. |
-| Kosten/CI-Ressourcen | Service-Container (z. B. Mailpit) sind optional, nicht zwingend fuer P1-D. | deferred | Aufwand/Kosten bei Bedarf gesondert bewerten. |
-| `IP_SALT`-Strategie | `IP_SALT` ist runtime-intern (`var/state`): fehlt Salt oder passt der Fingerprint nicht, rotiert Runtime und bereinigt IP-State konsistent. | open | Umsetzung in [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) durchführen; `--rotate-ip-salt` und externe Config-Abhängigkeit dort zurückbauen. |
-| Doku & Tracking | Restluecken werden in ISS-010 gepflegt; ISS-005 referenziert diese Matrix. | done | Bei Statuswechseln konsistent nachziehen. |
-| DoD | P1-D ist erst abgeschlossen, wenn Entscheidungen umgesetzt/nachweisbar sind. | done | Konkrete Nachweislinks pro Testlauf sammeln. |
+- Entscheidungsstatus: `entschieden`, `offen`, `vertagt`
+- Umsetzungsstatus: `umgesetzt`, `in Arbeit`, `ausstehend`
+| Bereich | Entscheidung / Entwurf | Entscheidungsstatus | Umsetzungsstatus | Restpunkt |
+| --- | --- | --- | --- | --- |
+| Workflow-Design | Ein gemeinsamer Deploy-Workflow ohne `workflow_call` ist gesetzt. | entschieden | in Arbeit | Job-Guards fuer erlaubte Branches im YAML finalisieren. |
+| Branch-Mapping | Aktuell `preview -> preview`; `main -> prod` ist als spaeterer Ausbau vorgesehen. | entschieden | ausstehend | Produktions-Branchregel bei Prod-Einfuehrung verbindlich eintragen. |
+| GitHub Environments | `preview` jetzt verbindlich; `production` wird vorbereitet, aber noch nicht aktiv genutzt. | vertagt | ausstehend | Aktivierung mit erstem Prod-Issue terminieren. |
+| Parameterisierung | Workflow bleibt generisch; pipeline-spezifisches Verhalten vorrangig ueber Config statt Spezialschritte. | entschieden | in Arbeit | Bei Runtime-Verwaltung pruefen, welche Setup-Flags entfallen koennen. |
+| Rolle von `bin/ci` | `bin/ci` ist kein eigener Testmaßstab; maßgeblich ist ausschließlich die P1-D-Testmatrix. Abweichende Doppeltests gelten als Rückstand. | offen | ausstehend | Die zwei unzutreffenden `bin/ci`-Tests entfernen oder auf Matrix-Nachweise umstellen. |
+| Testschichten | Pflicht vor Deploy: `config lint`, `composer run test`, Build, Artefakt-Checks. | entschieden | in Arbeit | Reihenfolge + Failure-Messages im Workflow vereinheitlichen. |
+| Pipeline-Abdeckung | Vertrags-Tests sollen pipelinespezifisch aus dem Manifest abgeleitet werden. | entschieden | in Arbeit | Umsetzung im Workflow/Script festziehen. |
+| Verhaltens-Tests | Zuschnitt je Pipeline: `dev`-Smoke getrennt, `preview`-Deploy-Smoke verpflichtend. | entschieden | ausstehend | Produktiver Post-Deploy-Smoke fuer `prod` spaeter ergaenzen. |
+| Deploy-Artefakt | Runtime-vollstaendige Inhalte muessen explizit geprueft werden. | offen | ausstehend | Endgueltige Artefaktliste und Checks festlegen. |
+| Smoke-Ort | Pre-Deploy-Smoke bleibt; Post-Deploy-Smoke gegen Ziel-URL ist gewuenscht. | vertagt | ausstehend | Stabilen Post-Deploy-Checkpfad definieren. |
+| FTP-Preflight | Vor Deploy separater Preflight (inkl. dry-run) ist vorgesehen. | entschieden | in Arbeit | Konkrete Action-Parameter final eintragen. |
+| SMTP bei `MAIL_STDOUT=0` | Bei `MAIL_STDOUT=0` sind Verbindungscheck und echter Versandtest verpflichtend (z. B. OpenSSL-Check + skriptgesteuerte Testmail). | offen | ausstehend | Zielpostfach/-ordner pro Umgebung festlegen und Versandskript inkl. Empfangspruefung mit Timeout im Workflow verankern. |
+| Kosten/CI-Ressourcen | Service-Container (z. B. Mailpit) sind optional, nicht zwingend fuer P1-D. | vertagt | ausstehend | Aufwand/Kosten bei Bedarf gesondert bewerten. |
+| `IP_SALT`-Strategie | `IP_SALT` ist runtime-intern (`var/state`): fehlt Salt oder passt der Fingerprint nicht, rotiert Runtime und bereinigt IP-State konsistent. | offen | ausstehend | Umsetzung in [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) durchführen; `--rotate-ip-salt` und externe Config-Abhängigkeit dort zurückbauen. |
+| Doku & Tracking | Restluecken werden in ISS-010 gepflegt; ISS-005 referenziert diese Matrix. | entschieden | in Arbeit | Bei Statuswechseln konsistent nachziehen. |
+| DoD | P1-D ist erst abgeschlossen, wenn Entscheidungen umgesetzt/nachweisbar sind. | entschieden | ausstehend | Konkrete Nachweislinks pro Testlauf sammeln. |
 
-## P1-D Testmatrix (Entwurf)
-| Bereich | Ziel | Nachweis/Schritt | Status |
-| --- | --- | --- | --- |
-| Vertrags-Tests | Config-Regeln je Pipeline-Phase valide | `php bin/cli config lint <pipeline>` (alle relevanten Pipelines/Phasen) | open |
-| Build-Tests | Preview-Build reproduzierbar mit Fixtures | `php bin/cli setup preview` + `php bin/cli build preview` | open |
-| Runtime-Tests | Fachlogik mit Preview-Runtime laeuft | `composer run test` plus pipeline-relevante Feature-Pruefungen | open |
-| Deploy-Artefakt | Paket ist runtime-vollstaendig | Artefakt-Checks inkl. erwarteter Dateien/Config | open |
-| Pre-Deploy-Smoke | HTTP-Basischeck vor FTP-Deploy | Smoke-Schritt im Workflow vor FTP | open |
-| Post-Deploy-Smoke | Zielsystem antwortet korrekt | `curl` gegen Preview-URL (`/`, `/cv`, `/contact`) | deferred |
+## P1-D Testmatrix (Entwurf, Finalisierung nach ISS-011 und ISS-012)
+| Bereich | Ziel | Nachweis/Schritt | Status | Abhaengigkeit |
+| --- | --- | --- | --- | --- |
+| Vertrags-Tests | Config-Regeln je Pipeline-Phase valide | `php bin/cli config lint <pipeline>` (alle relevanten Pipelines/Phasen) | offen | - |
+| Build-Tests | Preview-Build reproduzierbar mit Fixtures | `php bin/cli setup preview` + `php bin/cli build preview` | offen | - |
+| Runtime-Tests | Fachlogik mit Preview-Runtime laeuft | `composer run test` plus pipeline-relevante Feature-Pruefungen | blockiert | [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md), [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) |
+| Deploy-Artefakt | Paket ist runtime-vollstaendig | Artefakt-Checks inkl. erwarteter Dateien/Config | offen | - |
+| Pre-Deploy-Smoke | HTTP-Basischeck vor FTP-Deploy | Smoke-Schritt im Workflow vor FTP | offen | - |
+| Post-Deploy-Smoke | Zielsystem antwortet korrekt | `curl` gegen Preview-URL (`/`, `/cv`, `/contact`) | vertagt | - |
 
 ## Akzeptanzkriterien
-- Fuer alle Zeilen der Entscheidungstabelle ist ein Status gepflegt (`done`, `deferred`, `open` mit Begruendung).
+- Fuer alle Zeilen der Entscheidungstabelle sind `Entscheidungsstatus` und `Umsetzungsstatus` gepflegt (`entschieden`, `offen`, `vertagt` bzw. `umgesetzt`, `in Arbeit`, `ausstehend`).
 - Es gibt eine verbindliche Testmatrix fuer Build/Runtime/Deploy-Smoke inkl. Nachweis-Kommandos.
+- Blockierungen in der Testmatrix sind mit Folge-Issues markiert.
 - ISS-005 verweist auf diese Issue als Voraussetzung fuer P1-D-Abschluss.
 - Restluecken sind mit klaren Folge-Issues oder bewusster Verschiebung dokumentiert.
 

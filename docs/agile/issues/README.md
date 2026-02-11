@@ -20,7 +20,7 @@
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen (neu)
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails (neu)
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md): Runtime-Concurrency und atomare Dateizugriffe (neu)
-- [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md): SFTP-Verwaltungs-Skripte nach `feature/preview` (neu)
+- [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md): FTP/FTPS-Verwaltungs-Skripte nach `feature/preview` (neu)
 - [STY-002](STY-002-i18n-seitenvorlagen-und-templates.md): i18n fuer Seitenvorlagen und Template-Texte (neu)
 
 ## Derzeit nicht im App-Planning
@@ -42,7 +42,7 @@
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) -> [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md)
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
-- [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md) -> [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md)
+- [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md) -> [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-006](ISS-006-cli-ux-config-missing-and-pipeline-phase.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-007](ISS-007-conditional-config-validation.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-008](ISS-008-i18n-cli-runtime-messages-app-und-config-lib.md)

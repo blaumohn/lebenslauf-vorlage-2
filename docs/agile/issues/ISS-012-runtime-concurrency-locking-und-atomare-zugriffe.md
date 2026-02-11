@@ -34,7 +34,7 @@
   - kurze Betriebsnotiz, welche Runtime-Bereiche gelockt sind und warum.
 
 ## Nicht im Scope
-- SFTP-Remote-Verwaltung (eigene Folge-Issue).
+- FTP/FTPS-Remote-Verwaltung (eigene Folge-Issue).
 - Allgemeines Refactoring ausserhalb der betroffenen I/O-Pfade.
 
 ## Akzeptanzkriterien
@@ -51,4 +51,4 @@
 - Wirkt auf:
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - Folge-Issue:
-  - [ISS-013](ISS-013-sftp-verwaltungs-skripte-fuer-preview-betrieb.md) (nachgelagert, nicht blockierend fuer ISS-005)
+  - [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md) (nachgelagert, nicht blockierend fuer ISS-005)
