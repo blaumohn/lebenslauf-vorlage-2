@@ -8,6 +8,7 @@
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen fuer Preview-Workflow
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails umsetzen
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md): Runtime-Concurrency und atomare Dateizugriffe haerten
+- [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md): App-interne technische Konstanten fuer Pfade/Runtime-Schluessel vereinheitlichen
 
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md): Qualitaetsrahmen fuer App und Config-Lib
 - [ISS-002](ISS-002-preview-system-source-readiness.md): System-Source-Readiness (Basis gelegt, Split aktiv)
@@ -20,6 +21,7 @@
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen (neu)
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails (neu)
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md): Runtime-Concurrency und atomare Dateizugriffe (neu)
+- [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md): App-interne technische Konstanten fuer Pfade/Runtime-Schluessel (neu)
 - [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md): FTP/FTPS-Verwaltungs-Skripte nach `feature/preview` (neu)
 - [STY-002](STY-002-i18n-seitenvorlagen-und-templates.md): i18n fuer Seitenvorlagen und Template-Texte (neu)
 
@@ -42,6 +44,9 @@
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) -> [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md)
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) -> [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
+- [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md)
+- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) -> [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md)
+- [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md) -> [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md)
 - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md) -> [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-006](ISS-006-cli-ux-config-missing-and-pipeline-phase.md)
 - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md) -> [ISS-007](ISS-007-conditional-config-validation.md)

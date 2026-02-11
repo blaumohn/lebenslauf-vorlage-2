@@ -20,6 +20,7 @@
 - [ISS-003](ISS-003-phase-rules-typing-and-clarity.md): Befundliste von Risikomustern und Qualitaetsdefiziten fuer App + Config-Lib erstellen.
 - [ISS-004](ISS-004-dev-branch-foundation-and-repo-hygiene.md): `dev`-Baseline und Repo-Hygiene stabilisieren (Done: 2026-02-04).
 - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md): Preview-Workflow nach Stabilisierung wieder aktivieren.
+- [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md): App-interne technische Konstanten fuer Pfade und Runtime-Schluessel vereinheitlichen.
 
 ## Backlog-Folgearbeit
 - [BLC-004](../backlog/items/BLC-004-pipeline-phase-terminologie-repo-weit.md): Terminologie `Pipeline-Phase` repo-weit vereinheitlichen.
