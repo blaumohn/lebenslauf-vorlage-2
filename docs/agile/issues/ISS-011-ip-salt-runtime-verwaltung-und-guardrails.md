@@ -23,6 +23,9 @@
 - [Anlage: ISS-011/ISS-012 Näherung und Commit-Folge](ISS-011-012-anlage-naeherung-und-commitfolge.md)
 
 ## Scope
+- Architekturrahmen gemaess Anlage:
+  - Komposition mit `LockRunner`, `AtomicWriter`, `StateReader/StateValidator`, `ResetExecutor` (mindestens fuer `IP_SALT`).
+  - Trigger-/Policy-Muster (`TriggerReason`, `DecisionPolicy`, `ActionPlan`) minimal fuer `IP_SALT` anwenden.
 - Runtime-Guardrails:
   - Salt-Datei atomisch schreiben (`tmp` + `rename`).
   - Parallelen Zugriff mit Dateilock absichern.

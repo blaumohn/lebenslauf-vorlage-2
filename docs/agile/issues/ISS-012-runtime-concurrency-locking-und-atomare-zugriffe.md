@@ -26,6 +26,9 @@
 
 ## Scope
 - Einfuehrung von `symfony/lock` fuer Runtime-Dateizugriffe.
+- Architekturrahmen gemaess Anlage flaechig ausrollen:
+  - Komposition mit `LockRunner`, `AtomicWriter`, `StateReader/StateValidator`, `ResetExecutor`.
+  - Trigger-/Policy-Muster (`TriggerReason`, `DecisionPolicy`, `ActionPlan`) konsistent je Verwalter anwenden.
 - Lock-Strategie festlegen:
   - schluesselbezogene Locks fuer Rate-Limit und CAPTCHA-Verify.
   - profilbezogene Locks fuer Token-Rotation.
