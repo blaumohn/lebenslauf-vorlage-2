@@ -19,6 +19,9 @@
 - Fehlt der Salt oder passt der Fingerprint nicht, erzeugt Runtime einen neuen Salt und bereinigt denselben Schritt konsistent für IP-bezogenen State.
 - Externe `IP_SALT`-Pflichten und `--rotate-ip-salt` werden im gleichen Umsetzungsschritt entfernt.
 
+## Ergänzende Doku
+- [Anlage: ISS-011/ISS-012 Näherung und Commit-Folge](ISS-011-012-anlage-naeherung-und-commitfolge.md)
+
 ## Scope
 - Runtime-Guardrails:
   - Salt-Datei atomisch schreiben (`tmp` + `rename`).

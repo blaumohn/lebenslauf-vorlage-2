@@ -20,6 +20,10 @@
 - Locking wird einheitlich ueber `symfony/lock` umgesetzt.
 - Read-Modify-Write-Operationen werden pro Schluessel/Datei sauber serialisiert.
 
+## Ergaenzende Doku
+- [Anlage: Verwalter-Programmfluss und Betriebsvergleich](ISS-012-anlage-verwalter-programmfluss-und-betriebsvergleich.md)
+- [Anlage: ISS-011/ISS-012 Näherung und Commit-Folge](ISS-011-012-anlage-naeherung-und-commitfolge.md)
+
 ## Scope
 - Einfuehrung von `symfony/lock` fuer Runtime-Dateizugriffe.
 - Lock-Strategie festlegen:
