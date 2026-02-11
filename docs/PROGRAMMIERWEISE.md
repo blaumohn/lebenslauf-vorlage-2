@@ -24,6 +24,11 @@ Technische Konstanten sollen Duplikate vermeiden und den Produktionscode klar ha
 - Refactors in `src/` werden durch Produktionsnutzen begründet, nicht durch Test-Bequemlichkeit.
 - Falls nur Tests betroffen sind und kein Produktionsnutzen entsteht, bleibt die Konstante lokal.
 
+## Branch-Namen
+- Branch-Namen sind auf Englisch zu vergeben.
+- Empfohlenes Muster: `type/scope-short-description`.
+- Beispiel: `feature/docs-app-programming-guidelines`.
+
 ### Beispiel
 ```php
 final class IpSaltPaths
