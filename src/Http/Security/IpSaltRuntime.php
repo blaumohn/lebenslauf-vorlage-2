@@ -38,33 +38,44 @@ final class IpSaltRuntime
     public function resolveSalt(): string
     {
         $result = $this->lockRunner->runWithLock(self::LOCK_KEY, [$this, 'resolveSaltLocked']);
-        return $this->requireString($result, 'resolveSalt');
+        return $this->requireSalt($result, 'resolveSalt');
     }
 
     public function resetSalt(): string
     {
         $result = $this->lockRunner->runWithLock(self::LOCK_KEY, [$this, 'resetSaltLocked']);
-        return $this->requireString($result, 'resetSalt');
-    }
-
-    private function requireString(mixed $value, string $method): string
-    {
-        if (is_string($value) && $value !== '') {
-            return $value;
-        }
-        throw new \RuntimeException("Ungueltiges Ergebnis fuer {$method}.");
+        return $this->requireSalt($result, 'resetSalt');
     }
 
     public function resolveSaltLocked(): string
     {
         $state = $this->stateReader->readState();
-        $reason = $this->decisionPolicy->decideForResolve($state);
-        return $this->actionPlan->execute($reason, $state->salt());
+        $reason = $this->decideResolveReason($state);
+        $next = $this->actionPlan->execute($reason, $state);
+        return $this->requireSalt($next->salt(), 'resolveSaltLocked');
     }
 
     public function resetSaltLocked(): string
     {
+        $state = $this->stateReader->readState();
         $reason = $this->decisionPolicy->decideForReset();
-        return $this->actionPlan->execute($reason, null);
+        $next = $this->actionPlan->execute($reason, $state);
+        return $this->requireSalt($next->salt(), 'resetSaltLocked');
+    }
+
+    private function decideResolveReason(IpSaltState $state): TriggerReason
+    {
+        if (!$state->hasReadyMarker()) {
+            return TriggerReason::MISSING;
+        }
+        return $this->decisionPolicy->decideForResolve($state);
+    }
+
+    private function requireSalt(mixed $value, string $method): string
+    {
+        if (is_string($value) && $value !== '') {
+            return $value;
+        }
+        throw new \RuntimeException("Ungueltiges Ergebnis fuer {$method}.");
     }
 }

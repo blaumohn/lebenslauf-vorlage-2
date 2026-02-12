@@ -8,29 +8,29 @@ use Symfony\Component\Lock\Store\FlockStore;
 final class RuntimeLockRunner
 {
     private string $lockDir;
+    private int $timeoutMs;
+    private int $pollIntervalMs;
 
-    public function __construct(string $lockDir)
+    public function __construct(string $lockDir, int $timeoutMs = 300, int $pollIntervalMs = 25)
     {
         $this->lockDir = rtrim($lockDir, DIRECTORY_SEPARATOR);
+        $this->timeoutMs = $this->requirePositiveMs($timeoutMs, 'timeoutMs');
+        $this->pollIntervalMs = $this->requirePositiveMs($pollIntervalMs, 'pollIntervalMs');
     }
 
     public function runWithLock(string $key, callable $operation): mixed
     {
+        $this->assertSymfonyLockAvailable();
         $normalizedKey = $this->normalizeKey($key);
-        if ($this->canUseSymfonyLock()) {
-            $result = $this->runWithSymfonyLock($normalizedKey, $operation);
-            return $result;
-        }
-        $result = $this->runWithFileLock($normalizedKey, $operation);
+        $result = $this->runWithSymfonyLock($normalizedKey, $operation);
         return $result;
     }
 
-    private function canUseSymfonyLock(): bool
+    private function assertSymfonyLockAvailable(): void
     {
-        if (!class_exists(FlockStore::class)) {
-            return false;
+        if (!class_exists(FlockStore::class) || !class_exists(LockFactory::class)) {
+            throw new \RuntimeException('symfony/lock ist erforderlich, aber nicht verfuegbar.');
         }
-        return class_exists(LockFactory::class);
     }
 
     private function runWithSymfonyLock(string $key, callable $operation): mixed
@@ -39,35 +39,28 @@ final class RuntimeLockRunner
         $store = new FlockStore($this->lockDir);
         $factory = new LockFactory($store);
         $lock = $factory->createLock($key);
-        if (!$lock->acquire(true)) {
-            throw new \RuntimeException("Lock konnte nicht gesetzt werden: {$key}");
-        }
+        $this->acquireWithTimeout($lock, $key);
         try {
             $result = $operation();
             return $result;
         } finally {
-            $lock->release();
+            if ($lock->isAcquired()) {
+                $lock->release();
+            }
         }
     }
 
-    private function runWithFileLock(string $key, callable $operation): mixed
+    private function acquireWithTimeout(object $lock, string $key): void
     {
-        $this->ensureDir($this->lockDir);
-        $path = $this->lockPath($key);
-        $handle = fopen($path, 'c');
-        if ($handle === false) {
-            throw new \RuntimeException("Lock-Datei konnte nicht geoeffnet werden: {$path}");
-        }
-        if (!@flock($handle, LOCK_EX)) {
-            fclose($handle);
-            throw new \RuntimeException("Lock konnte nicht gesetzt werden: {$key}");
-        }
-        try {
-            $result = $operation();
-            return $result;
-        } finally {
-            @flock($handle, LOCK_UN);
-            fclose($handle);
+        $deadline = microtime(true) + ($this->timeoutMs / 1000);
+        while (true) {
+            if ($lock->acquire(false)) {
+                return;
+            }
+            if (microtime(true) >= $deadline) {
+                throw new \RuntimeException("Lock-Timeout nach {$this->timeoutMs}ms: {$key}");
+            }
+            usleep($this->pollIntervalMs * 1000);
         }
     }
 
@@ -91,8 +84,11 @@ final class RuntimeLockRunner
         throw new \RuntimeException("Lock-Verzeichnis fehlt: {$dir}");
     }
 
-    private function lockPath(string $key): string
+    private function requirePositiveMs(int $value, string $field): int
     {
-        return $this->lockDir . DIRECTORY_SEPARATOR . $key . '.lock';
+        if ($value > 0) {
+            return $value;
+        }
+        throw new \RuntimeException("Ungueltiger Wert fuer {$field}: {$value}");
     }
 }

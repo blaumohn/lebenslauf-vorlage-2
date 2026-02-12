@@ -11,11 +11,13 @@ final class IpSaltActionPlan
         $this->resetExecutor = $resetExecutor;
     }
 
-    public function execute(TriggerReason $reason, ?string $existingSalt): string
+    public function execute(TriggerReason $reason, IpSaltState $state): IpSaltState
     {
-        if ($reason === TriggerReason::CLEAN && is_string($existingSalt) && $existingSalt !== '') {
-            return $existingSalt;
+        if ($reason === TriggerReason::CLEAN) {
+            return $state;
         }
-        return $this->resetExecutor->rotateAndClear();
+        $inProgress = $this->resetExecutor->markInProgress($state);
+        $ready = $this->resetExecutor->rotateAndClear($inProgress);
+        return $ready;
     }
 }

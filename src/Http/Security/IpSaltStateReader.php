@@ -6,6 +6,8 @@ use App\Http\Storage\FileStorage;
 
 final class IpSaltStateReader
 {
+    private const STATE_FILE = 'ip_salt.state.json';
+
     private FileStorage $storage;
     private string $stateDir;
 
@@ -17,31 +19,69 @@ final class IpSaltStateReader
 
     public function readState(): IpSaltState
     {
-        $salt = $this->readTrimmed($this->saltPath());
-        $fingerprint = $this->readTrimmed($this->fingerprintPath());
-        return new IpSaltState($salt, $fingerprint);
+        $raw = $this->storage->readText($this->statePath());
+        if ($raw === null) {
+            return $this->emptyState();
+        }
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return $this->emptyState();
+        }
+        $salt = $this->readStringField($decoded, 'salt');
+        $fingerprint = $this->readStringField($decoded, 'fingerprint');
+        $status = $this->readStatus($decoded);
+        $generation = $this->readGeneration($decoded);
+        return new IpSaltState($salt, $fingerprint, $status, $generation);
     }
 
-    private function readTrimmed(string $path): ?string
+    private function readStringField(array $payload, string $key): ?string
     {
-        $content = $this->storage->readText($path);
-        if ($content === null) {
+        $value = $payload[$key] ?? null;
+        if (!is_string($value)) {
             return null;
         }
-        $value = trim($content);
+        $value = trim($value);
         if ($value === '') {
             return null;
         }
         return $value;
     }
 
-    private function saltPath(): string
+    private function readStatus(array $payload): ?string
     {
-        return $this->stateDir . DIRECTORY_SEPARATOR . 'ip_salt.txt';
+        $status = $this->readStringField($payload, 'status');
+        if ($status === IpSaltState::STATUS_IN_PROGRESS) {
+            return $status;
+        }
+        if ($status === IpSaltState::STATUS_READY) {
+            return $status;
+        }
+        return null;
     }
 
-    private function fingerprintPath(): string
+    private function readGeneration(array $payload): int
     {
-        return $this->stateDir . DIRECTORY_SEPARATOR . 'ip_salt.fingerprint';
+        $value = $payload['generation'] ?? null;
+        if (is_int($value) && $value > 0) {
+            return $value;
+        }
+        if (!is_string($value) || !ctype_digit($value)) {
+            return 0;
+        }
+        $parsed = (int) $value;
+        if ($parsed > 0) {
+            return $parsed;
+        }
+        return 0;
+    }
+
+    private function emptyState(): IpSaltState
+    {
+        return new IpSaltState(null, null, null, 0);
+    }
+
+    private function statePath(): string
+    {
+        return $this->stateDir . DIRECTORY_SEPARATOR . self::STATE_FILE;
     }
 }

@@ -26,18 +26,25 @@ final class IpSaltRuntimeTest extends TestCase
         $this->removeDir($this->root);
     }
 
-    public function testResolveSaltCreatesStateAndClearsIpFiles(): void
+    public function testResolveSaltCreatesUnifiedStateAndClearsIpFiles(): void
     {
         $this->writeIpFixtures();
         $runtime = $this->runtime();
         $salt = $runtime->resolveSalt();
+        $state = $this->readStatePayload();
 
         $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $salt);
-        $this->assertFileExists($this->saltPath());
-        $this->assertFileExists($this->fingerprintPath());
+        $this->assertFileExists($this->statePath());
+        $this->assertSame($salt, $state['salt']);
+        $this->assertSame(hash('sha256', 'ip-salt:' . $salt), $state['fingerprint']);
+        $this->assertSame('READY', $state['status']);
+        $this->assertSame(1, $state['generation']);
+        $this->assertArrayHasKey('updated_at', $state);
+        $this->assertFileDoesNotExist($this->stateDir() . '/ip_salt.txt');
+        $this->assertFileDoesNotExist($this->stateDir() . '/ip_salt.fingerprint');
+        $this->assertFileDoesNotExist($this->stateDir() . '/ip_salt.marker.json');
         $this->assertIpDirsEmpty();
-        $this->assertSecureFileMode($this->saltPath());
-        $this->assertSecureFileMode($this->fingerprintPath());
+        $this->assertSecureFileMode($this->statePath());
     }
 
     public function testResolveSaltRotatesWhenFingerprintMismatch(): void
@@ -45,26 +52,49 @@ final class IpSaltRuntimeTest extends TestCase
         $runtime = $this->runtime();
         $first = $runtime->resolveSalt();
         $this->writeIpFixtures();
-        file_put_contents($this->fingerprintPath(), "broken\n");
+        $state = $this->readStatePayload();
+        $state['fingerprint'] = 'broken';
+        $this->writeStatePayload($state);
 
         $second = $runtime->resolveSalt();
+        $next = $this->readStatePayload();
 
         $this->assertNotSame($first, $second);
+        $this->assertSame('READY', $next['status']);
+        $this->assertSame(2, $next['generation']);
         $this->assertIpDirsEmpty();
     }
 
-    public function testResetSaltAlwaysRotatesAndClearsIpFiles(): void
+    public function testResetSaltAlwaysRotatesAndKeepsStableAfterwards(): void
     {
         $runtime = $this->runtime();
         $first = $runtime->resolveSalt();
         $this->writeIpFixtures();
-
         $second = $runtime->resetSalt();
         $third = $runtime->resolveSalt();
+        $state = $this->readStatePayload();
 
         $this->assertNotSame($first, $second);
         $this->assertSame($second, $third);
+        $this->assertSame(2, $state['generation']);
+        $this->assertSame('READY', $state['status']);
         $this->assertIpDirsEmpty();
+    }
+
+    public function testResolveSaltRecoversFromInProgressState(): void
+    {
+        $runtime = $this->runtime();
+        $first = $runtime->resolveSalt();
+        $state = $this->readStatePayload();
+        $state['status'] = 'IN_PROGRESS';
+        $this->writeStatePayload($state);
+
+        $second = $runtime->resolveSalt();
+        $next = $this->readStatePayload();
+
+        $this->assertNotSame($first, $second);
+        $this->assertSame('READY', $next['status']);
+        $this->assertSame(2, $next['generation']);
     }
 
     private function runtime(): IpSaltRuntime
@@ -82,21 +112,27 @@ final class IpSaltRuntimeTest extends TestCase
         );
     }
 
-    private function createTempRoot(): string
+    private function readStatePayload(): array
     {
-        $suffix = '/ip-salt-runtime-' . bin2hex(random_bytes(6));
-        $root = sys_get_temp_dir() . $suffix;
-        if (@mkdir($root, 0775, true)) {
-            return $root;
+        $raw = file_get_contents($this->statePath());
+        if (!is_string($raw)) {
+            throw new RuntimeException('State-Datei konnte nicht gelesen werden.');
         }
-
-        $fallback = dirname(__DIR__, 2) . '/var/tmp';
-        $root = $fallback . $suffix;
-        if (@mkdir($root, 0775, true)) {
-            return $root;
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            return $decoded;
         }
+        throw new RuntimeException('State-Datei hat ungueltiges JSON.');
+    }
 
-        throw new RuntimeException('Konnte Test-Verzeichnis nicht anlegen: ' . $root);
+    private function writeStatePayload(array $payload): void
+    {
+        $payload['updated_at'] = gmdate('c');
+        $encoded = json_encode($payload);
+        if (!is_string($encoded)) {
+            throw new RuntimeException('State-Datei konnte nicht geschrieben werden.');
+        }
+        file_put_contents($this->statePath(), $encoded . "\n");
     }
 
     private function writeIpFixtures(): void
@@ -140,6 +176,21 @@ final class IpSaltRuntimeTest extends TestCase
         $this->assertSame(0600, $mode);
     }
 
+    private function createTempRoot(): string
+    {
+        $suffix = '/ip-salt-runtime-' . bin2hex(random_bytes(6));
+        $root = sys_get_temp_dir() . $suffix;
+        if (@mkdir($root, 0775, true)) {
+            return $root;
+        }
+        $fallback = dirname(__DIR__, 2) . '/var/tmp';
+        $root = $fallback . $suffix;
+        if (@mkdir($root, 0775, true)) {
+            return $root;
+        }
+        throw new RuntimeException('Konnte Test-Verzeichnis nicht anlegen: ' . $root);
+    }
+
     private function stateDir(): string
     {
         return $this->root . '/var/state';
@@ -160,14 +211,9 @@ final class IpSaltRuntimeTest extends TestCase
         return $this->root . '/var/state/locks';
     }
 
-    private function saltPath(): string
+    private function statePath(): string
     {
-        return $this->stateDir() . '/ip_salt.txt';
-    }
-
-    private function fingerprintPath(): string
-    {
-        return $this->stateDir() . '/ip_salt.fingerprint';
+        return $this->stateDir() . '/ip_salt.state.json';
     }
 
     private function ensureDir(string $path): void

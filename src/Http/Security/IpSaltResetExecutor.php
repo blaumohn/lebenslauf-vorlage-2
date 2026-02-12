@@ -4,6 +4,8 @@ namespace App\Http\Security;
 
 final class IpSaltResetExecutor
 {
+    private const STATE_FILE = 'ip_salt.state.json';
+
     private RuntimeAtomicWriter $writer;
     private IpSaltStateValidator $validator;
     private string $stateDir;
@@ -24,14 +26,27 @@ final class IpSaltResetExecutor
         $this->rateLimitDir = rtrim($rateLimitDir, DIRECTORY_SEPARATOR);
     }
 
-    public function rotateAndClear(): string
+    public function markInProgress(IpSaltState $state): IpSaltState
     {
+        $next = $state->withMarker(IpSaltState::STATUS_IN_PROGRESS, $state->nextGeneration());
+        $this->writeState($next);
+        return $next;
+    }
+
+    public function rotateAndClear(IpSaltState $state): IpSaltState
+    {
+        $this->assertInProgressState($state);
         $salt = $this->generateSalt();
         $fingerprint = $this->validator->fingerprintFor($salt);
-        $this->writer->writeText($this->saltPath(), $salt . "\n");
-        $this->writer->writeText($this->fingerprintPath(), $fingerprint . "\n");
         $this->clearIpState();
-        return $salt;
+        $ready = new IpSaltState(
+            $salt,
+            $fingerprint,
+            IpSaltState::STATUS_READY,
+            $state->generation()
+        );
+        $this->writeState($ready);
+        return $ready;
     }
 
     private function generateSalt(): string
@@ -69,13 +84,40 @@ final class IpSaltResetExecutor
         }
     }
 
-    private function saltPath(): string
+    private function writeState(IpSaltState $state): void
     {
-        return $this->stateDir . DIRECTORY_SEPARATOR . 'ip_salt.txt';
+        $payload = $this->buildStatePayload($state);
+        $encoded = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        if (!is_string($encoded)) {
+            throw new \RuntimeException('IP-Salt-State konnte nicht serialisiert werden.');
+        }
+        $this->writer->writeText($this->statePath(), $encoded . "\n");
     }
 
-    private function fingerprintPath(): string
+    private function buildStatePayload(IpSaltState $state): array
     {
-        return $this->stateDir . DIRECTORY_SEPARATOR . 'ip_salt.fingerprint';
+        return [
+            'salt' => $state->salt(),
+            'fingerprint' => $state->fingerprint(),
+            'status' => $state->status(),
+            'generation' => $state->generation(),
+            'updated_at' => gmdate('c'),
+        ];
+    }
+
+    private function assertInProgressState(IpSaltState $state): void
+    {
+        if ($state->status() !== IpSaltState::STATUS_IN_PROGRESS) {
+            throw new \RuntimeException('IP-Salt-State ist nicht IN_PROGRESS.');
+        }
+        if ($state->generation() > 0) {
+            return;
+        }
+        throw new \RuntimeException('IP-Salt-State hat keine gueltige Generation.');
+    }
+
+    private function statePath(): string
+    {
+        return $this->stateDir . DIRECTORY_SEPARATOR . self::STATE_FILE;
     }
 }
