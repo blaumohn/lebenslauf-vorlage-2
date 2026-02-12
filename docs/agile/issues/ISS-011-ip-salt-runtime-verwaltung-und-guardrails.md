@@ -32,16 +32,15 @@
 - Betriebswege umgesetzt:
   - Expliziter Reset-Befehl `php bin/cli ip-hash reset`.
   - `--rotate-ip-salt` aus Setup entfernt.
-- Config-/Migrationspfad umgesetzt:
-  - `IP_SALT` ist in aktiven Runtime-Phasen kein Pflichtwert.
-  - Legacy-Werte sind nur noch als Übergang dokumentiert.
+- Config-Pfad umgesetzt:
+  - `IP_SALT` ist vollständig aus aktiven Runtime-Konfigurationen entfernt.
 
 ## Akzeptanzkriterien (alle erfüllt)
 - [x] Runtime kann ohne externen `IP_SALT` stabil starten und denselben Salt wiederverwenden.
 - [x] Bei inkonsistentem Zustand (z. B. Mismatch/abgebrochener Lauf) wird Salt rotiert und IP-bezogener State im gleichen Lauf bereinigt.
 - [x] `--rotate-ip-salt` ist aus Setup-/Deploy-Pfaden entfernt.
-- [x] `IP_SALT` ist kein regulärer Pflicht-/Override-Key in aktiven Betriebsconfigs mehr (nur Legacy-Übergang).
-- [x] Dokumentation beschreibt Betriebsmodus, Reset-Befehl und Migrationspfad.
+- [x] `IP_SALT` ist kein regulärer Pflicht-/Override-Key in aktiven Betriebsconfigs mehr.
+- [x] Dokumentation beschreibt Betriebsmodus und Reset-Befehl ohne Legacy-Pfad.
 - [x] Testnachweise für Erfolgs- und Fehlerpfade liegen vor.
 
 ## Nicht im Scope (bewusst unverändert)
