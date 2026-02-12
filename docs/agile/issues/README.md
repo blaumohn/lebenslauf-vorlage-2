@@ -1,4 +1,4 @@
-# Issue-Plan (Stand 2026-02-10)
+# Issue-Plan (Stand 2026-02-12)
 
 ## Ueberblick
 
@@ -6,7 +6,6 @@
 
 - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md): Preview-Workflow aus `dev` wieder aktivieren
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen fuer Preview-Workflow
-- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails umsetzen
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md): Runtime-Concurrency und atomare Dateizugriffe haerten
 - [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md): App-interne technische Konstanten fuer Pfade/Runtime-Schluessel vereinheitlichen
 
@@ -19,7 +18,7 @@
 - [ISS-007](ISS-007-conditional-config-validation.md): Konditionelle Config-Validierung (neu)
 - [ISS-008](ISS-008-i18n-cli-runtime-messages-app-und-config-lib.md): i18n fuer CLI- und Runtime-Nachrichten (neu)
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md): P1-D Testmatrix und offene Entscheidungen (neu)
-- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails (neu)
+- [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md): `IP_SALT` runtime-intern verwalten und Guardrails (erledigt am 2026-02-12)
 - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md): Runtime-Concurrency und atomare Dateizugriffe (neu)
 - [ISS-014](ISS-014-app-interne-konstanten-fuer-pfade-und-runtime-schluessel.md): App-interne technische Konstanten fuer Pfade/Runtime-Schluessel (neu)
 - [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md): FTP/FTPS-Verwaltungs-Skripte nach `feature/preview` (neu)

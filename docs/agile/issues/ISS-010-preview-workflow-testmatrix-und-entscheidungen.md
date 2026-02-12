@@ -92,16 +92,16 @@
 | FTP-Preflight | Vor Deploy separater Preflight (inkl. dry-run) ist vorgesehen. | entschieden | in Arbeit | Konkrete Action-Parameter final eintragen. |
 | SMTP bei `MAIL_STDOUT=0` | MVP: Bei `MAIL_STDOUT=0` sind Verbindungscheck, Auth, SMTP-`250` und DNS-/Mail-Identitaetschecks (SPF, DKIM/DMARC, PTR/rDNS, HELO/EHLO) verpflichtend; ohne Konto-Beteiligung. | entschieden | ausstehend | Workflow-Checks verankern; konto-basierte Empfangspruefung als Erweiterung ueber [BLC-005](../backlog/items/BLC-005-smtp-empfangsnachweis-mit-konto-beteiligung.md) nachziehen. |
 | Kosten/CI-Ressourcen | Service-Container (z. B. Mailpit) sind optional, nicht zwingend fuer P1-D. | vertagt | ausstehend | Aufwand/Kosten bei Bedarf gesondert bewerten. |
-| `IP_SALT`-Strategie | `IP_SALT` ist runtime-intern (`var/state`): fehlt Salt oder passt der Fingerprint nicht, rotiert Runtime und bereinigt IP-State konsistent. | offen | ausstehend | Umsetzung in [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) durchführen; `--rotate-ip-salt` und externe Config-Abhängigkeit dort zurückbauen. |
+| `IP_SALT`-Strategie | `IP_SALT` ist runtime-intern (`var/state`): fehlt Salt oder passt der Fingerprint nicht, rotiert Runtime und bereinigt IP-State konsistent. | entschieden | umgesetzt | In [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) umgesetzt (abgeschlossen am 2026-02-12). |
 | Doku & Tracking | Restluecken werden in ISS-010 gepflegt; ISS-005 referenziert diese Matrix. | entschieden | in Arbeit | Bei Statuswechseln konsistent nachziehen. |
 | DoD | P1-D ist erst abgeschlossen, wenn Entscheidungen umgesetzt/nachweisbar sind. | entschieden | ausstehend | Konkrete Nachweislinks pro Testlauf sammeln. |
 
-## P1-D Testmatrix (Entwurf, Finalisierung nach ISS-011 und ISS-012)
+## P1-D Testmatrix (Entwurf, Finalisierung nach ISS-012)
 | Bereich | Ziel | Nachweis/Schritt | Status | Abhaengigkeit |
 | --- | --- | --- | --- | --- |
 | Vertrags-Tests | Config-Regeln je Pipeline-Phase valide | `php bin/cli config lint <pipeline>` (alle relevanten Pipelines/Phasen) | offen | - |
 | Build-Tests | Preview-Build reproduzierbar mit Fixtures | `php bin/cli setup preview` + `php bin/cli build preview` | offen | - |
-| Runtime-Tests | Fachlogik mit Preview-Runtime laeuft | `composer run test` plus pipeline-relevante Feature-Pruefungen | blockiert | [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md), [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) |
+| Runtime-Tests | Fachlogik mit Preview-Runtime laeuft | `composer run test` plus pipeline-relevante Feature-Pruefungen | blockiert | [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) |
 | Deploy-Artefakt | Paket ist runtime-vollstaendig | Artefakt-Checks inkl. erwarteter Dateien/Config | offen | - |
 | Pre-Deploy-Smoke | HTTP-Basischeck vor FTP-Deploy | Smoke-Schritt im Workflow vor FTP | offen | - |
 | Post-Deploy-Smoke | Zielsystem antwortet korrekt | `curl` gegen Preview-URL (`/`, `/cv`, `/contact`) | vertagt | - |
@@ -117,6 +117,6 @@
 - Story-Kontext:
   - [STY-001](STY-001-qualitaetsrahmen-repo-app-und-config-lib.md)
 - Folge-Issue:
-  - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) (`IP_SALT` Runtime-Verwaltung)
+  - [ISS-011](ISS-011-ip-salt-runtime-verwaltung-und-guardrails.md) (`IP_SALT` Runtime-Verwaltung, erledigt am 2026-02-12)
 - Wirkt auf:
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
