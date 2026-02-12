@@ -68,14 +68,6 @@ variables:
         desc: "Absendername fuer SMTP"
         example: "Beispiel"
 
-  security:
-    IP_SALT:
-      sources: [system, local, file]
-      meta:
-        desc: "Legacy-Wert fuer Migration; Runtime verwaltet Salt in var/state"
-        notes: "Optional fuer Uebergang. Neuer Betrieb nutzt Runtime-State statt externer Config."
-        example: "legacy-only"
-
   deploy:
     FTP_SERVER_DIR: {}
     FTP_PORT: {}
@@ -107,7 +99,7 @@ pipelines:
       allowed: [context, app, lebenslauf]
     runtime:
       required: [PIPELINE, PHASE]
-      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail, security]
+      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail]
     deploy:
       required: [PIPELINE, PHASE]
       allowed: [context, deploy]

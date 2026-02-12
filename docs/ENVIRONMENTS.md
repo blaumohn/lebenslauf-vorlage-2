@@ -69,7 +69,6 @@ Beispiele:
   - `var/tmp/captcha`
   - `var/tmp/ratelimit`
 - Bewusste Rotation erfolgt ueber `php bin/cli ip-hash reset`.
-- Alte externe `IP_SALT`-Werte sind nur noch als Uebergang fuer Migration gedacht.
 
 ## Smoke-Test-Parameter
 
