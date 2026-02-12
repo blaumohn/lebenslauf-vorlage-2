@@ -60,7 +60,11 @@ Beispiele:
 ## IP_SALT Laufzeitverwaltung
 
 - `IP_SALT` wird zur Laufzeit intern unter `var/state` verwaltet.
-- Runtime legt `var/state/ip_salt.txt` und `var/state/ip_salt.fingerprint` atomar an.
+- Runtime verwaltet den Zustand atomar in `var/state/ip_salt.state.json`.
+- Die State-Datei enthält `salt`, `fingerprint`, `status`, `generation`, `updated_at`.
+- Marker-Status:
+  - `IN_PROGRESS` während eines laufenden Reset-/Recovery-Schritts.
+  - `READY` nach erfolgreichem Abschluss.
 - Bei fehlendem Salt oder Fingerprint-Mismatch wird Salt rotiert und IP-bezogener State bereinigt:
   - `var/tmp/captcha`
   - `var/tmp/ratelimit`
