@@ -97,3 +97,32 @@ Hinweis:
 - Reviewbarkeit: hoch, da die Startsequenz getrennt nach Rahmen, Fachlogik und Migration arbeitet.
 - Hauptgefahr: Scope-Drift durch zu frühe flächige Abstraktion.
 - Gegenmaßnahme: in `ISS-011` nur minimalen Rahmen bauen und erst in `ISS-012` breit ausrollen.
+
+## Offene Nachschärfung aus Branch-Abgleich (Stand 2026-02-12)
+- `ISS-012`: Fallback von `symfony/lock` auf eigenes `flock` zurückbauen; bei fehlender Dependency Fail-Fast.
+- `ISS-012`: Lock-Erwerb mit begrenzter Wartezeit umsetzen (Polling + Timeout), nicht unbegrenzt blockieren.
+- `ISS-011`: Zusätzlichen Konsistenzmarker und Recovery-Regel für den IP-bezogenen Runtime-State festlegen.
+
+## Entscheidungsfestlegung (Vorschlag, zur Freigabe)
+Stand: 2026-02-12
+
+1. `ISS-012`: Kein Fallback von `symfony/lock` auf eigenes `flock`.
+2. `ISS-012`: Lock-Erwerb via Polling + Timeout statt unbegrenztem `acquire(true)`.
+3. `ISS-011`: Für MVP primär Konsistenzmarker + Recovery-Regel; Fingerprint ist optionaler zusätzlicher Guardrail nach MVP.
+
+### Architekturentwurf (MVP)
+- Gemeinsamer schlanker Ablauf pro Ressource:
+  - Lock erwerben.
+  - State lesen und validieren.
+  - `IN_PROGRESS` markieren.
+  - atomar schreiben.
+  - `READY` markieren.
+  - Lock freigeben.
+- Recovery:
+  - Inkonsistenter Markerzustand führt zu deterministischer Wiederherstellung unter Lock.
+
+### Risiken und Gegenmaßnahmen
+- Risiko: Zu kurzer Timeout erzeugt unnötige Fehlschläge.
+  Gegenmaßnahme: Timeout konfigurierbar halten, Startwert 300 ms, Messung und Nachjustierung.
+- Risiko: Fehlende Lock-Dependency im Setup.
+  Gegenmaßnahme: Fail-Fast mit klarer Fehlermeldung und CI-Prüfung auf Lockfile-Konsistenz.

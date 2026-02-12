@@ -59,3 +59,18 @@
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - Folge-Issue:
   - [ISS-013](ISS-013-ftp-ftps-verwaltungs-skripte-fuer-preview-betrieb.md) (nachgelagert, nicht blockierend fuer ISS-005)
+
+## Offene Punkte (Abgleich: feature/iss-011-runtime-ip-salt-management, Stand 2026-02-12)
+- Lock-Fallback auf manuelles `flock` statt strikt einheitlichem `symfony/lock`-Pfad mit Fail-Fast bei fehlender Pflicht-Abhängigkeit.
+- Unbegrenztes Warten beim Lock-Erwerb (`acquire(true)`) statt begrenzter Wartezeit mit Polling + Timeout und deterministischem Abbruch.
+
+## Entscheidungsfestlegung (Vorschlag, zur Freigabe)
+Stand: 2026-02-12
+
+- Locking bleibt einheitlich über `symfony/lock`; kein Runtime-Fallback auf eigenes `flock`.
+- Lock-Erwerb wird mit Polling + Timeout umgesetzt, nicht mit unbegrenztem Warten über `acquire(true)`.
+- MVP-Startwert für Timeout: 300 ms; bei Ablauf deterministischer Fail-Fast.
+
+### Begründung
+- Einheitliches Fehlerverhalten ist nachvollziehbarer als gemischte Lock-Pfade.
+- Begrenzte Wartezeit schützt Worker-Ressourcen und entspricht der Lock-Policy (Fail-Fast statt endlos warten).

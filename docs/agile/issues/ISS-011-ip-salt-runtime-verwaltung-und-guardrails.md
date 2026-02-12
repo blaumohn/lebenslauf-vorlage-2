@@ -64,3 +64,22 @@
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - Folge-Issue:
   - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) (flächige Runtime-Concurrency-Haertung)
+
+## Offene Punkte (Abgleich: feature/iss-011-runtime-ip-salt-management, Stand 2026-02-12)
+- Fehlender Konsistenzmarker für den IP-bezogenen Runtime-State (zusätzlich zum Salt/Fingerprint), um abgeschlossene vs. abgebrochene Reset-Läufe eindeutig zu unterscheiden.
+- Fehlende Recovery-Regel auf Basis dieses Markers (z. B. bei Neustart nach Abbruch), damit inkonsistenter Zwischenzustand deterministisch behandelt wird.
+
+## Entscheidungsfestlegung (Vorschlag, zur Freigabe)
+Stand: 2026-02-12
+
+- Für MVP ist ein Konsistenzmarker mit Recovery-Regel der primäre Stabilitätshebel für Runtime-State.
+- Der `IP_SALT`-Fingerprint wird für MVP nicht als primärer Stabilitätshebel behandelt.
+- Fingerprint kann nach MVP als zusätzlicher Guardrail erneut bewertet werden.
+
+### Entwurf: Konsistenzmodell (MVP)
+- Marker-Status mit festen Zuständen: `IN_PROGRESS`, `READY`.
+- Marker enthält mindestens: `generation`, `updated_at`.
+- Recovery-Regel: Inkonsistenter Markerzustand wird beim nächsten Lauf unter Lock deterministisch bereinigt.
+
+### Begründung
+- `var/` und `.local/` sind nicht VCS-validiert und benötigen eigene Laufzeit-Validierung für betriebswichtige Daten.
