@@ -4,56 +4,57 @@
 - Issue (Delivery/Design)
 
 ## Status
-- Offen (nächste Aufgabe)
+- Erledigt (abgeschlossen am 2026-02-12)
 
 ## Abgeleitet aus
 - [ISS-010](ISS-010-preview-workflow-testmatrix-und-entscheidungen.md) (`IP_SALT`-Strategie)
 
 ## Problem
-- `IP_SALT` wird aktuell über externe Config/CLI-Rotation mitgesteuert, obwohl es fachlich ein runtime-interner Betriebszustand ist.
-- CI-/Workflow-seitige Rotation ohne konsistente Bereinigung von IP-bezogenem State erzeugt Inkonsistenzen.
-- Die externe Pflicht-/Override-Logik für `IP_SALT` erhöht Komplexität ohne kohärenten Mehrwert.
+- `IP_SALT` war über externe Config/CLI-Rotation mitgesteuert, obwohl es fachlich ein runtime-interner Betriebszustand ist.
+- Rotation ohne konsistente Bereinigung von IP-bezogenem State konnte zu Inkonsistenzen führen.
+- Externe Pflicht-/Override-Logik für `IP_SALT` erhöhte Komplexität ohne stabilen Mehrwert.
 
-## Ziel
+## Zielbild (erreicht)
 - Runtime besitzt `IP_SALT` vollständig in `var/state`.
-- Fehlt der Salt oder passt der Fingerprint nicht, erzeugt Runtime einen neuen Salt und bereinigt denselben Schritt konsistent für IP-bezogenen State.
-- Externe `IP_SALT`-Pflichten und `--rotate-ip-salt` werden im gleichen Umsetzungsschritt entfernt.
+- Bei fehlendem/inkonsistentem Zustand wird Salt deterministisch neu erzeugt und IP-bezogener State im selben Ablauf bereinigt.
+- Setup-/Workflow-Pfade verwenden keinen `--rotate-ip-salt`-Schalter mehr; stattdessen gibt es einen expliziten Reset-Befehl.
 
-## Ergänzende Doku
-- [Anlage: ISS-011/ISS-012 Näherung und Commit-Folge](ISS-011-012-anlage-naeherung-und-commitfolge.md)
+## Umsetzungsergebnis
+- Architekturrahmen für `IP_SALT` umgesetzt:
+  - `LockRunner` mit `symfony/lock` und Fail-Fast-Timeout.
+  - `AtomicWriter` für atomare Runtime-Schreibvorgänge.
+  - `StateReader` / `StateValidator` / `ResetExecutor`.
+  - Trigger-/Policy-Modell über `TriggerReason`, `DecisionPolicy`, `ActionPlan`.
+- Konsistenzmodell umgesetzt:
+  - Ein-Datei-State unter `var/state/ip_salt.state.json`.
+  - Marker-Status `IN_PROGRESS` und `READY` inklusive `generation` und `updated_at`.
+  - Deterministische Recovery bei inkonsistentem Markerzustand unter Lock.
+- Betriebswege umgesetzt:
+  - Expliziter Reset-Befehl `php bin/cli ip-hash reset`.
+  - `--rotate-ip-salt` aus Setup entfernt.
+- Config-/Migrationspfad umgesetzt:
+  - `IP_SALT` ist in aktiven Runtime-Phasen kein Pflichtwert.
+  - Legacy-Werte sind nur noch als Übergang dokumentiert.
 
-## Scope
-- Architekturrahmen gemaess Anlage:
-  - Komposition mit `LockRunner`, `AtomicWriter`, `StateReader/StateValidator`, `ResetExecutor` (mindestens fuer `IP_SALT`).
-  - Trigger-/Policy-Muster (`TriggerReason`, `DecisionPolicy`, `ActionPlan`) minimal fuer `IP_SALT` anwenden.
-- Runtime-Guardrails:
-  - Salt-Datei atomisch schreiben (`tmp` + `rename`).
-  - Parallelen Zugriff mit Dateilock absichern.
-  - Restriktive Dateirechte für Salt-Datei setzen.
-  - Fingerprint aus dem Salt ableiten (kein separater Wahrheitswert).
-- Konsistenz bei Wechsel:
-  - Bei fehlendem Salt oder Fingerprint-Mismatch: Salt neu erzeugen.
-  - Im selben Vorgang IP-bezogenen State leeren/zurücksetzen.
-- CLI/Workflow:
-  - `--rotate-ip-salt` aus Setup-Pfaden entfernen.
-  - Expliziten Betriebsbefehl für bewussten Reset bereitstellen (z. B. `cli ip-hash reset`).
-- Config/Manifest:
-  - `IP_SALT` als regulären externen Config-Key in Betriebsconfigs zurückbauen.
-  - Einmalige Migration alter externer Werte dokumentieren.
-- Tests:
-  - Unit-/Feature-Tests für Salt-Erzeugung, Mismatch-Pfad, Bereinigung und Parallelzugriff.
+## Akzeptanzkriterien (alle erfüllt)
+- [x] Runtime kann ohne externen `IP_SALT` stabil starten und denselben Salt wiederverwenden.
+- [x] Bei inkonsistentem Zustand (z. B. Mismatch/abgebrochener Lauf) wird Salt rotiert und IP-bezogener State im gleichen Lauf bereinigt.
+- [x] `--rotate-ip-salt` ist aus Setup-/Deploy-Pfaden entfernt.
+- [x] `IP_SALT` ist kein regulärer Pflicht-/Override-Key in aktiven Betriebsconfigs mehr (nur Legacy-Übergang).
+- [x] Dokumentation beschreibt Betriebsmodus, Reset-Befehl und Migrationspfad.
+- [x] Testnachweise für Erfolgs- und Fehlerpfade liegen vor.
 
-## Nicht im Scope
+## Nicht im Scope (bewusst unverändert)
 - Allgemeine Änderungen am Rate-Limit-Fachverhalten außerhalb des Salt-/State-Lebenszyklus.
-- Produktions-Hardening jenseits der hier benötigten Dateirechte/Locking-Basis.
+- Flächige Runtime-Concurrency-Härtung über weitere `var/`-Bereiche.
 
-## Akzeptanzkriterien
-- Runtime kann ohne externen `IP_SALT` stabil starten und denselben Salt wiederverwenden.
-- Bei Fingerprint-Mismatch wird Salt rotiert und IP-bezogener State im gleichen Lauf bereinigt.
-- `--rotate-ip-salt` ist aus Setup-/Deploy-Pfaden entfernt.
-- `IP_SALT` ist kein regulärer Pflicht-/Override-Key in aktiven Betriebsconfigs mehr.
-- Dokumentation beschreibt Betriebsmodus, Reset-Befehl und Migrationspfad.
-- Testnachweise für Erfolgs- und Fehlerpfade liegen vor.
+## Übergabe an ISS-012
+- Gemeinsamer Einstiegspunkt für die Ausrollung ist der bestehende Runtime-Lock-Rahmen.
+- Nächster Fokus:
+  - Rate-Limit (`var/tmp/ratelimit`)
+  - CAPTCHA-Verify (`var/tmp/captcha`)
+  - Token-Rotation (`var/state/tokens`)
+- `AppContext::buildIpSaltRuntime` dient als Referenz für Komposition und Instanziierung des Lock-Runners.
 
 ## Abhängigkeiten
 - Story-Kontext:
@@ -63,23 +64,7 @@
 - Wirkt auf:
   - [ISS-005](ISS-005-preview-workflow-reenable-from-dev.md)
 - Folge-Issue:
-  - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md) (flächige Runtime-Concurrency-Haertung)
+  - [ISS-012](ISS-012-runtime-concurrency-locking-und-atomare-zugriffe.md)
 
-## Offene Punkte (Abgleich: feature/iss-011-runtime-ip-salt-management, Stand 2026-02-12)
-- Fehlender Konsistenzmarker für den IP-bezogenen Runtime-State (zusätzlich zum Salt/Fingerprint), um abgeschlossene vs. abgebrochene Reset-Läufe eindeutig zu unterscheiden.
-- Fehlende Recovery-Regel auf Basis dieses Markers (z. B. bei Neustart nach Abbruch), damit inkonsistenter Zwischenzustand deterministisch behandelt wird.
-
-## Entscheidungsfestlegung (Vorschlag, zur Freigabe)
-Stand: 2026-02-12
-
-- Für MVP ist ein Konsistenzmarker mit Recovery-Regel der primäre Stabilitätshebel für Runtime-State.
-- Der `IP_SALT`-Fingerprint wird für MVP nicht als primärer Stabilitätshebel behandelt.
-- Fingerprint kann nach MVP als zusätzlicher Guardrail erneut bewertet werden.
-
-### Entwurf: Konsistenzmodell (MVP)
-- Marker-Status mit festen Zuständen: `IN_PROGRESS`, `READY`.
-- Marker enthält mindestens: `generation`, `updated_at`.
-- Recovery-Regel: Inkonsistenter Markerzustand wird beim nächsten Lauf unter Lock deterministisch bereinigt.
-
-### Begründung
-- `var/` und `.local/` sind nicht VCS-validiert und benötigen eigene Laufzeit-Validierung für betriebswichtige Daten.
+## Ergänzende Doku
+- [Anlage: ISS-011/ISS-012 Näherung und Commit-Folge](ISS-011-012-anlage-naeherung-und-commitfolge.md)
