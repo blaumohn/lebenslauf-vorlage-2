@@ -57,6 +57,19 @@ Beispiele:
 - CI/CD kann Werte per `.local/<PIPELINE>-<PHASE>.yaml` bereitstellen oder ueberschreiben.
 - Required-Keys sollten in `src/resources/config/` liegen; `.local/` ist nur fuer Overrides/Secrets gedacht.
 
+## IP_SALT Laufzeitverwaltung
+
+- `IP_SALT` wird zur Laufzeit intern unter `var/state` verwaltet.
+- Runtime verwaltet den Zustand atomar in `var/state/ip_salt.state.json`.
+- Die State-Datei enthält `salt`, `fingerprint`, `status`, `generation`, `updated_at`.
+- Marker-Status:
+  - `IN_PROGRESS` während eines laufenden Reset-/Recovery-Schritts.
+  - `READY` nach erfolgreichem Abschluss.
+- Bei fehlendem Salt oder Fingerprint-Mismatch wird Salt rotiert und IP-bezogener State bereinigt:
+  - `var/tmp/captcha`
+  - `var/tmp/ratelimit`
+- Bewusste Rotation erfolgt ueber `php bin/cli ip-hash reset`.
+
 ## Smoke-Test-Parameter
 
 - `SMOKE_CACHE_ROOT` setzt optionale Cache-Verzeichnisse für Composer/NPM/PIP.

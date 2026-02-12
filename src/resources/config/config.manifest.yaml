@@ -68,13 +68,6 @@ variables:
         desc: "Absendername fuer SMTP"
         example: "Beispiel"
 
-  security:
-    IP_SALT:
-      sources: [system, local, file]
-      meta:
-        desc: "Salt fuer IP-Hashing"
-        example: "change-me"
-
   deploy:
     FTP_SERVER_DIR: {}
     FTP_PORT: {}
@@ -106,7 +99,7 @@ pipelines:
       allowed: [context, app, lebenslauf]
     runtime:
       required: [PIPELINE, PHASE]
-      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail, security]
+      allowed: [context, app, lebenslauf, captcha, contact, rate_limit, mail]
     deploy:
       required: [PIPELINE, PHASE]
       allowed: [context, deploy]
@@ -117,7 +110,6 @@ pipelines:
       allowed: []
     runtime:
       required:
-        - IP_SALT
         - CAPTCHA_MAX_GET
         - CONTACT_MAX_POST
         - RATE_LIMIT_WINDOW_SECONDS
@@ -134,7 +126,6 @@ pipelines:
       allowed: []
     runtime:
       required:
-        - IP_SALT
         - CAPTCHA_MAX_GET
         - CONTACT_MAX_POST
         - RATE_LIMIT_WINDOW_SECONDS
